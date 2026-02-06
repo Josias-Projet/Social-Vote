@@ -2042,33 +2042,42 @@ input, select, textarea {
         }
         
         function setActiveNavLinks() {
-            const path = (window.location.pathname.split('/').pop() || '/').toLowerCase();
+  // 1. Récupérer le chemin actuel (ex: "/" ou "/vote/" ou "/vote/index.html")
+  const path = window.location.pathname;
 
-            // Desktop
-            document.querySelectorAll('.nav-links a').forEach(a => {
-                const href = (a.getAttribute('href') || '').toLowerCase();
-                a.classList.toggle('active', href === path);
-            });
+  // 2. Sélectionner tous les liens du menu (desktop et mobile)
+  const links = document.querySelectorAll('.nav-links a, .mobile-menu a');
 
-            // Mobile
-            document.querySelectorAll('.mobile-menu a').forEach(a => {
-                const href = (a.getAttribute('href') || '').toLowerCase();
-                a.classList.toggle('active', href === path);
-            });
+  links.forEach(a => {
+    // Récupérer le lien cible
+    const href = a.getAttribute('href');
+    
+    // On enlève d'abord la classe active partout pour nettoyer
+    a.classList.remove('active');
 
-            // Feedback clic
-            const allLinks = [
-                ...document.querySelectorAll('.nav-links a'),
-                ...document.querySelectorAll('.mobile-menu a')
-            ];
-
-            allLinks.forEach(a => {
-                a.addEventListener('click', () => {
-                a.classList.add('clicked');
-                setTimeout(() => a.classList.remove('clicked'), 200);
-                });
-            });
+    // 3. Logique de comparaison intelligente
+    if (path === '/' || path.endsWith('/index.html') && path.split('/').length <= 2) {
+        // === CAS : PAGE D'ACCUEIL ===
+        // On active si le lien pointe vers la racine ou index.html
+        if (href === '/' || href === 'index.html' || href === './index.html' || href === '../index.html') {
+            // Vérification supplémentaire : ne pas activer si le lien contient un sous-dossier
+            if (!href.includes('/vote') && !href.includes('/history') && !href.includes('/referral')) {
+                a.classList.add('active');
+            }
         }
+    } else {
+        // === CAS : PAGES INTERNES (Dossiers) ===
+        // On récupère le nom du dossier actuel (ex: "vote" dans "/vote/")
+        // path.split('/') donne ["", "vote", ""] => on prend l'index 1
+        const currentFolder = path.split('/')[1]; 
+
+        // Si le lien contient le nom du dossier actuel, c'est le bon !
+        if (currentFolder && href.includes(currentFolder)) {
+            a.classList.add('active');
+        }
+    }
+  });
+}
 
         function updateUserStatusBar() {
             const userInfo = document.getElementById('userInfo');
