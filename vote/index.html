@@ -1625,6 +1625,33 @@ input, select, textarea {
 .modal { max-width: 95vw !important; }
 .modal-body { overflow-x: hidden; }
 
+/* =========================================
+   FIX TIMER MOBILE (Une seule ligne)
+   ========================================= */
+   @media (max-width: 576px) {
+    .timer {
+        flex-wrap: nowrap !important; /* Interdit le retour à la ligne */
+        gap: 6px !important;          /* Espace réduit entre les boîtes */
+        width: 100%;
+    }
+
+    .timer-box {
+        min-width: 0 !important;      /* Enlève la largeur minimale imposée */
+        padding: 8px 2px !important;  /* Réduit l'espace intérieur */
+        flex: 1;                      /* Force les 4 boîtes à avoir la même taille */
+    }
+
+    .timer-box .number {
+        font-size: 1.3rem !important; /* Chiffres plus petits */
+        line-height: 1.1;
+    }
+
+    .timer-box .label {
+        font-size: 0.6rem !important; /* Texte "Jours/Heures..." plus petit */
+        letter-spacing: 0 !important; /* Enlève l'espacement des lettres */
+        text-transform: capitalize;   /* Optionnel: Majuscule seulement au début */
+    }
+}
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
