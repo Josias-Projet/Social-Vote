@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact - Social Vote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="icon" type="image/png" href="assets/images/favicon.png">
+   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+      (function(){
+          // REMPLACE CECI PAR TA VRAIE CLÉ PUBLIQUE (trouvée dans Account > API Keys)
+          emailjs.init("jEOr2WlVW9Qw3GxL-"); 
+      })();
+    </script>
+    <style>
+    :root{
+      --primary:#0A1F44;--accent:#D4AF37;--white:#fff;--light-bg:#F8F9FA;
+      --gray:#6C757D;--dark:#343A40;--success:#28A745;--danger:#DC3545;--info:#17A2B8;
+      --shadow:0 4px 15px rgba(0,0,0,.1);--shadow-lg:0 10px 30px rgba(0,0,0,.15);
+      --transition:all .3s ease;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Poppins',sans-serif;background:var(--light-bg);color:var(--dark);line-height:1.6}
+
+    .navbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--primary);padding:10px 5%;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)}
+    .navbar-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .navbar-brand i{font-size:2rem;color:var(--accent)}
+    .navbar-brand span{font-size:1.5rem;font-weight:700;color:var(--accent)}
+    .nav-links{display:flex;gap:30px;list-style:none}
+    .nav-links a{color:var(--white);text-decoration:none;font-weight:500;transition:var(--transition)}
+    .nav-links a:hover,.nav-links a.active{color:var(--accent)}
+    .nav-auth{display:flex;gap:12px;align-items:center}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:25px;border:none;cursor:pointer;font-weight:600;text-decoration:none;transition:var(--transition);font-family:inherit}
+    .btn-primary{background:var(--accent);color:var(--primary)}
+    .btn-primary:hover{background:#C4A030;transform:translateY(-2px)}
+    .btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent)}
+    .btn-outline:hover{background:var(--accent);color:var(--primary)}
+    .btn-sm{padding:8px 16px;font-size:.85rem}
+
+    .menu-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer}
+    .menu-toggle span{width:25px;height:3px;background:var(--white)}
+    .mobile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none}
+    .mobile-overlay.active{display:block}
+    .mobile-menu{position:fixed;top:0;left:-100%;height:100vh;width:80%;max-width:320px;z-index:2001;background:var(--primary);padding:15px 20px 30px;transition:var(--transition)}
+    .mobile-menu.active{left:0}
+    .mobile-menu-close{position:absolute;top:20px;right:20px;background:none;border:none;color:var(--white);font-size:1.5rem;cursor:pointer}
+    .mobile-menu ul{list-style:none}
+    .mobile-menu li{margin-bottom:10px}
+    .mobile-menu a{color:var(--white);text-decoration:none;font-size:1.1rem}
+
+    .hero{padding:120px 5% 60px;background:linear-gradient(135deg,var(--primary),#1a3a6e);color:var(--white);text-align:center}
+    .hero h1{font-size:2.6rem;margin-bottom:12px}
+    .hero h1 span{color:var(--accent)}
+    .hero p{opacity:.9;max-width:720px;margin:0 auto}
+
+    .container{max-width:1200px;margin:0 auto;padding:50px 5%}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+    .card{background:var(--white);border-radius:18px;box-shadow:var(--shadow);padding:19px}
+    .card h2{color:var(--primary);margin-bottom:15px}
+    .channels{display:grid;gap:12px}
+    .channel{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--light-bg)}
+    .channel i{font-size:1.3rem;color:var(--accent);width:30px;text-align:center}
+    .channel a{color:var(--primary);font-weight:700; font-size:13px; text-decoration:none}
+    .channel small{display:block;color:var(--gray)}
+    .form-group{margin-bottom:14px}
+    label{display:block;font-weight:700;color:var(--primary);margin-bottom:6px;font-size:.9rem}
+    input,select,textarea{
+      width:100%;padding:12px 14px;border:2px solid #e0e0e0;border-radius:12px;font-family:inherit;font-size:1rem;
+      transition:var(--transition)
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,175,55,.15)}
+    textarea{min-height:140px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    .alert{display:flex;align-items:center;gap:10px;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+    .alert.success{background:rgba(40,167,69,.12);border:1px solid var(--success);color:var(--success)}
+    .alert.error{background:rgba(220,53,69,.12);border:1px solid var(--danger);color:var(--danger)}
+
+    .faq h3{color:var(--primary);margin:20px 0 10px}
+    .faq a{color:var(--accent);text-decoration:none;font-weight:700}
+    .hours{margin-top:16px;padding:14px;border-radius:14px;background:rgba(23,162,184,.08);border:1px solid rgba(23,162,184,.25)}
+    .hours strong{color:var(--primary)}
+    .footer{background:var(--primary);color:var(--white);padding:15px 5%;text-align:center;margin-top:30px}
+    .footer p{opacity:.85}
+    .footer a{color:var(--accent);text-decoration:none}
+
+    @media(max-width:992px){
+      .nav-links{display:none}.menu-toggle{display:flex}
+      .grid{grid-template-columns:1fr}
+    }
+    @media(max-width:576px){.row{grid-template-columns:1fr}}
+          .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-logo img {
+    height: 45px;
+    width: auto;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo img {
+        height: 40px;
+    }
+}
+
+.navbar-logo span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo span {
+        font-size: 1.35rem;
+    }
+}
+
+     
+     .nav-links a {
+        color: var(--white);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+        position: relative;            /* IMPORTANT pour la barre */
+        padding: 6px 0;
+        }
+
+        /* Hover */
+        .nav-links a:hover {
+        color: var(--accent);
+        }
+
+        /* Barre sous le lien (page active) */
+        .nav-links a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 100%;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* Couleur du lien actif */
+        .nav-links a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        /* Feedback clic (petit flash) */
+        .nav-links a.clicked {
+        opacity: 0.7;
+        }
+
+        .mobile-menu a {
+        color: var(--white);
+        text-decoration: none;
+        font-size: 1rem;
+        position: relative;
+        padding: 2px 0;
+        display: inline-block;
+        }
+
+        .mobile-menu a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        .mobile-menu a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        height: 1px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+
+        /* =========================================================
+   SOCIAL VOTE - GLOBAL RESPONSIVE PACK (ANDROID FIRST)
+   Colle ce bloc à la FIN du <style> de chaque page.
+   Objectif: 0 overflow, navbar clean, forms clean, mobile menu ok.
+   ========================================================= */
+
+html, body { max-width: 100%; overflow-x: hidden; }
+* { box-sizing: border-box; min-width: 0; }
+img, video, canvas { max-width: 100%; height: auto; }
+
+/* -------------------------
+   NAVBAR: mobile behavior
+   ------------------------- */
+
+/* Empêche les éléments navbar de déborder */
+.navbar {
+  max-width: 100%;
+  gap: 12px;
+}
+
+/* Sur petit écran, on cache les boutons auth dans la navbar
+   et on laisse le menu hamburger gérer l'auth */
+@media (max-width: 576px) {
+  .nav-auth { display: none !important; }
+}
+
+/* Si ton menu toggle n’apparaît pas partout, force-le sur mobile */
+@media (max-width: 992px) {
+  .menu-toggle { display: flex !important; }
+  .nav-links { display: none !important; }
+}
+
+/* -------------------------
+   BUTTONS: safe sizing
+   ------------------------- */
+.btn {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sur mobile: boutons plus petits, mais restent sur 1 ligne quand possible */
+@media (max-width: 576px) {
+  .btn { padding: 10px 14px !important; border-radius: 14px !important; font-size: .95rem !important; }
+  .btn-lg { padding: 12px 16px !important; font-size: 1rem !important; }
+  .btn-sm { padding: 9px 12px !important; font-size: .85rem !important; }
+}
+
+/* Autoriser le retour à la ligne uniquement sur les boutons "longs"
+   => ajoute class="btn-wrap" sur les boutons qui ont du texte long */
+.btn.btn-wrap { white-space: normal; line-height: 1.2; }
+
+/* -------------------------
+   LAYOUT: grids -> 1 col on mobile
+   ------------------------- */
+
+/* Beaucoup de tes pages utilisent .form-row => on force 1 colonne en mobile */
+@media (max-width: 576px) {
+  .form-row { grid-template-columns: 1fr !important; }
+}
+
+/* Tables: scroll horizontal */
+.table-container,
+.votes-table,
+.referrals-table,
+.candidates-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* -------------------------
+   FORMS: no overflow
+   ------------------------- */
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* input-group: ne doit pas dépasser */
+.input-group { width: 100%; max-width: 100%; }
+
+/* Referral input + bouton vérifier: stack sur mobile */
+@media (max-width: 576px) {
+  .referral-input-group { flex-direction: column !important; }
+  .referral-input-group .btn { width: 100% !important; }
+}
+
+/* Auth: double boutons (login/register) => stack sur très petit écran */
+@media (max-width: 420px) {
+  .auth-two-buttons { grid-template-columns: 1fr !important; }
+}
+
+/* Modals: éviter overflow */
+.modal { max-width: 95vw !important; }
+.modal-body { overflow-x: hidden; }
+
+
+    </style>
+
+<!-- ================= SEO & SOCIAL SHARING ================= -->
+<meta property="og:title" content="Social Vote - Ta communauté fait ta force">
+<meta property="og:description" content="Participez, votez pour vos candidats préférés et gagnez des prix exceptionnels !">
+<meta property="og:image" content="https://placehold.co/1200x630?text=Social+Vote"> <!-- Remplace par une belle image hébergée sur Cloudinary -->
+<meta property="og:url" content="https://ton-site.com">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <span class="navbar-logo"><img src="assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="/vote/">Voter</a></li>
+      <li><a href="/referral/">Parrainage</a></li>
+      <li><a href="/history/">Historique</a></li>
+      <li><a href="/sponsors/">Sponsors</a></li>
+      <li><a href="/contact/" class="active">Contact</a></li>
+    </ul>
+    <div class="nav-auth" id="navAuth">
+      <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+      <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">S'inscrire</a>
+    </div>
+    <div class="menu-toggle" id="menuToggle"><span></span><span></span><span></span></div>
+  </nav>
+
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" id="mobileMenuClose"><i class="fas fa-times"></i></button>
+    <ul>
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="/vote/">Voter</a></li>
+      <li><a href="/referral/">Parrainage</a></li>
+      <li><a href="/history/">Historique</a></li>
+      <li><a href="/sponsors/">Sponsors</a></li>
+      <li><a href="/contact/">Contact</a></li>
+    </ul>
+  </div>
+
+  <header class="hero">
+    <h1>Nous <span>Contacter</span></h1>
+    <p>Besoin d’aide ? Une question sur un jeu, un paiement, un vote ou un partenariat ? Contactez-nous via WhatsApp ou envoyez un message.</p>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <section class="card">
+        <h2><i class="fas fa-paper-plane" style="color:var(--accent)"></i> Formulaire de contact</h2>
+        <div id="formAlert"></div>
+        <form id="contactForm">
+          <div class="row">
+            <div class="form-group">
+              <label>Nom <span style="color:var(--danger)">*</span></label>
+              <input type="text" id="name" required placeholder="Votre nom" />
+            </div>
+            <div class="form-group">
+              <label>Email <span style="color:var(--danger)">*</span></label>
+              <input type="email" id="email" required placeholder="email@exemple.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Sujet</label>
+            <select id="subject">
+              <option value="Support">Support</option>
+              <option value="Paiement">Paiement</option>
+              <option value="Vote">Vote</option>
+              <option value="Parrainage">Parrainage</option>
+              <option value="Partenariat">Partenariat</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Message <span style="color:var(--danger)">*</span></label>
+            <textarea id="message" required placeholder="Décrivez votre demande..."></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">
+            <i class="fas fa-envelope"></i> Envoyer
+          </button>
+        </form>
+      </section>
+
+      <aside class="card">
+        <h2><i class="fas fa-headset" style="color:var(--accent)"></i> Canaux</h2>
+        <div class="channels">
+          <div class="channel">
+            <i class="fab fa-whatsapp"></i>
+            <div>
+              <a id="waLink" href="#" target="_blank">WhatsApp</a>
+              <small id="waNumber">—</small>
+            </div>
+          </div>
+          <div class="channel">
+            <i class="fas fa-phone"></i>
+            <div>
+              <a id="phoneLink" href="#">Téléphone</a>
+              <small id="phoneNumber">—</small>
+            </div>
+          </div>
+          <div class="channel">
+            <i class="fas fa-envelope"></i>
+            <div>
+              <a href="mailto:contact.socialvote@gmail.com">contact.socialvote@gmail.com</a>
+              <small>Email</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="hours">
+          <strong>Heures d'ouverture</strong>
+          <p style="color:var(--gray);margin-top:6px;">Lun - Sam : 08h00 - 20h00</p>
+        </div>
+
+        <div class="faq">
+          <h3>FAQ rapide</h3>
+          <p style="color:var(--gray)">Consultez aussi :</p>
+          <p><a href="/rules/">Règlement</a> • <a href="/vote/">Page de vote</a> • <a href="/referral/">Parrainage</a></p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2026 Social Vote. Tous droits réservés. | <a href="/rules/">Règlement</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const CONFIG = {
+      SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+      SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
+      DEFAULT_WHATSAPP: '2290190086267'
+    };
+    const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      setActiveNavLinks();
+      initMobileMenu();
+      // Créer le bouton WhatsApp flottant
+      createWhatsAppButton();
+      await checkAuth();
+      await loadPaymentSettingsForContacts();
+      initForm();
+    });
+
+    function initMobileMenu(){
+      const menuToggle = document.getElementById('menuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+      const mobileOverlay = document.getElementById('mobileOverlay');
+      const mobileMenuClose = document.getElementById('mobileMenuClose');
+      const open = ()=>{mobileMenu.classList.add('active');mobileOverlay.classList.add('active');}
+      const close = ()=>{mobileMenu.classList.remove('active');mobileOverlay.classList.remove('active');}
+      menuToggle.addEventListener('click', open);
+      mobileMenuClose.addEventListener('click', close);
+      mobileOverlay.addEventListener('click', close);
+    }
+
+    async function checkAuth(){
+      const session = localStorage.getItem('socialvote_session');
+      if(session){
+        currentUser = JSON.parse(session);
+        renderNavAuth();
+        const navAuth = document.getElementById('navAuth');
+        navAuth.innerHTML = `
+          <a href="/profile/" class="btn btn-outline btn-sm">
+            <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+          </a>
+          <button class="btn btn-primary btn-sm" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+          </button>
+        `;
+      }
+    }
+
+    function setActiveNavLinks() {
+      const path = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+      // Desktop
+      document.querySelectorAll('.nav-links a').forEach(a => {
+        const href = (a.getAttribute('href') || '').toLowerCase();
+        a.classList.toggle('active', href === path);
+      });
+
+      // Mobile
+      document.querySelectorAll('.mobile-menu a').forEach(a => {
+        const href = (a.getAttribute('href') || '').toLowerCase();
+        a.classList.toggle('active', href === path);
+      });
+
+      // Feedback clic
+      const allLinks = [
+        ...document.querySelectorAll('.nav-links a'),
+        ...document.querySelectorAll('.mobile-menu a')
+      ];
+
+      allLinks.forEach(a => {
+        a.addEventListener('click', () => {
+          a.classList.add('clicked');
+          setTimeout(() => a.classList.remove('clicked'), 200);
+        });
+      });
+    }
+    
+    function logout(){localStorage.removeItem('socialvote_session');location.reload();}
+
+    async function loadPaymentSettingsForContacts(){
+      try{
+        const { data, error } = await supabaseClient
+          .from('site_settings')
+          .select('setting_value')
+          .eq('setting_key','payment_info')
+          .single();
+        if(error) throw error;
+
+        const wa = (data?.setting_value?.whatsapp || CONFIG.DEFAULT_WHATSAPP).replace(/[^0-9]/g,'');
+        document.getElementById('waNumber').textContent = '+' + wa;
+        document.getElementById('waLink').href = `https://wa.me/${wa}`;
+
+        document.getElementById('phoneNumber').textContent = '+' + wa;
+        document.getElementById('phoneLink').href = `tel:+${wa}`;
+      }catch(e){
+        const wa = CONFIG.DEFAULT_WHATSAPP;
+        document.getElementById('waNumber').textContent = '+' + wa;
+        document.getElementById('waLink').href = `https://wa.me/${wa}`;
+        document.getElementById('phoneNumber').textContent = '+' + wa;
+        document.getElementById('phoneLink').href = `tel:+${wa}`;
+      }
+    }
+
+    function initForm() {
+    const form = document.getElementById('contactForm');
+    if (!form) return; // Sécurité si le formulaire n'existe pas
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value.trim();
+
+        if (!validateEmail(email)) {
+            return showAlert('Email invalide', 'error');
+        }
+
+        // On affiche un message de chargement (optionnel mais recommandé)
+        const btn = form.querySelector('button[type="submit"]');
+        const originalBtnText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+        btn.disabled = true;
+
+        try {
+            // 1. Sauvegarde en Base de Données (Supabase) - Historique Admin
+            const { error: dbError } = await supabaseClient
+                .from('contact_messages')
+                .insert([{ name, email, subject, message }]);
+            
+            if (dbError) {
+                console.error("Erreur DB:", dbError);
+                // On continue quand même pour essayer d'envoyer l'email
+            }
+
+            // 2. Envoi de l'email réel (EmailJS)
+            // Remplace "TA_CLE_PUBLIQUE" dans le <head> par ta vraie clé
+                // 2. Envoi de l'email réel (EmailJS)
+                await emailjs.send("service_oq0asyo", "template_a5s4o1c", {
+                name: name,       // Correspond à {{name}}
+                email: email,     // Correspond à {{email}}
+                subject: subject, // Correspond à {{subject}}
+                message: message, // Correspond à {{message}}
+                time: new Date().toLocaleString() // Correspond à {{time}} (bonus)
+            });
+
+            showAlert('Message envoyé avec succès. Nous vous répondrons rapidement.', 'success');
+            form.reset();
+
+        } catch (err) {
+            console.error("Erreur envoi:", err);
+            showAlert('Erreur lors de l’envoi. Vérifiez votre connexion et réessayez.', 'error');
+        } finally {
+            // Remettre le bouton à la normale
+            btn.innerHTML = originalBtnText;
+            btn.disabled = false;
+        }
+    });
+}
+
+    function validateEmail(email){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function showAlert(msg, type){
+      const el = document.getElementById('formAlert');
+      el.innerHTML = `
+        <div class="alert ${type}">
+          <i class="fas fa-${type==='success'?'check-circle':'exclamation-circle'}"></i>
+          <span>${msg}</span>
+        </div>
+      `;
+      setTimeout(()=>{el.innerHTML='';}, 5000);
+    }
+
+
+    function renderNavAuth() {
+  const navAuth = document.getElementById('navAuth');
+  if (!navAuth) return;
+
+  if (currentUser) {
+    navAuth.innerHTML = `
+      <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">
+        <i class="fas fa-star"></i> S'inscrire comme candidat
+      </a>
+      <a href="/profile/" class="btn btn-outline btn-sm">
+        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+      </a>
+      <button class="btn btn-outline btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    `;
+
+    // Mobile menu: remplacer Connexion/Inscription par Profil/Déconnexion
+    patchMobileMenuForLoggedIn();
+  } else {
+    navAuth.innerHTML = `
+      <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+      <a href="/auth/?tab=register" class="btn btn-primary btn-sm">S'inscrire</a>
+    `;
+
+    patchMobileMenuForLoggedOut();
+  }
+}
+
+function patchMobileMenuForLoggedIn() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  // Enlever anciens liens si présents
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  // Ajouter Profil + Déconnexion (si pas déjà)
+  const liProfile = document.createElement('li');
+  liProfile.setAttribute('data-auth-link', 'true');
+  liProfile.innerHTML = `<a href="/profile/">Mon Profil</a>`;
+
+  const liCandidate = document.createElement('li');
+  liCandidate.setAttribute('data-auth-link', 'true');
+  liCandidate.innerHTML = `<a href="/auth/?tab=candidate">S'inscrire comme candidat</a>`;
+
+  const liLogout = document.createElement('li');
+  liLogout.setAttribute('data-auth-link', 'true');
+  liLogout.innerHTML = `<a href="#" onclick="logout(); return false;">Déconnexion</a>`;
+
+  menu.appendChild(liCandidate);
+  menu.appendChild(liProfile);
+  menu.appendChild(liLogout);
+}
+
+function patchMobileMenuForLoggedOut() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  const liLogin = document.createElement('li');
+  liLogin.setAttribute('data-auth-link', 'true');
+  liLogin.innerHTML = `<a href="/auth/">Connexion</a>`;
+
+  const liRegister = document.createElement('li');
+  liRegister.setAttribute('data-auth-link', 'true');
+  liRegister.innerHTML = `<a href="/auth/?tab=register">S'inscrire</a>`;
+
+  menu.appendChild(liLogin);
+  menu.appendChild(liRegister);
+}
+
+// ==========================================
+// BOUTON WHATSAPP FLOTTANT
+// ==========================================
+
+function createWhatsAppButton() {
+  const whatsappBtn = document.createElement('a');
+  whatsappBtn.href = 'https://wa.me/2290190086267';
+  whatsappBtn.target = '_blank';
+  whatsappBtn.className = 'whatsapp-float';
+  whatsappBtn.innerHTML = `
+    <img src="https://img.icons8.com/?size=100&id=85088&format=png&color=000000" alt="WhatsApp" style="width: 100%; height: 100%;">
+  `;
+  whatsappBtn.style.cssText = `
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 40px;
+    height: 40px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 9998;
+    transition: all 0.3s ease;
+    padding: 9px;
+  `;
+  
+  whatsappBtn.addEventListener('mouseenter', () => {
+    whatsappBtn.style.transform = 'scale(1.1)';
+  });
+  
+  whatsappBtn.addEventListener('mouseleave', () => {
+    whatsappBtn.style.transform = 'scale(1)';
+  });
+  
+  document.body.appendChild(whatsappBtn);
+}
+  </script>
+</body>
+</html>

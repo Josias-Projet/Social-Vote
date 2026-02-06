@@ -1,0 +1,3245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - Social Vote</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+     <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <style>
+        /* ============================================
+           SOCIAL VOTE - PROFILE PAGE STYLES
+           ============================================ */
+        
+        :root {
+            --primary: #0A1F44;
+            --accent: #D4AF37;
+            --white: #FFFFFF;
+            --light-bg: #F8F9FA;
+            --gray: #6C757D;
+            --dark-gray: #343A40;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --info: #17A2B8;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --transition: all 0.3s ease;
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --bronze: #CD7F32;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--primary);
+            padding: 10px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .navbar-brand span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        
+        .nav-auth {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #C4A030;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-secondary {
+            background: var(--primary);
+            color: var(--white);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-lg {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--white);
+        }
+        
+        /* ========== PROFILE HEADER ========== */
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a3a6e 100%);
+            padding: 120px 5% 100px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="80" cy="20" r="15" fill="none" stroke="%23D4AF37" stroke-width="0.3" opacity="0.2"/></svg>') repeat;
+        }
+        
+        .profile-header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .profile-photo-container {
+            position: relative;
+        }
+        
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--accent);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .profile-photo-edit {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            color: var(--primary);
+        }
+        
+        .profile-photo-edit:hover {
+            transform: scale(1.1);
+        }
+        
+        .profile-photo-edit input {
+            display: none;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-info h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .profile-info .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .profile-info .joined-date {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        .profile-info .joined-date i {
+            margin-right: 8px;
+        }
+        
+        .profile-quick-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-stat {
+            text-align: center;
+        }
+        
+        .quick-stat .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+        
+        .quick-stat .label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        /* ========== PROFILE TABS ========== */
+        .profile-tabs-container {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 70px;
+            z-index: 100;
+        }
+        
+        .profile-tabs {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        
+        .profile-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .profile-tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 18px 25px;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            white-space: nowrap;
+        }
+        
+        .profile-tab:hover {
+            color: var(--primary);
+            background: var(--light-bg);
+        }
+        
+        .profile-tab.active {
+            color: var(--primary);
+        }
+        
+        .profile-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .profile-tab i {
+            font-size: 1.1rem;
+        }
+        
+        /* ========== PROFILE CONTENT ========== */
+        .profile-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 5%;
+        }
+        
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-panel.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ========== SECTION CARDS ========== */
+        .section-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .section-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .section-card-header h3 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-card-header h3 i {
+            color: var(--accent);
+        }
+        
+        /* ========== PROFILE INFO GRID ========== */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 12px;
+        }
+        
+        .info-item .icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .info-item .icon i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .info-item .text .label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .info-item .text .value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        /* ========== CANDIDATE CREDENTIALS ========== */
+        .credentials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .credential-card {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 15px;
+            padding: 20px;
+            color: var(--white);
+            text-align: center;
+        }
+        
+        .credential-card .label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+        
+        .credential-card .value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        
+        .credential-card .copy-btn {
+            margin-top: 10px;
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .credential-card .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* ========== PARTICIPATIONS ========== */
+        .participations-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .participation-card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        
+        .participation-card:hover {
+            box-shadow: var(--shadow);
+        }
+        
+        .participation-header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .participation-header h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .participation-header h4 i {
+            color: var(--accent);
+        }
+        
+        .participation-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .participation-status.active {
+            background: var(--success);
+        }
+        
+        .participation-status.ended {
+            background: var(--gray);
+        }
+        
+        .participation-status.pending {
+            background: var(--warning);
+            color: var(--primary);
+        }
+        
+        .participation-body {
+            padding: 20px;
+        }
+        
+        .participation-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .participation-stat {
+            text-align: center;
+            padding: 15px;
+            background: var(--white);
+            border-radius: 10px;
+        }
+        
+        .participation-stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .participation-stat .label {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .participation-stat.rank .value {
+            color: var(--accent);
+        }
+        
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .rank-badge.gold {
+            background: linear-gradient(135deg, var(--gold), #FFA500);
+            color: var(--primary);
+        }
+        
+        .rank-badge.silver {
+            background: linear-gradient(135deg, var(--silver), #A0A0A0);
+            color: var(--primary);
+        }
+        
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, var(--bronze), #8B4513);
+            color: var(--white);
+        }
+        
+        /* ========== VOTES HISTORY ========== */
+        .votes-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .votes-table thead {
+            background: var(--primary);
+            color: var(--white);
+        }
+        
+        .votes-table th,
+        .votes-table td {
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .votes-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: var(--transition);
+        }
+        
+        .votes-table tbody tr:hover {
+            background: var(--light-bg);
+        }
+        
+        .vote-type-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .vote-type-badge.free {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+        
+        .vote-type-badge.paid {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+        
+        .vote-type-badge.bonus {
+            background: rgba(212, 175, 55, 0.1);
+            color: #856404;
+        }
+        
+        .table-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .table-user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .table-user .name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .table-user .game {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        /* ========== STATISTICS ========== */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-box .icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        
+        .stat-box .icon i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .stat-box .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-box .label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .chart-container h4 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-container h4 i {
+            color: var(--accent);
+        }
+        
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+        
+        /* ========== REFERRAL STATS ========== */
+        .referral-overview {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 20px;
+            padding: 30px;
+            color: var(--white);
+            margin-bottom: 30px;
+        }
+        
+        .referral-overview h4 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .referral-overview h4 i {
+            color: var(--accent);
+        }
+        
+        .referral-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .referral-stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+        
+        .referral-stat-item .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .referral-stat-item .label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        /* ========== SETTINGS ========== */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+        
+        .settings-section h4 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-bg);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-group label .required {
+            color: var(--danger);
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .input-group input,
+        .input-group select,
+        .input-group textarea {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-switch .info h5 {
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+        
+        .toggle-switch .info p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: var(--transition);
+            border-radius: 26px;
+        }
+        
+        .toggle-slider::before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+        
+        .toggle input:checked + .toggle-slider {
+            background-color: var(--success);
+        }
+        
+        .toggle input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+        
+        .danger-zone {
+            background: rgba(220, 53, 69, 0.05);
+            border: 2px solid var(--danger);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .danger-zone h4 {
+            color: var(--danger);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .danger-zone p {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        /* ========== PAYMENT STATUS ========== */
+        .payment-status-card {
+            background: var(--light-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .payment-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .payment-info .icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .payment-info .icon i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        .payment-info .details h5 {
+            color: var(--primary);
+        }
+        
+        .payment-info .details p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .payment-amount {
+            text-align: right;
+        }
+        
+        .payment-amount .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .payment-amount .status {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .payment-amount .status.paid {
+            color: var(--success);
+        }
+        
+        .payment-amount .status.pending {
+            color: var(--warning);
+        }
+        
+        /* ========== ALERTS ========== */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+            border: 1px solid var(--warning);
+        }
+        
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+        
+        /* ========== NO DATA ========== */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+        
+        .no-data i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .no-data h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        /* ========== MODALS ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--white);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 20px 25px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        /* ========== LOADING ========== */
+        .loading {
+            text-align: center;
+            padding: 60px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light-bg);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ========== TOAST ========== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+        
+        .toast {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        /* ========== FOOTER ========== */
+        .footer {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 5%;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 992px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .profile-header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-info {
+                text-align: center;
+            }
+            
+            .profile-quick-stats {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .profile-header {
+                padding: 100px 5% 80px;
+            }
+            
+            .profile-photo {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .profile-info h1 {
+                font-size: 1.8rem;
+            }
+            
+            .profile-tab {
+                min-width: 120px;
+                padding: 15px;
+                font-size: 0.85rem;
+            }
+            
+            .profile-tab span {
+                display: none;
+            }
+            
+            .votes-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .section-card {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .credentials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .payment-status-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .payment-info {
+                flex-direction: column;
+            }
+            
+            .payment-amount {
+                text-align: center;
+            }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--primary);
+            z-index: 2001;
+            transition: var(--transition);
+            padding: 15px 20px 30px;
+        }
+        
+        .mobile-menu.active {
+            left: 0;
+        }
+        
+        .mobile-menu ul {
+            list-style: none;
+        }
+        
+        .mobile-menu ul li {
+            margin-bottom: 3px;
+        }
+        
+        .mobile-menu ul a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .mobile-overlay.active {
+            display: block;
+        }
+            .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-logo img {
+    height: 45px;
+    width: auto;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo img {
+        height: 40px;
+    }
+}
+
+.navbar-logo span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo span {
+        font-size: 1.35rem;
+    }
+}
+    
+     .nav-links a {
+        color: var(--white);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+        position: relative;            /* IMPORTANT pour la barre */
+        padding: 6px 0;
+        }
+
+        /* Hover */
+        .nav-links a:hover {
+        color: var(--accent);
+        }
+
+        /* Barre sous le lien (page active) */
+        .nav-links a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 100%;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* Couleur du lien actif */
+        .nav-links a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        /* Feedback clic (petit flash) */
+        .nav-links a.clicked {
+        opacity: 0.7;
+        }
+
+        .mobile-menu a {
+        color: var(--white);
+        text-decoration: none;
+        font-size: 1.2rem;
+        position: relative;
+        padding: 6px 0;
+        display: inline-block;
+        }
+
+        .mobile-menu a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        .mobile-menu a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        height: 1px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* =========================================================
+   SOCIAL VOTE - GLOBAL RESPONSIVE PACK (ANDROID FIRST)
+   Colle ce bloc à la FIN du <style> de chaque page.
+   Objectif: 0 overflow, navbar clean, forms clean, mobile menu ok.
+   ========================================================= */
+
+html, body { max-width: 100%; overflow-x: hidden; }
+* { box-sizing: border-box; min-width: 0; }
+img, video, canvas { max-width: 100%; height: auto; }
+
+/* -------------------------
+   NAVBAR: mobile behavior
+   ------------------------- */
+
+/* Empêche les éléments navbar de déborder */
+.navbar {
+  max-width: 100%;
+  gap: 12px;
+}
+
+/* Sur petit écran, on cache les boutons auth dans la navbar
+   et on laisse le menu hamburger gérer l'auth */
+@media (max-width: 576px) {
+  .nav-auth { display: none !important; }
+}
+
+/* Si ton menu toggle n’apparaît pas partout, force-le sur mobile */
+@media (max-width: 992px) {
+  .menu-toggle { display: flex !important; }
+  .nav-links { display: none !important; }
+}
+
+/* -------------------------
+   BUTTONS: safe sizing
+   ------------------------- */
+.btn {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sur mobile: boutons plus petits, mais restent sur 1 ligne quand possible */
+@media (max-width: 576px) {
+  .btn { padding: 10px 14px !important; border-radius: 14px !important; font-size: .95rem !important; }
+  .btn-lg { padding: 12px 16px !important; font-size: 1rem !important; }
+  .btn-sm { padding: 9px 12px !important; font-size: .85rem !important; }
+}
+
+/* Autoriser le retour à la ligne uniquement sur les boutons "longs"
+   => ajoute class="btn-wrap" sur les boutons qui ont du texte long */
+.btn.btn-wrap { white-space: normal; line-height: 1.2; }
+
+/* -------------------------
+   LAYOUT: grids -> 1 col on mobile
+   ------------------------- */
+
+/* Beaucoup de tes pages utilisent .form-row => on force 1 colonne en mobile */
+@media (max-width: 576px) {
+  .form-row { grid-template-columns: 1fr !important; }
+}
+
+/* Tables: scroll horizontal */
+.table-container,
+.votes-table,
+.referrals-table,
+.candidates-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* -------------------------
+   FORMS: no overflow
+   ------------------------- */
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* input-group: ne doit pas dépasser */
+.input-group { width: 100%; max-width: 100%; }
+
+/* Referral input + bouton vérifier: stack sur mobile */
+@media (max-width: 576px) {
+  .referral-input-group { flex-direction: column !important; }
+  .referral-input-group .btn { width: 100% !important; }
+}
+
+/* Auth: double boutons (login/register) => stack sur très petit écran */
+@media (max-width: 420px) {
+  .auth-two-buttons { grid-template-columns: 1fr !important; }
+}
+
+/* Modals: éviter overflow */
+.modal { max-width: 95vw !important; }
+.modal-body { overflow-x: hidden; }
+
+    </style>
+
+<!-- ================= SEO & SOCIAL SHARING ================= -->
+<meta property="og:title" content="Social Vote - Ta communauté fait ta force">
+<meta property="og:description" content="Participez, votez pour vos candidats préférés et gagnez des prix exceptionnels !">
+<meta property="og:image" content="https://placehold.co/1200x630?text=Social+Vote"> <!-- Remplace par une belle image hébergée sur Cloudinary -->
+<meta property="og:url" content="https://ton-site.com">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+<body>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <span class="navbar-logo"><img src="assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/vote/">Voter</a></li>
+            <li><a href="/referral/">Parrainage</a></li>
+            <li><a href="/history/">Historique</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
+        </ul>
+        
+        <div class="nav-auth" id="navAuth">
+            <button class="btn btn-danger btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Déconnexion
+            </button>
+        </div>
+        
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileMenuClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/vote/">Voter</a></li>
+            <li><a href="/referral/">Parrainage</a></li>
+            <li><a href="/history/">Historique</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="#" onclick="logout()">Déconnexion</a></li>
+        </ul>
+    </div>
+    
+    <!-- ========== PROFILE HEADER ========== -->
+    <section class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-photo-container">
+                <img src="https://placehold.co/150x150?text=Photo" alt="Photo de profil" class="profile-photo" id="profilePhoto">
+                <button class="profile-photo-edit" onclick="document.getElementById('photoInput').click()">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" id="photoInput" accept="image/*" onchange="updateProfilePhoto(this)">
+                </button>
+            </div>
+            
+            <div class="profile-info">
+                <h1 id="userName">Chargement...</h1>
+                <span class="role-badge" id="userRole">
+                    <i class="fas fa-user"></i>
+                    <span>Utilisateur</span>
+                </span>
+                <p class="joined-date" id="joinedDate">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Membre depuis ...</span>
+                </p>
+                
+                <div class="profile-quick-stats" id="quickStats">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ========== PROFILE TABS ========== -->
+    <div class="profile-tabs-container">
+        <div class="profile-tabs">
+            <button class="profile-tab active" data-tab="profile">
+                <i class="fas fa-user"></i>
+                <span>Mon Profil</span>
+            </button>
+            <button class="profile-tab" data-tab="participations" id="participationsTab">
+                <i class="fas fa-gamepad"></i>
+                <span>Mes Participations</span>
+            </button>
+            <button class="profile-tab" data-tab="votes">
+                <i class="fas fa-vote-yea"></i>
+                <span>Mes Votes</span>
+            </button>
+            <button class="profile-tab" data-tab="statistics">
+                <i class="fas fa-chart-bar"></i>
+                <span>Statistiques</span>
+            </button>
+            <button class="profile-tab" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Paramètres</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- ========== PROFILE CONTENT ========== -->
+    <main class="profile-content">
+        <!-- TAB: Mon Profil -->
+        <div class="tab-panel active" id="profilePanel">
+            <div id="profileContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement du profil...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Mes Participations -->
+        <div class="tab-panel" id="participationsPanel">
+            <div id="participationsContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des participations...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Mes Votes -->
+        <div class="tab-panel" id="votesPanel">
+            <div id="votesContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des votes...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Statistiques -->
+        <div class="tab-panel" id="statisticsPanel">
+            <div id="statisticsContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des statistiques...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB: Paramètres -->
+        <div class="tab-panel" id="settingsPanel">
+            <div id="settingsContent">
+                <!-- Settings form -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- ========== CHANGE PASSWORD MODAL ========== -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-lock"></i> Changer le mot de passe</h3>
+                <button class="modal-close" onclick="closeModal('passwordModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="passwordAlert"></div>
+                <form id="passwordForm" onsubmit="changePassword(event)">
+                    <div class="form-group">
+                        <label>Mot de passe actuel <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nouveau mot de passe <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="newPassword" required minlength="6">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="confirmNewPassword" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('passwordModal')">Annuler</button>
+                <button class="btn btn-primary" onclick="document.getElementById('passwordForm').requestSubmit()">
+                    <i class="fas fa-check"></i>
+                    Changer
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== DELETE ACCOUNT MODAL ========== -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header" style="background: var(--danger);">
+                <h3><i class="fas fa-exclamation-triangle"></i> Supprimer le compte</h3>
+                <button class="modal-close" onclick="closeModal('deleteModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Cette action est irréversible. Toutes vos données seront supprimées.</span>
+                </div>
+                <p style="margin-bottom: 20px;">Pour confirmer, tapez <strong>SUPPRIMER</strong> ci-dessous :</p>
+                <div class="form-group">
+                    <div class="input-group">
+                        <i class="fas fa-keyboard"></i>
+                        <input type="text" id="deleteConfirmation" placeholder="Tapez SUPPRIMER">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('deleteModal')">Annuler</button>
+                <button class="btn btn-danger" onclick="deleteAccount()">
+                    <i class="fas fa-trash"></i>
+                    Supprimer définitivement
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== TOAST CONTAINER ========== -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <p>&copy; 2026 Social Vote. Tous droits réservés. | <a href="/rules/">Règlement</a> | <a href="/contact/">Contact</a></p>
+    </footer>
+    
+    <!-- ========== SCRIPTS ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const CONFIG = {
+            SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
+            CLOUDINARY_CLOUD_NAME: 'drvkea88c',
+            CLOUDINARY_UPLOAD_PRESET: 'social_vote_uploads'
+        };
+        
+        // Initialisation Supabase
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        let currentUser = null;
+        let candidateProfile = null;
+        let participations = [];
+        let userVotes = [];
+        let referralData = null;
+        
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            setActiveNavLinks();
+            initMobileMenu();
+            initTabs();
+            // Créer le bouton WhatsApp flottant
+            createWhatsAppButton();
+            await checkAuth();
+        });
+        
+        // ============================================
+        // AUTHENTIFICATION
+        // ============================================
+        async function checkAuth() {
+            try {
+                const session = localStorage.getItem('socialvote_session');
+                if (!session) {
+                    window.location.href = '/auth/';
+                    return;
+                }
+                
+                currentUser = JSON.parse(session);
+                renderNavAuth();
+                // Recharger les données utilisateur depuis la DB
+                const { data: userData, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (error || !userData) {
+                    localStorage.removeItem('socialvote_session');
+                    window.location.href = '/auth/';
+                    return;
+                }
+                
+                currentUser = userData;
+                localStorage.setItem('socialvote_session', JSON.stringify(userData));
+                
+                // Vérifier si candidat
+                const { data: profile } = await supabaseClient
+                    .from('candidate_profiles')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .single();
+                
+                if (profile) {
+                    candidateProfile = profile;
+                }
+
+                if (candidateProfile) {
+            try {
+                const computed = await recalcCandidateStats(candidateProfile.id);
+
+                // Mettre à jour l’objet candidateProfile local (pour l’affichage)
+                candidateProfile.total_votes_received = computed.totalVotesReceived;
+                candidateProfile.total_victories = computed.victories;
+                candidateProfile.total_games_played = computed.gamesPlayed;
+
+                // garder entries global si tu veux
+                participations = computed.entries || [];
+
+            } catch (e) {
+                console.error('Recalc stats error:', e);
+            }
+            }
+                
+                // Afficher l'en-tête
+                displayProfileHeader();
+                
+                // Charger le contenu de l'onglet actif
+                loadTabContent('profile');
+                
+            } catch (error) {
+                console.error('Erreur auth:', error);
+                window.location.href = '/auth/';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('socialvote_session');
+            window.location.href = 'index.html';
+        }
+        
+        function setActiveNavLinks() {
+            const path = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+            // Desktop
+            document.querySelectorAll('.nav-links a').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                a.classList.toggle('active', href === path);
+            });
+
+            // Mobile
+            document.querySelectorAll('.mobile-menu a').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                a.classList.toggle('active', href === path);
+            });
+
+            // Feedback clic
+            const allLinks = [
+                ...document.querySelectorAll('.nav-links a'),
+                ...document.querySelectorAll('.mobile-menu a')
+            ];
+
+            allLinks.forEach(a => {
+                a.addEventListener('click', () => {
+                a.classList.add('clicked');
+                setTimeout(() => a.classList.remove('clicked'), 200);
+                });
+            });
+        }
+
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        function initMobileMenu() {
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                mobileOverlay.classList.add('active');
+            });
+            
+            const closeMenu = () => {
+                mobileMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+            };
+            
+            mobileMenuClose.addEventListener('click', closeMenu);
+            mobileOverlay.addEventListener('click', closeMenu);
+        }
+        
+        // ============================================
+        // TABS
+        // ============================================
+        function initTabs() {
+            const tabs = document.querySelectorAll('.profile-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    
+                    // Update tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update panels
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById(tabName + 'Panel').classList.add('active');
+                    
+                    // Load content
+                    loadTabContent(tabName);
+                });
+            });
+            
+            // Masquer l'onglet participations si pas candidat
+            if (!candidateProfile) {
+                document.getElementById('participationsTab').style.display = 'none';
+            }
+        }
+        
+        function loadTabContent(tabName) {
+            switch (tabName) {
+                case 'profile':
+                    renderProfileTab();
+                    break;
+                case 'participations':
+                    renderParticipationsTab();
+                    break;
+                case 'votes':
+                    renderVotesTab();
+                    break;
+                case 'statistics':
+                    renderStatisticsTab();
+                    break;
+                case 'settings':
+                    renderSettingsTab();
+                    break;
+            }
+        }
+        
+        // ============================================
+        // PROFILE HEADER
+        // ============================================
+        function displayProfileHeader() {
+            document.getElementById('profilePhoto').src = currentUser.photo_url || 'https://placehold.co/150x150?text=Photo';
+            document.getElementById('userName').textContent = currentUser.full_name;
+            
+            const roleText = currentUser.role === 'candidate' ? 'Candidat' : 
+                             currentUser.role === 'admin' ? 'Administrateur' : 'Utilisateur';
+            const roleIcon = currentUser.role === 'candidate' ? 'star' : 
+                             currentUser.role === 'admin' ? 'shield-alt' : 'user';
+            
+            document.getElementById('userRole').innerHTML = `
+                <i class="fas fa-${roleIcon}"></i>
+                <span>${roleText}</span>
+            `;
+            
+            document.getElementById('joinedDate').innerHTML = `
+                <i class="fas fa-calendar-alt"></i>
+                <span>Membre depuis ${formatDate(currentUser.created_at)}</span>
+            `;
+            
+            // Quick stats
+            const quickStats = document.getElementById('quickStats');
+            if (candidateProfile) {
+                quickStats.innerHTML = `
+                    <div class="quick-stat">
+                        <span class="value">${candidateProfile.total_games_played || 0}</span>
+                        <span class="label">Jeux</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="value">${candidateProfile.total_votes_received || 0}</span>
+                        <span class="label">Votes reçus</span>
+                    </div>
+                    <div class="quick-stat">
+                        <span class="value">${candidateProfile.total_victories || 0}</span>
+                        <span class="label">Victoires</span>
+                    </div>
+                `;
+            }
+            
+            // Afficher l'onglet participations si candidat
+            if (candidateProfile) {
+                document.getElementById('participationsTab').style.display = 'flex';
+            }
+        }
+        
+        // ============================================
+        // TAB: PROFIL
+        // ============================================
+        async function renderProfileTab() {
+            const container = document.getElementById('profileContent');
+            
+            container.innerHTML = `
+                <!-- Personal Info -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h3><i class="fas fa-user-circle"></i> Informations Personnelles</h3>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="icon"><i class="fas fa-user"></i></div>
+                            <div class="text">
+                                <span class="label">Nom complet</span>
+                                <span class="value">${currentUser.full_name}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="icon"><i class="fas fa-envelope"></i></div>
+                            <div class="text">
+                                <span class="label">Email</span>
+                                <span class="value">${currentUser.email}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="icon"><i class="fas fa-phone"></i></div>
+                            <div class="text">
+                                <span class="label">Téléphone</span>
+                                <span class="value">${currentUser.phone || 'Non renseigné'}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="icon"><i class="fab fa-whatsapp"></i></div>
+                            <div class="text">
+                                <span class="label">WhatsApp</span>
+                                <span class="value">${currentUser.whatsapp_number || 'Non renseigné'}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="icon"><i class="fas fa-wallet"></i></div>
+                            <div class="text">
+                                <span class="label">Mobile Money</span>
+                                <span class="value">${currentUser.mobile_money_number || 'Non renseigné'} ${currentUser.mobile_money_type ? `(${currentUser.mobile_money_type})` : ''}</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="icon"><i class="fas fa-calendar"></i></div>
+                            <div class="text">
+                                <span class="label">Dernière connexion</span>
+                                <span class="value">${currentUser.last_login ? formatDateTime(currentUser.last_login) : 'Première connexion'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${candidateProfile ? `
+                    <!-- Candidate Credentials -->
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h3><i class="fas fa-id-card"></i> Identifiants Candidat</h3>
+                            <span class="role-badge" style="background: var(--success); padding: 5px 15px; font-size: 0.8rem;">
+                                <i class="fas fa-check-circle"></i> Candidat vérifié
+                            </span>
+                        </div>
+                        
+                        <div class="credentials-grid">
+                            <div class="credential-card">
+                                <p class="label">Nom d'utilisateur</p>
+                                <p class="value">${candidateProfile.username}</p>
+                            </div>
+                            <div class="credential-card">
+                                <p class="label">Code Secret</p>
+                                <p class="value">${candidateProfile.secret_code}</p>
+                            </div>
+                            <div class="credential-card">
+                                <p class="label">Code de Parrainage</p>
+                                <p class="value">${candidateProfile.referral_code}</p>
+                                <button class="copy-btn" onclick="copyToClipboard('${candidateProfile.referral_code}')">
+                                    <i class="fas fa-copy"></i> Copier
+                                </button>
+                            </div>
+                        </div>
+                        
+                        ${candidateProfile.biography ? `
+                            <div style="margin-top: 20px; padding: 20px; background: var(--light-bg); border-radius: 10px;">
+                                <h5 style="color: var(--primary); margin-bottom: 10px;"><i class="fas fa-quote-left" style="color: var(--accent);"></i> Biographie</h5>
+                                <p style="color: var(--gray);">${candidateProfile.biography}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Referral Payment Status -->
+                    ${await renderReferralPaymentStatus()}
+                ` : `
+                    <!-- Become Candidate CTA -->
+                    <div class="section-card" style="text-align: center;">
+                        <div class="icon" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary), #1a3a6e); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                            <i class="fas fa-star" style="font-size: 2rem; color: var(--accent);"></i>
+                        </div>
+                        <h3 style="color: var(--primary); margin-bottom: 10px;">Devenez Candidat !</h3>
+                        <p style="color: var(--gray); margin-bottom: 20px;">Participez aux compétitions de votes et gagnez des prix exceptionnels.</p>
+                        <a href="/auth/?tab=candidate" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket"></i>
+                            S'inscrire comme Candidat
+                        </a>
+                    </div>
+                `}
+            `;
+        }
+        
+        async function renderReferralPaymentStatus() {
+            try {
+                const { data: payments } = await supabaseClient
+                    .from('referral_payments')
+                    .select('*, games(title)')
+                    .eq('referrer_id', candidateProfile.id)
+                    .order('created_at', { ascending: false });
+                
+                if (!payments || payments.length === 0) return '';
+                
+                return `
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h3><i class="fas fa-wallet"></i> Statut des Paiements Parrainage</h3>
+                        </div>
+                        
+                        ${payments.map(payment => `
+                            <div class="payment-status-card">
+                                <div class="payment-info">
+                                    <div class="icon">
+                                        <i class="fas fa-${payment.payment_status === 'paid' ? 'check-circle' : 'clock'}"></i>
+                                    </div>
+                                    <div class="details">
+                                        <h5>${payment.games?.title || 'Jeu'}</h5>
+                                        <p>${payment.referral_count} filleuls</p>
+                                    </div>
+                                </div>
+                                <div class="payment-amount">
+                                    <span class="amount">${payment.bonus_amount?.toLocaleString() || 0} FCFA</span>
+                                    <p class="status ${payment.payment_status}">
+                                        <i class="fas fa-${payment.payment_status === 'paid' ? 'check' : 'clock'}"></i>
+                                        ${payment.payment_status === 'paid' ? 'Payé' : 'En attente'}
+                                    </p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Erreur paiements:', error);
+                return '';
+            }
+        }
+        
+        // ============================================
+        // TAB: PARTICIPATIONS
+        // ============================================
+        async function renderParticipationsTab() {
+            const container = document.getElementById('participationsContent');
+            
+            if (!candidateProfile) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-user-slash"></i>
+                        <h4>Non disponible</h4>
+                        <p>Vous devez être candidat pour voir vos participations.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                const { data: entries, error } = await supabaseClient
+                    .from('game_entries')
+                    .select(`
+                        *,
+                        games (title, status, start_time, end_time, winners_count)
+                    `)
+                    .eq('candidate_id', candidateProfile.id)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                participations = entries || [];
+                
+                if (participations.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-gamepad"></i>
+                            <h4>Aucune participation</h4>
+                            <p>Vous n'avez participé à aucun jeu pour le moment.</p>
+                            <a href="/auth/?tab=candidate" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-plus"></i>
+                                Participer à un jeu
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Calculer les rangs
+                for (let entry of participations) {
+                    const { data: allEntries } = await supabaseClient
+                        .from('game_entries')
+                        .select('id, total_votes')
+                        .eq('game_id', entry.game_id)
+                        .eq('status', 'approved')
+                        .order('total_votes', { ascending: false });
+                    
+                    if (allEntries) {
+                        entry.rank = allEntries.findIndex(e => e.id === entry.id) + 1;
+                        entry.totalParticipants = allEntries.length;
+                    }
+                }
+                
+                container.innerHTML = `
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h3><i class="fas fa-trophy"></i> Mes Participations (${participations.length})</h3>
+                        </div>
+                        
+                        <div class="participations-list">
+                            ${participations.map(entry => {
+                                const game = entry.games;
+                                const statusClass = game.status === 'active' ? 'active' : 
+                                                   game.status === 'pending' ? 'pending' : 'ended';
+                                const statusText = game.status === 'active' ? 'En cours' : 
+                                                  game.status === 'pending' ? 'En attente' : 'Terminé';
+                                
+                                const isWinner = entry.rank <= (game.winners_count || 3);
+                                const rankClass = entry.rank === 1 ? 'gold' : 
+                                                 entry.rank === 2 ? 'silver' : 
+                                                 entry.rank === 3 ? 'bronze' : '';
+                                
+                                return `
+                                    <div class="participation-card">
+                                        <div class="participation-header">
+                                            <h4><i class="fas fa-gamepad"></i> ${game.title}</h4>
+                                            <span class="participation-status ${statusClass}">${statusText}</span>
+                                        </div>
+                                        <div class="participation-body">
+                                            <div class="participation-stats">
+                                                <div class="participation-stat rank">
+                                                    <span class="value">#${entry.rank || '?'}</span>
+                                                    <span class="label">Classement</span>
+                                                </div>
+                                                <div class="participation-stat">
+                                                    <span class="value">${entry.total_votes || 0}</span>
+                                                    <span class="label">Total Votes</span>
+                                                </div>
+                                                <div class="participation-stat">
+                                                    <span class="value">${entry.free_votes || 0}</span>
+                                                    <span class="label">Gratuits</span>
+                                                </div>
+                                                <div class="participation-stat">
+                                                    <span class="value">${entry.paid_votes || 0}</span>
+                                                    <span class="label">Payants</span>
+                                                </div>
+                                                <div class="participation-stat">
+                                                    <span class="value">${entry.referral_bonus_votes || 0}</span>
+                                                    <span class="label">Bonus</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                                                <div>
+                                                    <p style="color: var(--gray); font-size: 0.9rem;">
+                                                        <i class="fas fa-users"></i> ${entry.totalParticipants || 0} participants
+                                                        &nbsp;&bull;&nbsp;
+                                                        <i class="fas fa-calendar"></i> ${formatDate(game.start_time)} - ${formatDate(game.end_time)}
+                                                    </p>
+                                                </div>
+                                                ${isWinner && game.status !== 'active' ? `
+                                                    <span class="rank-badge ${rankClass}">
+                                                        <i class="fas fa-trophy"></i>
+                                                        ${entry.rank === 1 ? '1er Prix' : entry.rank === 2 ? '2ème Prix' : '3ème Prix'}
+                                                    </span>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Erreur participations:', error);
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Erreur lors du chargement des participations.</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // ============================================
+        // TAB: VOTES
+        // ============================================
+        async function renderVotesTab() {
+            const container = document.getElementById('votesContent');
+            
+            try {
+                const { data: votes, error } = await supabaseClient
+                .from('votes')
+                    .select(`
+                    id, game_id, candidate_entry_id, vote_type, vote_count, amount_paid, voted_at,
+                    games:game_id (title),
+                    candidate:game_entries!votes_candidate_entry_id_fkey (
+                        candidate_number,
+                        users:user_id (full_name, photo_url)
+                    )
+                    `)
+                    .eq('voter_id', currentUser.id)
+                    .order('voted_at', { ascending: false })
+                    .limit(50);
+                
+                if (error) throw error;
+                
+                userVotes = votes || [];
+                
+                if (userVotes.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-data">
+                            <i class="fas fa-vote-yea"></i>
+                            <h4>Aucun vote</h4>
+                            <p>Vous n'avez encore voté pour aucun candidat.</p>
+                            <a href="/vote/" class="btn btn-primary" style="margin-top: 20px;">
+                                <i class="fas fa-vote-yea"></i>
+                                Voter maintenant
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Calculer les totaux
+                const totalVotes = userVotes.reduce((sum, v) => sum + (v.vote_count || 1), 0);
+                const freeVotes = userVotes.filter(v => v.vote_type === 'free').length;
+                const paidVotes = userVotes.filter(v => v.vote_type === 'paid').reduce((sum, v) => sum + (v.vote_count || 1), 0);
+                
+                container.innerHTML = `
+                    <div class="section-card">
+                        <div class="section-card-header">
+                            <h3><i class="fas fa-vote-yea"></i> Mes Votes (${totalVotes})</h3>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                            <div class="participation-stat" style="background: var(--light-bg); padding: 20px; border-radius: 10px; text-align: center;">
+                                <span class="value" style="color: var(--success);">${freeVotes}</span>
+                                <span class="label">Votes Gratuits</span>
+                            </div>
+                            <div class="participation-stat" style="background: var(--light-bg); padding: 20px; border-radius: 10px; text-align: center;">
+                                <span class="value" style="color: var(--info);">${paidVotes}</span>
+                                <span class="label">Votes Payants</span>
+                            </div>
+                            <div class="participation-stat" style="background: var(--light-bg); padding: 20px; border-radius: 10px; text-align: center;">
+                                <span class="value" style="color: var(--primary);">${totalVotes}</span>
+                                <span class="label">Total</span>
+                            </div>
+                        </div>
+                        
+                        <div style="overflow-x: auto;">
+                            <table class="votes-table">
+                                <thead>
+                                    <tr>
+                                        <th>Candidat</th>
+                                        <th>Jeu</th>
+                                        <th>Type</th>
+                                        <th>Votes</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${userVotes.map(vote => `
+                                        <tr>
+                                            <td>
+                                                <div class="table-user">
+                                                    <img src="${vote.candidate?.users?.photo_url || 'https://placehold.co/40x40?text=U'}" 
+                                                         alt="${vote.candidate?.users?.full_name}">
+                                                    <div>
+                                                        <span class="name">${vote.candidate?.users?.full_name || 'Candidat'}</span>
+                                                        <span class="game">${vote.candidate?.candidate_number || ''}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>${vote.games?.title || 'N/A'}</td>
+                                            <td>
+                                                <span class="vote-type-badge ${vote.vote_type}">
+                                                    ${vote.vote_type === 'free' ? 'Gratuit' : vote.vote_type === 'paid' ? 'Payant' : 'Bonus'}
+                                                </span>
+                                            </td>
+                                            <td><strong>${vote.vote_count || 1}</strong></td>
+                                            <td>${formatDateTime(vote.voted_at)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Erreur votes:', error);
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Erreur lors du chargement des votes.</span>
+                    </div>
+                `;
+            }
+        }
+        
+        // ============================================
+        // TAB: STATISTIQUES
+        // ============================================
+        async function renderStatisticsTab() {
+            const container = document.getElementById('statisticsContent');
+            const computed = await recalcCandidateStats(candidateProfile.id);
+            const entries = computed.approvedEntries || [];
+            const rankingHistory = computed.rankingHistory || [];
+            if (!candidateProfile) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-chart-bar"></i>
+                        <h4>Statistiques limitées</h4>
+                        <p>Les statistiques détaillées sont disponibles pour les candidats.</p>
+                        <a href="/auth/?tab=candidate" class="btn btn-primary" style="margin-top: 20px;">
+                            <i class="fas fa-star"></i>
+                            Devenir Candidat
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                // Charger les données de parrainage
+                const { data: referrals } = await supabaseClient
+                    .from('referrals')
+                    .select('*')
+                    .eq('referrer_id', candidateProfile.id);
+                
+                const totalReferrals = referrals?.length || 0;
+                const totalBonusVotes = referrals?.reduce((sum, r) => sum + (r.bonus_votes_granted || 0), 0) || 0;
+                
+                // Calculer la moyenne
+                const avgVotes = participations.length > 0 
+                    ? Math.round(participations.reduce((sum, p) => sum + (p.total_votes || 0), 0) / participations.length)
+                    : 0;
+                
+                // Meilleur rang
+                const bestRank = participations.length > 0
+                    ? Math.min(...participations.filter(p => p.rank).map(p => p.rank))
+                    : '-';
+                
+                container.innerHTML = `
+                    <!-- Overview Stats -->
+                    <div class="stats-overview">
+                        <div class="stat-box">
+                            <div class="icon"><i class="fas fa-gamepad"></i></div>
+                            <span class="value">${candidateProfile.total_games_played || 0}</span>
+                            <span class="label">Jeux Participés</span>
+                        </div>
+                        <div class="stat-box">
+                            <div class="icon"><i class="fas fa-vote-yea"></i></div>
+                            <span class="value">${candidateProfile.total_votes_received || 0}</span>
+                            <span class="label">Votes Totaux Reçus</span>
+                        </div>
+                        <div class="stat-box">
+                            <div class="icon"><i class="fas fa-trophy"></i></div>
+                            <span class="value">${candidateProfile.total_victories || 0}</span>
+                            <span class="label">Victoires</span>
+                        </div>
+                        <div class="stat-box">
+                            <div class="icon"><i class="fas fa-medal"></i></div>
+                            <span class="value">${bestRank}</span>
+                            <span class="label">Meilleur Rang</span>
+                        </div>
+                        <div class="stat-box">
+                            <div class="icon"><i class="fas fa-chart-line"></i></div>
+                            <span class="value">${avgVotes}</span>
+                            <span class="label">Moyenne Votes/Jeu</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Referral Stats -->
+                    <div class="referral-overview">
+                        <h4><i class="fas fa-user-friends"></i> Statistiques de Parrainage</h4>
+                        <div class="referral-stats-grid">
+                            <div class="referral-stat-item">
+                                <span class="value">${totalReferrals}</span>
+                                <span class="label">Filleuls Total</span>
+                            </div>
+                            <div class="referral-stat-item">
+                                <span class="value">${totalBonusVotes}</span>
+                                <span class="label">Votes Bonus Gagnés</span>
+                            </div>
+                            <div class="referral-stat-item">
+                                <span class="value">${Math.floor(totalReferrals / 10) * 1000 + Math.floor((totalReferrals % 10) / 5) * 500}</span>
+                                <span class="label">FCFA Potentiels</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Votes Chart -->
+                    <div class="chart-container">
+                        <h4><i class="fas fa-chart-bar"></i> Évolution des Votes par Jeu</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="votesChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Ranking History -->
+                    <div class="chart-container">
+                        <h4><i class="fas fa-trophy"></i> Historique des Classements</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="rankChart"></canvas>
+                        </div>
+                    </div>
+                `;
+                
+                // Parrainage par jeu (sync paid/pending)
+                const payments = await loadReferralPaymentsByGame(candidateProfile.id);
+                const refsByGame = await loadReferralsCountByGame(candidateProfile.id);
+
+                // créer map payment par game_id
+                const payMap = new Map(payments.map(p => [p.game_id, p]));
+                // calcul live bonus amount si pas encore payment
+                const calcBonus = (count) => count >= 10 ? (1000 + Math.floor((count - 10)/5)*500) : 0;
+
+                container.innerHTML += `
+                <div class="section-card">
+                    <div class="section-card-header">
+                    <h3><i class="fas fa-user-friends"></i> Parrainage par jeu</h3>
+                    </div>
+
+                    ${refsByGame.length === 0 ? `
+                    <div class="no-data">
+                        <i class="fas fa-user-friends"></i>
+                        <h4>Aucun parrainage</h4>
+                        <p>Vous n'avez pas encore de filleuls.</p>
+                    </div>
+                    ` : `
+                    <div style="overflow-x:auto;">
+                        <table class="votes-table">
+                        <thead>
+                            <tr>
+                            <th>Jeu</th>
+                            <th>Filleuls</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>Payé le</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${refsByGame.map(g => {
+                            const pay = payMap.get(g.game_id);
+                            const eligible = g.count >= 10;
+                            const amount = pay?.bonus_amount ?? calcBonus(g.count);
+                            const status = pay?.payment_status ?? (eligible ? 'pending' : 'not_eligible');
+                            const paidAt = pay?.paid_at ? formatDateTime(pay.paid_at) : '—';
+
+                            return `
+                                <tr>
+                                <td>${g.title}</td>
+                                <td><strong>${g.count}</strong></td>
+                                <td><strong>${Number(amount||0).toLocaleString()} FCFA</strong></td>
+                                <td>
+                                    ${
+                                    status === 'paid' ? `<span class="vote-type-badge free">Payé</span>` :
+                                    status === 'pending' ? `<span class="vote-type-badge bonus">En attente</span>` :
+                                    `<span class="vote-type-badge paid">Non éligible</span>`
+                                    }
+                                </td>
+                                <td>${paidAt}</td>
+                                </tr>
+                            `;
+                            }).join('')}
+                        </tbody>
+                        </table>
+                    </div>
+                    `}
+                </div>
+                `;
+
+                // Create charts
+                if (participations.length > 0) {
+                    createVotesChart();
+                    createRankChart();
+                }
+                
+            } catch (error) {
+                console.error('Erreur stats:', error);
+            }
+        }
+        
+        function createVotesChart() {
+            const ctx = document.getElementById('votesChart');
+            if (!ctx) return;
+            
+            const labels = participations.map(p => p.games?.title?.substring(0, 15) || 'Jeu');
+            const freeVotes = participations.map(p => p.free_votes || 0);
+            const paidVotes = participations.map(p => p.paid_votes || 0);
+            const bonusVotes = participations.map(p => p.referral_bonus_votes || 0);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels.reverse(),
+                    datasets: [
+                        {
+                            label: 'Gratuits',
+                            data: freeVotes.reverse(),
+                            backgroundColor: 'rgba(40, 167, 69, 0.7)'
+                        },
+                        {
+                            label: 'Payants',
+                            data: paidVotes.reverse(),
+                            backgroundColor: 'rgba(23, 162, 184, 0.7)'
+                        },
+                        {
+                            label: 'Bonus',
+                            data: bonusVotes.reverse(),
+                            backgroundColor: 'rgba(212, 175, 55, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        function createRankChart() {
+            const ctx = document.getElementById('rankChart');
+            if (!ctx) return;
+            
+            const labels = participations.filter(p => p.rank).map(p => p.games?.title?.substring(0, 15) || 'Jeu');
+            const ranks = participations.filter(p => p.rank).map(p => p.rank);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.reverse(),
+                    datasets: [{
+                        label: 'Classement',
+                        data: ranks.reverse(),
+                        borderColor: 'rgba(212, 175, 55, 1)',
+                        backgroundColor: 'rgba(212, 175, 55, 0.2)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            reverse: true,
+                            beginAtZero: false,
+                            min: 1,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // ============================================
+        // TAB: PARAMÈTRES
+        // ============================================
+        function renderSettingsTab() {
+            const container = document.getElementById('settingsContent');
+            
+            container.innerHTML = `
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h3><i class="fas fa-user-edit"></i> Modifier mes informations</h3>
+                    </div>
+                    
+                    <div id="settingsAlert"></div>
+                    
+                    <form id="settingsForm" onsubmit="updateProfile(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nom complet <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" id="settingsName" value="${currentUser.full_name}" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Email <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" id="settingsEmail" value="${currentUser.email}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Téléphone</label>
+                                <div class="input-group">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" id="settingsPhone" value="${currentUser.phone || ''}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>WhatsApp</label>
+                                <div class="input-group">
+                                    <i class="fab fa-whatsapp"></i>
+                                    <input type="tel" id="settingsWhatsapp" value="${currentUser.whatsapp_number || ''}">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Numéro Mobile Money</label>
+                                <div class="input-group">
+                                    <i class="fas fa-wallet"></i>
+                                    <input type="tel" id="settingsMomo" value="${currentUser.mobile_money_number || ''}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Type Mobile Money</label>
+                                <div class="input-group">
+                                    <i class="fas fa-credit-card"></i>
+                                    <select id="settingsMomoType">
+                                        <option value="">Sélectionnez...</option>
+                                        <option value="MTN Momo" ${currentUser.mobile_money_type === 'MTN Momo' ? 'selected' : ''}>MTN Mobile Money</option>
+                                        <option value="Moov Money" ${currentUser.mobile_money_type === 'Moov Money' ? 'selected' : ''}>Moov Money</option>
+                                        <option value="Celtiis Cash" ${currentUser.mobile_money_type === 'Celtiis Cash' ? 'selected' : ''}>Celtiis Cash</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Enregistrer les modifications
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Security -->
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h3><i class="fas fa-shield-alt"></i> Sécurité</h3>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="openModal('passwordModal')">
+                        <i class="fas fa-key"></i>
+                        Changer le mot de passe
+                    </button>
+                </div>
+                
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Zone de danger</h4>
+                    <p>La suppression de votre compte est irréversible. Toutes vos données seront définitivement supprimées.</p>
+                    <button class="btn btn-danger" onclick="openModal('deleteModal')">
+                        <i class="fas fa-trash"></i>
+                        Supprimer mon compte
+                    </button>
+                </div>
+            `;
+        }
+        
+        // ============================================
+        // PROFILE ACTIONS
+        // ============================================
+        async function updateProfilePhoto(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showToast('Veuillez sélectionner une image', 'error');
+                return;
+            }
+            
+            try {
+                showToast('Upload en cours...', 'info');
+                
+                // Upload to Cloudinary
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CONFIG.CLOUDINARY_UPLOAD_PRESET);
+                formData.append('folder', 'social_vote/photos');
+                
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CONFIG.CLOUDINARY_CLOUD_NAME}/image/upload`,
+                    { method: 'POST', body: formData }
+                );
+                
+                if (!response.ok) throw new Error('Erreur upload');
+                
+                const data = await response.json();
+                const photoUrl = data.secure_url;
+                
+                // Update in database
+                await supabaseClient
+                    .from('users')
+                    .update({ photo_url: photoUrl })
+                    .eq('id', currentUser.id);
+                
+                // Update local
+                currentUser.photo_url = photoUrl;
+                localStorage.setItem('socialvote_session', JSON.stringify(currentUser));
+                document.getElementById('profilePhoto').src = photoUrl;
+                
+                showToast('Photo mise à jour !', 'success');
+                
+            } catch (error) {
+                console.error('Erreur photo:', error);
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
+        }
+        
+        async function updateProfile(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('settingsName').value.trim();
+            const email = document.getElementById('settingsEmail').value.trim();
+            const phone = document.getElementById('settingsPhone').value.trim();
+            const whatsapp = document.getElementById('settingsWhatsapp').value.trim();
+            const momo = document.getElementById('settingsMomo').value.trim();
+            const momoType = document.getElementById('settingsMomoType').value;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update({
+                        full_name: name,
+                        email: email,
+                        phone: phone || null,
+                        whatsapp_number: whatsapp || null,
+                        mobile_money_number: momo || null,
+                        mobile_money_type: momoType || null
+                    })
+                    .eq('id', currentUser.id);
+                
+                if (error) throw error;
+                
+                // Update local
+                currentUser = { ...currentUser, full_name: name, email, phone, whatsapp_number: whatsapp, mobile_money_number: momo, mobile_money_type: momoType };
+                localStorage.setItem('socialvote_session', JSON.stringify(currentUser));
+                
+                displayProfileHeader();
+                showToast('Profil mis à jour !', 'success');
+                
+            } catch (error) {
+                console.error('Erreur update:', error);
+                showToast('Erreur lors de la mise à jour', 'error');
+            }
+        }
+        
+        async function changePassword(e) {
+            e.preventDefault();
+            
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmNewPassword').value;
+            
+            if (newPass !== confirm) {
+                document.getElementById('passwordAlert').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Les mots de passe ne correspondent pas
+                    </div>
+                `;
+                return;
+            }
+            
+            if (current !== currentUser.password_hash) {
+                document.getElementById('passwordAlert').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Mot de passe actuel incorrect
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                await supabaseClient
+                    .from('users')
+                    .update({ password_hash: newPass })
+                    .eq('id', currentUser.id);
+                
+                currentUser.password_hash = newPass;
+                localStorage.setItem('socialvote_session', JSON.stringify(currentUser));
+                
+                closeModal('passwordModal');
+                showToast('Mot de passe changé !', 'success');
+                
+                document.getElementById('passwordForm').reset();
+                document.getElementById('passwordAlert').innerHTML = '';
+                
+            } catch (error) {
+                console.error('Erreur password:', error);
+                showToast('Erreur lors du changement', 'error');
+            }
+        }
+        
+        async function deleteAccount() {
+            const confirmation = document.getElementById('deleteConfirmation').value;
+            
+            if (confirmation !== 'SUPPRIMER') {
+                showToast('Veuillez taper SUPPRIMER pour confirmer', 'error');
+                return;
+            }
+            
+            try {
+                // Delete user (cascade will handle related data)
+                await supabaseClient
+                    .from('users')
+                    .delete()
+                    .eq('id', currentUser.id);
+                
+                localStorage.removeItem('socialvote_session');
+                
+                showToast('Compte supprimé', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Erreur delete:', error);
+                showToast('Erreur lors de la suppression', 'error');
+            }
+        }
+        
+        // ============================================
+        // MODALS
+        // ============================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // ============================================
+        // UTILITAIRES
+        // ============================================
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copié !', 'success');
+            });
+        }
+        
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+        
+        function formatDateTime(dateString) {
+            return new Date(dateString).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        async function recalcCandidateStats(candidateProfileId) {
+  // Charger toutes les participations du candidat + jeux
+  const { data: myEntries, error: myErr } = await supabaseClient
+    .from('game_entries')
+    .select('id, game_id, total_votes, status, games:game_id(status, title)')
+    .eq('candidate_id', candidateProfileId);
+
+  if (myErr) throw myErr;
+
+  const approvedEntries = (myEntries || []).filter(e => e.status === 'approved');
+
+  // Votes reçus
+  const totalVotesReceived = approvedEntries.reduce((s, e) => s + (e.total_votes || 0), 0);
+
+  // Jeux joués
+  const gamesPlayed = approvedEntries.length;
+
+  // Jeux terminés/archivés auxquels il a participé
+  const finishedGames = approvedEntries
+    .filter(e => ['ended', 'archived'].includes(e.games?.status))
+    .map(e => ({ game_id: e.game_id, title: e.games?.title || 'Jeu', my_total: e.total_votes || 0 }));
+
+  // Recalculer le rang réel par jeu (même si rank non stocké)
+  // Rank = 1 + nb de candidats ayant plus de votes
+  const ranks = [];
+  for (const g of finishedGames) {
+    const { data: allApproved, error: aErr } = await supabaseClient
+      .from('game_entries')
+      .select('total_votes')
+      .eq('game_id', g.game_id)
+      .eq('status', 'approved');
+
+    if (aErr) throw aErr;
+
+    const higher = (allApproved || []).filter(x => (x.total_votes || 0) > g.my_total).length;
+    const myRank = higher + 1;
+    ranks.push({ game_id: g.game_id, title: g.title, rank: myRank, votes: g.my_total });
+  }
+
+  const victories = ranks.filter(r => r.rank === 1).length;
+  const bestRank = ranks.length ? Math.min(...ranks.map(r => r.rank)) : null;
+  const avgRank = ranks.length ? (ranks.reduce((s, r) => s + r.rank, 0) / ranks.length) : null;
+
+  return { myEntries, approvedEntries, totalVotesReceived, victories, gamesPlayed, bestRank, avgRank, rankingHistory: ranks };
+}
+
+        async function loadReferralPaymentsByGame(candidateProfileId) {
+        const { data: pays, error } = await supabaseClient
+            .from('referral_payments')
+            .select('game_id, referral_count, bonus_amount, payment_status, paid_at, games:game_id(title)')
+            .eq('referrer_id', candidateProfileId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return pays || [];
+        }
+
+        async function loadReferralsCountByGame(candidateProfileId) {
+        // Pour avoir les filleuls par jeu en live (même si pas encore payment créé)
+        const { data: refs, error } = await supabaseClient
+            .from('referrals')
+            .select('game_id, games:game_id(title)')
+            .eq('referrer_id', candidateProfileId);
+
+        if (error) throw error;
+
+        const map = new Map(); // game_id => {title,count}
+        (refs || []).forEach(r => {
+            const key = r.game_id;
+            if (!map.has(key)) map.set(key, { game_id: key, title: r.games?.title || 'Jeu', count: 0 });
+            map.get(key).count += 1;
+        });
+
+        return Array.from(map.values());
+        }
+
+        function renderNavAuth() {
+  const navAuth = document.getElementById('navAuth');
+  if (!navAuth) return;
+
+  if (currentUser) {
+    navAuth.innerHTML = `
+      <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">
+        <i class="fas fa-star"></i> S'inscrire comme candidat
+      </a>
+      <a href="/profile/" class="btn btn-outline btn-sm">
+        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+      </a>
+      <button class="btn btn-outline btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    `;
+
+    // Mobile menu: remplacer Connexion/Inscription par Profil/Déconnexion
+    patchMobileMenuForLoggedIn();
+  } else {
+    navAuth.innerHTML = `
+      <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+      <a href="/auth/?tab=register" class="btn btn-primary btn-sm">S'inscrire</a>
+    `;
+
+    patchMobileMenuForLoggedOut();
+  }
+}
+
+function patchMobileMenuForLoggedIn() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  // Enlever anciens liens si présents
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  // Ajouter Profil + Déconnexion (si pas déjà)
+  const liProfile = document.createElement('li');
+  liProfile.setAttribute('data-auth-link', 'true');
+  liProfile.innerHTML = `<a href="/profile/">Mon Profil</a>`;
+
+  const liCandidate = document.createElement('li');
+  liCandidate.setAttribute('data-auth-link', 'true');
+  liCandidate.innerHTML = `<a href="/auth/?tab=candidate">S'inscrire comme candidat</a>`;
+
+  const liLogout = document.createElement('li');
+  liLogout.setAttribute('data-auth-link', 'true');
+  liLogout.innerHTML = `<a href="#" onclick="logout(); return false;">Déconnexion</a>`;
+
+  menu.appendChild(liCandidate);
+  menu.appendChild(liProfile);
+  menu.appendChild(liLogout);
+}
+
+function patchMobileMenuForLoggedOut() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  const liLogin = document.createElement('li');
+  liLogin.setAttribute('data-auth-link', 'true');
+  liLogin.innerHTML = `<a href="/auth/">Connexion</a>`;
+
+  const liRegister = document.createElement('li');
+  liRegister.setAttribute('data-auth-link', 'true');
+  liRegister.innerHTML = `<a href="/auth/?tab=register">S'inscrire</a>`;
+
+  menu.appendChild(liLogin);
+  menu.appendChild(liRegister);
+}
+
+// ==========================================
+// BOUTON WHATSAPP FLOTTANT
+// ==========================================
+
+function createWhatsAppButton() {
+  const whatsappBtn = document.createElement('a');
+  whatsappBtn.href = 'https://wa.me/2290190086267';
+  whatsappBtn.target = '_blank';
+  whatsappBtn.className = 'whatsapp-float';
+  whatsappBtn.innerHTML = `
+    <img src="https://img.icons8.com/?size=100&id=85088&format=png&color=000000" alt="WhatsApp" style="width: 100%; height: 100%;">
+  `;
+  whatsappBtn.style.cssText = `
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 40px;
+    height: 40px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 9998;
+    transition: all 0.3s ease;
+    padding: 9px;
+  `;
+  
+  whatsappBtn.addEventListener('mouseenter', () => {
+    whatsappBtn.style.transform = 'scale(1.1)';
+  });
+  
+  whatsappBtn.addEventListener('mouseleave', () => {
+    whatsappBtn.style.transform = 'scale(1)';
+  });
+  
+  document.body.appendChild(whatsappBtn);
+}
+    </script>
+</body>
+</html>

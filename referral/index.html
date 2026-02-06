@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programme de Parrainage - Social Vote</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+     <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <style>
+        /* ============================================
+           SOCIAL VOTE - REFERRAL PAGE STYLES
+           ============================================ */
+        
+        :root {
+            --primary: #0A1F44;
+            --accent: #D4AF37;
+            --white: #FFFFFF;
+            --light-bg: #F8F9FA;
+            --gray: #6C757D;
+            --dark-gray: #343A40;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --info: #17A2B8;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--primary);
+            padding: 10px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .navbar-brand span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        
+        .nav-auth {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #C4A030;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-lg {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+        }
+        
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--white);
+        }
+        
+        /* ========== HERO SECTION ========== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #1a3a6e 100%);
+            padding: 120px 5% 80px;
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="15" fill="none" stroke="%23D4AF37" stroke-width="0.3" opacity="0.2"/><circle cx="80" cy="80" r="20" fill="none" stroke="%23D4AF37" stroke-width="0.3" opacity="0.2"/></svg>') repeat;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero h1 span {
+            color: var(--accent);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            padding: 60px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .section-title h2 span {
+            color: var(--accent);
+        }
+        
+        .section-title p {
+            color: var(--gray);
+        }
+        
+        /* ========== BENEFITS CARDS ========== */
+        .benefits-section {
+            margin-bottom: 60px;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .benefit-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+        }
+        
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .benefit-icon i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .benefit-card h3 {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .benefit-card h4 {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .benefit-card p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        /* ========== HOW IT WORKS ========== */
+        .how-it-works {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 50px;
+            margin-bottom: 60px;
+            box-shadow: var(--shadow);
+        }
+        
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 40px;
+            right: -15px;
+            width: 30px;
+            height: 3px;
+            background: var(--accent);
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: var(--accent);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 auto 15px;
+        }
+        
+        .step h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .step p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* ========== NOT LOGGED IN STATE ========== */
+        .not-logged-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 60px;
+        }
+        
+        .not-logged-section .icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+        }
+        
+        .not-logged-section .icon i {
+            font-size: 3rem;
+            color: var(--accent);
+        }
+        
+        .not-logged-section h3 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .not-logged-section p {
+            color: var(--gray);
+            margin-bottom: 30px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .not-logged-section .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* ========== DASHBOARD ========== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        /* Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 20px;
+            padding: 40px 30px;
+            color: var(--white);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+        }
+        
+        .profile-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .profile-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .profile-card .role-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+        
+        .referral-code-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .referral-code-box label {
+            display: block;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+        
+        .referral-code {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .referral-code .code {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 3px;
+            font-family: monospace;
+        }
+        
+        .referral-code .copy-btn {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .referral-code .copy-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .share-link-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .share-link-box label {
+            display: block;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+        
+        .share-link-box .link-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+        
+        .share-link-box .link-display button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        
+        /* QR Code */
+        .qr-code-container {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 15px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .qr-code-container canvas,
+        .qr-code-container img {
+            display: block;
+        }
+        
+        /* ========== STATS CARDS ========== */
+        .stats-section {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+        
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .stat-card.highlight {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            color: var(--white);
+        }
+        
+        .stat-card.highlight .number {
+            color: var(--accent);
+        }
+        
+        .stat-card.highlight .label {
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .stat-card.highlight i {
+            color: var(--accent);
+        }
+        
+        /* ========== SHARE BUTTONS ========== */
+        .share-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .share-section h4 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+        
+        .share-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        
+        .share-btn.facebook {
+            background: #1877F2;
+            color: white;
+        }
+        
+        .share-btn.twitter {
+            background: #1DA1F2;
+            color: white;
+        }
+        
+        .share-btn.telegram {
+            background: #0088CC;
+            color: white;
+        }
+        
+        .share-btn.copy {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* ========== REFERRALS TABLE ========== */
+        .referrals-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .section-header h4 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-header .filter-select {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        
+        .referrals-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        
+        .referrals-table thead {
+            background: var(--primary);
+            color: var(--white);
+        }
+        
+        .referrals-table th,
+        .referrals-table td {
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .referrals-table th {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .referrals-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: var(--transition);
+        }
+        
+        .referrals-table tbody tr:hover {
+            background: var(--light-bg);
+        }
+        
+        .referrals-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .referral-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .referral-user img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .referral-user .name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .referral-user .email {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.active {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+        
+        .status-badge.pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #856404;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+        
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* ========== PAYMENT STATUS SECTION ========== */
+        .payment-status-section {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .payment-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--light-bg);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .payment-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .payment-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .payment-info .icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .payment-info .icon i {
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+        
+        .payment-info .details h5 {
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+        
+        .payment-info .details p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .payment-amount {
+            text-align: right;
+        }
+        
+        .payment-amount .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .payment-amount .status {
+            font-size: 0.85rem;
+        }
+        
+        .payment-amount .status.paid {
+            color: var(--success);
+        }
+        
+        .payment-amount .status.pending {
+            color: var(--warning);
+        }
+        
+        /* ========== ELIGIBILITY ALERT ========== */
+        .eligibility-alert {
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .eligibility-alert.eligible {
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid var(--success);
+        }
+        
+        .eligibility-alert.not-eligible {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid var(--warning);
+        }
+        
+        .eligibility-alert .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .eligibility-alert.eligible .icon {
+            background: var(--success);
+            color: white;
+        }
+        
+        .eligibility-alert.not-eligible .icon {
+            background: var(--warning);
+            color: var(--primary);
+        }
+        
+        .eligibility-alert .icon i {
+            font-size: 1.5rem;
+        }
+        
+        .eligibility-alert .content {
+            flex: 1;
+        }
+        
+        .eligibility-alert .content h4 {
+            margin-bottom: 5px;
+        }
+        
+        .eligibility-alert.eligible .content h4 {
+            color: var(--success);
+        }
+        
+        .eligibility-alert.not-eligible .content h4 {
+            color: #856404;
+        }
+        
+        .eligibility-alert .content p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .eligibility-alert .progress-bar {
+            width: 200px;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .eligibility-alert .progress-bar .fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+        
+        /* ========== FOOTER ========== */
+        .footer {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 5%;
+            text-align: center;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        /* ========== TOAST ========== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+        
+        .toast {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        /* ========== LOADING ========== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light-bg);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 992px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .steps-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .step:not(:last-child)::after {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .how-it-works {
+                padding: 30px 20px;
+            }
+            
+            .referrals-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .referrals-table th,
+            .referrals-table td {
+                padding: 12px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .share-section {
+                padding: 30px 20px;
+            }
+            
+            .referrals-section {
+                padding: 30px 20px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .share-buttons {
+                flex-direction: column;
+            }
+            
+            .share-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .payment-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .payment-amount {
+                text-align: center;
+            }
+            
+            .eligibility-alert {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--primary);
+            z-index: 2001;
+            transition: var(--transition);
+            padding: 15px 20px 30px;
+        }
+        
+        .mobile-menu.active {
+            left: 0;
+        }
+        
+        .mobile-menu ul {
+            list-style: none;
+        }
+        
+        .mobile-menu ul li {
+            margin-bottom: 3px;
+        }
+        
+        .mobile-menu ul a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .mobile-overlay.active {
+            display: block;
+        }
+            .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-logo img {
+    height: 45px;
+    width: auto;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo img {
+        height: 40px;
+    }
+}
+
+.navbar-logo span {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+}
+
+@media (min-width: 768px) {
+    .navbar-logo span {
+        font-size: 1.35rem;
+    }
+}
+   
+     .nav-links a {
+        color: var(--white);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+        position: relative;            /* IMPORTANT pour la barre */
+        padding: 6px 0;
+        }
+
+        /* Hover */
+        .nav-links a:hover {
+        color: var(--accent);
+        }
+
+        /* Barre sous le lien (page active) */
+        .nav-links a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 100%;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* Couleur du lien actif */
+        .nav-links a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        /* Feedback clic (petit flash) */
+        .nav-links a.clicked {
+        opacity: 0.7;
+        }
+
+        .mobile-menu a {
+        color: var(--white);
+        text-decoration: none;
+        font-size: 1.2rem;
+        position: relative;
+        padding: 6px 0;
+        display: inline-block;
+        }
+
+        .mobile-menu a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        .mobile-menu a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        height: 1px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* =========================================================
+   SOCIAL VOTE - GLOBAL RESPONSIVE PACK (ANDROID FIRST)
+   Colle ce bloc à la FIN du <style> de chaque page.
+   Objectif: 0 overflow, navbar clean, forms clean, mobile menu ok.
+   ========================================================= */
+
+html, body { max-width: 100%; overflow-x: hidden; }
+* { box-sizing: border-box; min-width: 0; }
+img, video, canvas { max-width: 100%; height: auto; }
+
+/* -------------------------
+   NAVBAR: mobile behavior
+   ------------------------- */
+
+/* Empêche les éléments navbar de déborder */
+.navbar {
+  max-width: 100%;
+  gap: 12px;
+}
+
+/* Sur petit écran, on cache les boutons auth dans la navbar
+   et on laisse le menu hamburger gérer l'auth */
+@media (max-width: 576px) {
+  .nav-auth { display: none !important; }
+}
+
+/* Si ton menu toggle n’apparaît pas partout, force-le sur mobile */
+@media (max-width: 992px) {
+  .menu-toggle { display: flex !important; }
+  .nav-links { display: none !important; }
+}
+
+/* -------------------------
+   BUTTONS: safe sizing
+   ------------------------- */
+.btn {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sur mobile: boutons plus petits, mais restent sur 1 ligne quand possible */
+@media (max-width: 576px) {
+  .btn { padding: 10px 14px !important; border-radius: 14px !important; font-size: .95rem !important; }
+  .btn-lg { padding: 12px 16px !important; font-size: 1rem !important; }
+  .btn-sm { padding: 9px 12px !important; font-size: .85rem !important; }
+}
+
+/* Autoriser le retour à la ligne uniquement sur les boutons "longs"
+   => ajoute class="btn-wrap" sur les boutons qui ont du texte long */
+.btn.btn-wrap { white-space: normal; line-height: 1.2; }
+
+/* -------------------------
+   LAYOUT: grids -> 1 col on mobile
+   ------------------------- */
+
+/* Beaucoup de tes pages utilisent .form-row => on force 1 colonne en mobile */
+@media (max-width: 576px) {
+  .form-row { grid-template-columns: 1fr !important; }
+}
+
+/* Tables: scroll horizontal */
+.table-container,
+.votes-table,
+.referrals-table,
+.candidates-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* -------------------------
+   FORMS: no overflow
+   ------------------------- */
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* input-group: ne doit pas dépasser */
+.input-group { width: 100%; max-width: 100%; }
+
+/* Referral input + bouton vérifier: stack sur mobile */
+@media (max-width: 576px) {
+  .referral-input-group { flex-direction: column !important; }
+  .referral-input-group .btn { width: 100% !important; }
+}
+
+/* Auth: double boutons (login/register) => stack sur très petit écran */
+@media (max-width: 420px) {
+  .auth-two-buttons { grid-template-columns: 1fr !important; }
+}
+
+/* Modals: éviter overflow */
+.modal { max-width: 95vw !important; }
+.modal-body { overflow-x: hidden; }
+
+
+    </style>
+
+<!-- ================= SEO & SOCIAL SHARING ================= -->
+<meta property="og:title" content="Social Vote - Ta communauté fait ta force">
+<meta property="og:description" content="Participez, votez pour vos candidats préférés et gagnez des prix exceptionnels !">
+<meta property="og:image" content="https://placehold.co/1200x630?text=Social+Vote"> <!-- Remplace par une belle image hébergée sur Cloudinary -->
+<meta property="og:url" content="https://ton-site.com">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+<body>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <span class="navbar-logo"><img src="assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/vote/">Voter</a></li>
+            <li><a href="/referral/" class="active">Parrainage</a></li>
+            <li><a href="/history/">Historique</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
+        </ul>
+        
+        <div class="nav-auth" id="navAuth">
+            <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+            <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">S'inscrire</a>
+        </div>
+        
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileMenuClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/vote/">Voter</a></li>
+            <li><a href="/referral/">Parrainage</a></li>
+            <li><a href="/history/">Historique</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/rules/">Règlement</a></li>
+        </ul>
+    </div>
+    
+    <!-- ========== HERO ========== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Programme de <span>Parrainage</span></h1>
+            <p>Gagnez des votes bonus et de l'argent en parrainant d'autres candidats. Plus vous parrainez, plus vous gagnez !</p>
+        </div>
+    </section>
+    
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <!-- Benefits Section -->
+        <section class="benefits-section">
+            <div class="section-title">
+                <h2>💰 Vos <span>Avantages</span></h2>
+                <p>Découvrez ce que vous gagnez en parrainant</p>
+            </div>
+            
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h3>+15</h3>
+                    <h4>Votes Bonus</h4>
+                    <p>Pour chaque nouveau candidat inscrit avec votre code de parrainage</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3>+10</h3>
+                    <h4>Votes pour votre filleul</h4>
+                    <p>Votre filleul reçoit aussi des votes bonus en utilisant votre code</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>1000F</h3>
+                    <h4>Prime 10 filleuls</h4>
+                    <p>Recevez 1000 FCFA dès que vous atteignez 10 filleuls par jeu</p>
+                </div>
+                
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3>+500F</h3>
+                    <h4>Par tranche de 5</h4>
+                    <p>500 FCFA supplémentaires pour chaque tranche de 5 filleuls au-delà de 10</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- How it Works -->
+        <section class="how-it-works">
+            <div class="section-title">
+                <h2>📋 Comment ça <span>marche</span> ?</h2>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Inscrivez-vous</h4>
+                    <p>Devenez candidat et recevez votre code de parrainage unique</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Partagez</h4>
+                    <p>Envoyez votre code ou lien à vos amis et votre réseau</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Ils s'inscrivent</h4>
+                    <p>Vos filleuls utilisent votre code lors de leur inscription</p>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4>Gagnez</h4>
+                    <p>Recevez vos votes bonus et primes automatiquement</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Dynamic Content Area -->
+        <div id="dynamicContent">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Chargement...</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- ========== TOAST CONTAINER ========== -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <p>&copy; 2026 Social Vote. Tous droits réservés. | <a href="/rules/">Règlement</a> | <a href="/contact/">Contact</a></p>
+    </footer>
+    
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <!-- ========== SCRIPTS ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const CONFIG = {
+            SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
+            SITE_URL: window.location.origin,
+            WHATSAPP_NUMBER: '22901900862676'
+        };
+        
+        // Initialisation Supabase
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        let currentUser = null;
+        let candidateProfile = null;
+        let referralStats = {
+            totalReferrals: 0,
+            totalBonusVotes: 0,
+            totalBonusAmount: 0,
+            pendingAmount: 0,
+            referralsByGame: []
+        };
+        let referralsList = [];
+        let currentGame = null;
+        
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            setActiveNavLinks();
+            initMobileMenu();
+            // Créer le bouton WhatsApp flottant
+            createWhatsAppButton();
+            await checkAuth();
+            await loadActiveGame();
+            await renderContent();
+            
+        });
+        
+        // ============================================
+        // AUTHENTIFICATION
+        // ============================================
+        async function checkAuth() {
+            try {
+                const session = localStorage.getItem('socialvote_session');
+                if (session) {
+                    currentUser = JSON.parse(session);
+                    renderNavAuth();
+                    updateNavAuth();
+                    
+                    // Vérifier si candidat
+                    const { data: profile } = await supabaseClient
+                        .from('candidate_profiles')
+                        .select('*')
+                        .eq('user_id', currentUser.id)
+                        .single();
+                    
+                    if (profile) {
+                        candidateProfile = profile;
+                        await loadReferralData();
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur auth:', error);
+            }
+        }
+        
+        function setActiveNavLinks() {
+            const path = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+            // Desktop
+            document.querySelectorAll('.nav-links a').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                a.classList.toggle('active', href === path);
+            });
+
+            // Mobile
+            document.querySelectorAll('.mobile-menu a').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                a.classList.toggle('active', href === path);
+            });
+
+            // Feedback clic
+            const allLinks = [
+                ...document.querySelectorAll('.nav-links a'),
+                ...document.querySelectorAll('.mobile-menu a')
+            ];
+
+            allLinks.forEach(a => {
+                a.addEventListener('click', () => {
+                a.classList.add('clicked');
+                setTimeout(() => a.classList.remove('clicked'), 200);
+                });
+            });
+        }
+        
+        function updateNavAuth() {
+            const navAuth = document.getElementById('navAuth');
+            if (currentUser) {
+                navAuth.innerHTML = `
+                    <a href="/profile/" class="btn btn-outline btn-sm">
+                        <i class="fas fa-user"></i>
+                        ${currentUser.full_name.split(' ')[0]}
+                    </a>
+                    <button class="btn btn-primary btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                `;
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('socialvote_session');
+            window.location.reload();
+        }
+        
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        function initMobileMenu() {
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                mobileOverlay.classList.add('active');
+            });
+            
+            const closeMenu = () => {
+                mobileMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+            };
+            
+            mobileMenuClose.addEventListener('click', closeMenu);
+            mobileOverlay.addEventListener('click', closeMenu);
+        }
+        
+        // ============================================
+        // CHARGEMENT DES DONNÉES
+        // ============================================
+        async function loadActiveGame() {
+            try {
+                const { data: games } = await supabaseClient
+                    .from('games')
+                    .select('*')
+                    .in('status', ['active', 'pending'])
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                
+                if (games && games.length > 0) {
+                    currentGame = games[0];
+                }
+            } catch (error) {
+                console.error('Erreur chargement jeu:', error);
+            }
+        }
+        
+        async function loadReferralData() {
+            if (!candidateProfile) return;
+            
+            try {
+                // Charger tous les parrainages
+                const { data: referrals, error } = await supabaseClient
+                    .from('referrals')
+                    .select(`
+                        *,
+                        referee:referee_id (
+                            username,
+                            user_id
+                        ),
+                        games:game_id (
+                            title,
+                            status
+                        )
+                    `)
+                    .eq('referrer_id', candidateProfile.id)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                referralsList = referrals || [];
+                
+                // Calculer les stats
+                referralStats.totalReferrals = referralsList.length;
+                referralStats.totalBonusVotes = referralsList.reduce((sum, r) => sum + (r.bonus_votes_granted || 0), 0);
+                
+               // Charger paiements parrainage (si l'admin a déjà marqué payé)
+                const { data: payments, error: payErr } = await supabaseClient
+                .from('referral_payments')
+                .select('game_id, referral_count, bonus_amount, payment_status, paid_at, games:game_id(title)')
+                .eq('referrer_id', candidateProfile.id);
+
+                if (payErr) throw payErr;
+
+                const payMap = new Map((payments || []).map(p => [p.game_id, p]));
+
+                // Construire stats par jeu depuis referrals
+                const gameStats = {};
+                referralsList.forEach(r => {
+                const gid = r.game_id;
+                if (!gameStats[gid]) {
+                    gameStats[gid] = { gameId: gid, title: r.games?.title || 'Jeu', count: 0, bonusVotes: 0 };
+                }
+                gameStats[gid].count += 1;
+                gameStats[gid].bonusVotes += (r.bonus_votes_granted || 0);
+                });
+
+                const calcBonus = (count) => count >= 10 ? (1000 + Math.floor((count - 10)/5)*500) : 0;
+
+                // Ajouter montant/statut par jeu
+                const byGame = Object.values(gameStats).map(g => {
+                const pay = payMap.get(g.gameId);
+                const eligible = g.count >= 10;
+                const amount = pay?.bonus_amount ?? calcBonus(g.count);
+                const status = pay?.payment_status ?? (eligible ? 'pending' : 'not_eligible');
+                return { ...g, eligible, amount, status, paid_at: pay?.paid_at || null };
+                });
+
+                referralStats.referralsByGame = byGame;
+
+                // Totaux
+                referralStats.totalReferrals = referralsList.length;
+                referralStats.totalBonusVotes = referralsList.reduce((s, r) => s + (r.bonus_votes_granted || 0), 0);
+
+                referralStats.totalBonusAmount = byGame
+                .filter(x => x.status === 'paid')
+                .reduce((s, x) => s + (x.amount || 0), 0);
+
+                referralStats.pendingAmount = byGame
+                .filter(x => x.status === 'pending')
+                .reduce((s, x) => s + (x.amount || 0), 0);
+                // Charger les infos des filleuls
+                for (let referral of referralsList) {
+                    if (referral.referee?.user_id) {
+                        const { data: user } = await supabaseClient
+                            .from('users')
+                            .select('full_name, photo_url, email')
+                            .eq('id', referral.referee.user_id)
+                            .single();
+                        referral.refereeUser = user;
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Erreur chargement parrainages:', error);
+            }
+        }
+        
+        // ============================================
+        // RENDU DU CONTENU
+        // ============================================
+        async function renderContent() {
+            const container = document.getElementById('dynamicContent');
+            
+            if (!currentUser) {
+                // Utilisateur non connecté
+                container.innerHTML = `
+                    <section class="not-logged-section">
+                        <div class="icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Accès Réservé aux Candidats</h3>
+                        <p>Pour accéder au programme de parrainage et gagner des bonus, vous devez être inscrit comme candidat.</p>
+                        <div class="buttons">
+                            <a href="/auth/" class="btn btn-outline btn-lg">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Se connecter
+                            </a>
+                            <a href="/auth/?tab=candidate" class="btn btn-primary btn-lg">
+                                <i class="fas fa-star"></i>
+                                Devenir Candidat
+                            </a>
+                        </div>
+                    </section>
+                `;
+            } else if (!candidateProfile) {
+                // Utilisateur connecté mais pas candidat
+                container.innerHTML = `
+                    <section class="not-logged-section">
+                        <div class="icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3>Devenez Candidat</h3>
+                        <p>Bonjour ${currentUser.full_name} ! Pour accéder au programme de parrainage, vous devez d'abord vous inscrire comme candidat à un jeu.</p>
+                        <div class="buttons">
+                            <a href="/auth/?tab=candidate" class="btn btn-primary btn-lg">
+                                <i class="fas fa-star"></i>
+                                S'inscrire comme Candidat
+                            </a>
+                        </div>
+                    </section>
+                `;
+            } else {
+                // Candidat connecté - Afficher le dashboard
+                renderDashboard(container);
+            }
+        }
+        
+        function renderDashboard(container) {
+            const referralLink = `${CONFIG.SITE_URL}//auth/?tab=candidate&ref=${candidateProfile.referral_code}`;
+            const currentGameReferrals = currentGame 
+                ? referralsList.filter(r => r.game_id === currentGame.id).length 
+                : 0;
+            const isEligible = currentGameReferrals >= 10;
+            const progress = Math.min((currentGameReferrals / 10) * 100, 100);
+            
+            container.innerHTML = `
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Profile Card -->
+                    <div class="profile-card">
+                        <img src="${currentUser.photo_url || 'https://placehold.co/120x120?text=Photo'}" 
+                             alt="${currentUser.full_name}" class="profile-photo">
+                        <h3>${currentUser.full_name}</h3>
+                        <span class="role-badge">
+                            <i class="fas fa-star"></i> Candidat
+                        </span>
+                        
+                        <div class="referral-code-box">
+                            <label>Votre Code de Parrainage</label>
+                            <div class="referral-code">
+                                <span class="code">${candidateProfile.referral_code}</span>
+                                <button class="copy-btn" onclick="copyToClipboard('${candidateProfile.referral_code}', 'Code copié !')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="share-link-box">
+                            <label>Lien de parrainage</label>
+                            <div class="link-display">
+                                <span>${referralLink.length > 40 ? referralLink.substring(0, 40) + '...' : referralLink}</span>
+                                <button onclick="copyToClipboard('${referralLink}', 'Lien copié !')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-code-container">
+                            <canvas id="qrCode"></canvas>
+                        </div>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">Scannez pour s'inscrire</p>
+                    </div>
+                    
+                    <!-- Stats Section -->
+                    <div class="stats-section">
+                        <div class="stats-row">
+                            <div class="stat-card highlight">
+                                <i class="fas fa-users"></i>
+                                <span class="number">${referralStats.totalReferrals}</span>
+                                <span class="label">Filleuls Total</span>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-vote-yea"></i>
+                                <span class="number">${referralStats.totalBonusVotes}</span>
+                                <span class="label">Votes Bonus Reçus</span>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span class="number">${referralStats.totalBonusAmount.toLocaleString()}</span>
+                                <span class="label">FCFA Gagnés</span>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-clock"></i>
+                                <span class="number">${referralStats.pendingAmount?.toLocaleString() || 0}</span>
+                                <span class="label">FCFA En Attente</span>
+                            </div>
+                        </div>
+                        
+                        ${currentGame ? `
+                            <!-- Eligibility Alert -->
+                            <div class="eligibility-alert ${isEligible ? 'eligible' : 'not-eligible'}">
+                                <div class="icon">
+                                    <i class="fas fa-${isEligible ? 'check' : 'hourglass-half'}"></i>
+                                </div>
+                                <div class="content">
+                                    <h4>${isEligible ? '🎉 Vous êtes éligible à la prime !' : '⏳ Continuez à parrainer'}</h4>
+                                    <p>
+                                        ${isEligible 
+                                            ? `Vous avez ${currentGameReferrals} filleuls pour "${currentGame.title}". Votre prime sera versée à la fin du jeu.`
+                                            : `Encore ${10 - currentGameReferrals} filleul(s) pour atteindre la prime de 1000 FCFA pour "${currentGame.title}".`
+                                        }
+                                    </p>
+                                    <div class="progress-bar">
+                                        <div class="fill" style="width: ${progress}%;"></div>
+                                    </div>
+                                    <p style="font-size: 0.8rem; margin-top: 5px;">${currentGameReferrals}/10 filleuls</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <!-- Share Section -->
+                        <div class="share-section">
+                            <h4><i class="fas fa-share-alt"></i> Partagez votre lien</h4>
+                            <div class="share-buttons">
+                                <a href="https://wa.me/?text=${encodeURIComponent(`🎮 Rejoins Social Vote et participe aux compétitions de votes ! Inscris-toi avec mon code ${candidateProfile.referral_code} et reçois 10 votes bonus gratuits ! 🎁\n\n${referralLink}`)}" 
+                                   target="_blank" class="share-btn whatsapp">
+                                    <i class="fab fa-whatsapp"></i>
+                                    WhatsApp
+                                </a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(referralLink)}" 
+                                   target="_blank" class="share-btn facebook">
+                                    <i class="fab fa-facebook-f"></i>
+                                    Facebook
+                                </a>
+                                <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎮 Rejoins Social Vote ! Utilise mon code ${candidateProfile.referral_code} pour 10 votes bonus gratuits ! 🎁`)}&url=${encodeURIComponent(referralLink)}" 
+                                   target="_blank" class="share-btn twitter">
+                                    <i class="fab fa-twitter"></i>
+                                    Twitter
+                                </a>
+                                <a href="https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(`Rejoins Social Vote avec mon code ${candidateProfile.referral_code} !`)}" 
+                                   target="_blank" class="share-btn telegram">
+                                    <i class="fab fa-telegram-plane"></i>
+                                    Telegram
+                                </a>
+                                <button class="share-btn copy" onclick="copyToClipboard('${referralLink}', 'Lien copié !')">
+                                    <i class="fas fa-link"></i>
+                                    Copier le lien
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Status Section -->
+                ${referralStats.payments && referralStats.payments.length > 0 ? `
+                    <section class="payment-status-section">
+                        <div class="section-header">
+                            <h4><i class="fas fa-wallet"></i> Statut des Paiements</h4>
+                        </div>
+                        
+                        ${referralStats.payments.map(payment => {
+                            const game = referralStats.referralsByGame.find(g => g.game?.id === payment.game_id);
+                            return `
+                                <div class="payment-card">
+                                    <div class="payment-info">
+                                        <div class="icon">
+                                            <i class="fas fa-${payment.payment_status === 'paid' ? 'check-circle' : 'clock'}"></i>
+                                        </div>
+                                        <div class="details">
+                                            <h5>${game?.game?.title || 'Jeu'}</h5>
+                                            <p>${payment.referral_count} filleuls</p>
+                                        </div>
+                                    </div>
+                                    <div class="payment-amount">
+                                        <span class="amount">${payment.bonus_amount?.toLocaleString() || 0} FCFA</span>
+                                        <p class="status ${payment.payment_status}">
+                                            ${payment.payment_status === 'paid' ? '✓ Payé' : '⏳ En attente'}
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </section>
+                ` : ''}
+                
+                <!-- Referrals List -->
+                <section class="referrals-section">
+                    <div class="section-header">
+                        <h4><i class="fas fa-user-friends"></i> Mes Filleuls (${referralsList.length})</h4>
+                        <select class="filter-select" id="gameFilter" onchange="filterReferralsByGame()">
+                            <option value="all">Tous les jeux</option>
+                            ${referralStats.referralsByGame.map(g => 
+                                `<option value="${g.game?.id}">${g.game?.title || 'Jeu'} (${g.count})</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    
+                    <div id="referralsTableContainer">
+                        ${renderReferralsTable(referralsList)}
+                    </div>
+                </section>
+            `;
+            
+            console.log("QR link:", referralLink, "QRCode lib:", typeof QRCode);
+            // Générer le QR Code
+            generateQRCode(referralLink);
+        }
+        
+        function renderReferralsTable(referrals) {
+            if (referrals.length === 0) {
+                return `
+                    <div class="no-data">
+                        <i class="fas fa-user-slash"></i>
+                        <h4>Aucun filleul pour le moment</h4>
+                        <p>Partagez votre code de parrainage pour commencer à gagner des bonus !</p>
+                    </div>
+                `;
+            }
+            
+            return `
+                <table class="referrals-table">
+                    <thead>
+                        <tr>
+                            <th>Filleul</th>
+                            <th>Jeu</th>
+                            <th>Date d'inscription</th>
+                            <th>Votes Bonus</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${referrals.map(r => `
+                            <tr>
+                                <td>
+                                    <div class="referral-user">
+                                        <img src="${r.refereeUser?.photo_url || 'https://placehold.co/40x40?text=U'}" 
+                                             alt="${r.refereeUser?.full_name || 'Utilisateur'}">
+                                        <div>
+                                            <span class="name">${r.refereeUser?.full_name || 'Utilisateur'}</span>
+                                            <span class="email">${r.referee?.username || ''}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${r.games?.title || 'N/A'}</td>
+                                <td>${formatDate(r.created_at)}</td>
+                                <td><strong>+${r.bonus_votes_granted || 0}</strong></td>
+                                <td>
+                                    <span class="status-badge active">
+                                        <i class="fas fa-check"></i> Validé
+                                    </span>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function filterReferralsByGame() {
+            const gameId = document.getElementById('gameFilter').value;
+            const container = document.getElementById('referralsTableContainer');
+            
+            let filtered = referralsList;
+            if (gameId !== 'all') {
+                filtered = referralsList.filter(r => r.game_id === gameId);
+            }
+            
+            container.innerHTML = renderReferralsTable(filtered);
+        }
+        
+        // ============================================
+        // GÉNÉRATION QR CODE
+        // ============================================
+        async function generateQRCode(url) {
+        const canvas = document.getElementById('qrCode');
+        if (!canvas) return;
+
+        // Si la lib QRCode n'est pas chargée, on affiche un message
+        if (typeof QRCode === 'undefined') {
+            canvas.outerHTML = `<div style="color: var(--gray); font-size: 0.9rem;">QR Code indisponible (librairie non chargée).<br>Copiez le lien ci-dessus.</div>`;
+            return;
+        }
+
+        try {
+            await QRCode.toCanvas(canvas, url, {
+            width: 160,
+            margin: 2,
+            color: { dark: '#0A1F44', light: '#FFFFFF' }
+            });
+        } catch (e) {
+            console.error("QR error:", e);
+            canvas.outerHTML = `<div style="color: var(--gray); font-size: 0.9rem;">Impossible de générer le QR Code.</div>`;
+        }
+        }
+                
+        // ============================================
+        // UTILITAIRES
+        // ============================================
+        function copyToClipboard(text, message = 'Copié !') {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(message, 'success');
+            }).catch(() => {
+                // Fallback pour les anciens navigateurs
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast(message, 'success');
+            });
+        }
+        
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function renderNavAuth() {
+  const navAuth = document.getElementById('navAuth');
+  if (!navAuth) return;
+
+  if (currentUser) {
+    navAuth.innerHTML = `
+      <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">
+        <i class="fas fa-star"></i> S'inscrire comme candidat
+      </a>
+      <a href="/profile/" class="btn btn-outline btn-sm">
+        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+      </a>
+      <button class="btn btn-outline btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    `;
+
+    // Mobile menu: remplacer Connexion/Inscription par Profil/Déconnexion
+    patchMobileMenuForLoggedIn();
+  } else {
+    navAuth.innerHTML = `
+      <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+      <a href="/auth/?tab=register" class="btn btn-primary btn-sm">S'inscrire</a>
+    `;
+
+    patchMobileMenuForLoggedOut();
+  }
+}
+
+function patchMobileMenuForLoggedIn() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  // Enlever anciens liens si présents
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  // Ajouter Profil + Déconnexion (si pas déjà)
+  const liProfile = document.createElement('li');
+  liProfile.setAttribute('data-auth-link', 'true');
+  liProfile.innerHTML = `<a href="/profile/">Mon Profil</a>`;
+
+  const liCandidate = document.createElement('li');
+  liCandidate.setAttribute('data-auth-link', 'true');
+  liCandidate.innerHTML = `<a href="/auth/?tab=candidate">S'inscrire comme candidat</a>`;
+
+  const liLogout = document.createElement('li');
+  liLogout.setAttribute('data-auth-link', 'true');
+  liLogout.innerHTML = `<a href="#" onclick="logout(); return false;">Déconnexion</a>`;
+
+  menu.appendChild(liCandidate);
+  menu.appendChild(liProfile);
+  menu.appendChild(liLogout);
+}
+
+function patchMobileMenuForLoggedOut() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  const liLogin = document.createElement('li');
+  liLogin.setAttribute('data-auth-link', 'true');
+  liLogin.innerHTML = `<a href="/auth/">Connexion</a>`;
+
+  const liRegister = document.createElement('li');
+  liRegister.setAttribute('data-auth-link', 'true');
+  liRegister.innerHTML = `<a href="/auth/?tab=register">S'inscrire</a>`;
+
+  menu.appendChild(liLogin);
+  menu.appendChild(liRegister);
+}
+
+// ==========================================
+// BOUTON WHATSAPP FLOTTANT
+// ==========================================
+
+function createWhatsAppButton() {
+  const whatsappBtn = document.createElement('a');
+  whatsappBtn.href = 'https://wa.me/2290190086267';
+  whatsappBtn.target = '_blank';
+  whatsappBtn.className = 'whatsapp-float';
+  whatsappBtn.innerHTML = `
+    <img src="https://img.icons8.com/?size=100&id=85088&format=png&color=000000" alt="WhatsApp" style="width: 100%; height: 100%;">
+  `;
+  whatsappBtn.style.cssText = `
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 40px;
+    height: 40px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 9998;
+    transition: all 0.3s ease;
+    padding: 9px;
+  `;
+  
+  whatsappBtn.addEventListener('mouseenter', () => {
+    whatsappBtn.style.transform = 'scale(1.1)';
+  });
+  
+  whatsappBtn.addEventListener('mouseleave', () => {
+    whatsappBtn.style.transform = 'scale(1)';
+  });
+  
+  document.body.appendChild(whatsappBtn);
+}
+
+    </script>
+</body>
+</html>

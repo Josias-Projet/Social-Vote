@@ -1,0 +1,3321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter - Social Vote</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+     <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    <style>
+        /* ============================================
+           SOCIAL VOTE - VOTE PAGE STYLES
+           ============================================ */
+        
+        :root {
+            --primary: #0A1F44;
+            --accent: #D4AF37;
+            --white: #FFFFFF;
+            --light-bg: #F8F9FA;
+            --gray: #6C757D;
+            --dark-gray: #343A40;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            --info: #17A2B8;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --transition: all 0.3s ease;
+            --gold: #FFD700;
+            --silver: #C0C0C0;
+            --bronze: #CD7F32;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--dark-gray);
+            line-height: 1.6;
+        }
+        
+        /* ========== NAVBAR ========== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--primary);
+            padding: 10px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .navbar-brand i {
+            font-size: 2rem;
+            color: var(--accent);
+        }
+        
+        .navbar-brand span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent);
+        }
+        
+        .nav-auth {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #C4A030;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-lg {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--white);
+        }
+        
+        /* ========== USER STATUS BAR ========== */
+        .user-status-bar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--white);
+            font-size: 0.9rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .stat-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-badge i {
+            color: var(--accent);
+        }
+        
+        /* ========== MAIN CONTENT ========== */
+        .main-content {
+            padding-top: 140px;
+            min-height: 100vh;
+        }
+        
+        /* ========== GAME HEADER ========== */
+        .game-header {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            padding: 40px 5%;
+            color: var(--white);
+            text-align: center;
+        }
+        
+        .game-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .game-header h1 span {
+            color: var(--accent);
+        }
+        
+        .game-header p {
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+        
+        .game-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .game-status.active {
+            background: var(--success);
+        }
+        
+        .game-status.pending {
+            background: var(--warning);
+            color: var(--primary);
+        }
+        
+        .game-status.ended {
+            background: var(--danger);
+        }
+        
+        .game-status .pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--white);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* Timer */
+        .timer-container {
+            margin-top: 20px;
+        }
+        
+        .timer-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .timer {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .timer-box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 10px;
+            min-width: 80px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        
+        .timer-box .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+        
+        .timer-box .label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+        
+        /* ========== PRIZES SECTION ========== */
+        .prizes-section {
+            padding: 40px 5%;
+            background: var(--white);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section-title h2 {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        
+        .section-title h2 span {
+            color: var(--accent);
+        }
+        
+        .prizes-grid {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .prize-card {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            color: var(--white);
+            min-width: 200px;
+            flex: 1;
+            max-width: 280px;
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .prize-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .prize-card.gold { border: 3px solid var(--gold); }
+        .prize-card.silver { border: 3px solid var(--silver); }
+        .prize-card.bronze { border: 3px solid var(--bronze); }
+        
+        .prize-position {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .gold .prize-position { background: var(--gold); color: var(--primary); }
+        .silver .prize-position { background: var(--silver); color: var(--primary); }
+        .bronze .prize-position { background: var(--bronze); color: var(--white); }
+        
+        .prize-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin: 15px auto;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .prize-card h4 {
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        
+        .prize-card p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        
+        /* ========== PODIUM ========== */
+        .podium-section {
+            padding: 50px 5%;
+            background: var(--light-bg);
+        }
+        
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .podium-place {
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .podium-place:hover {
+            transform: translateY(-10px);
+        }
+        
+        .podium-place.first { order: 2; }
+        .podium-place.second { order: 1; }
+        .podium-place.third { order: 3; }
+        
+        .podium-photo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent);
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .first .podium-photo {
+            width: 110px;
+            height: 110px;
+            border-color: var(--gold);
+        }
+        
+        .second .podium-photo { border-color: var(--silver); }
+        .third .podium-photo { border-color: var(--bronze); }
+        
+        .podium-name {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 3px;
+        }
+        
+        .podium-votes {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+        
+        .podium-stand {
+            padding: 20px 35px;
+            border-radius: 10px 10px 0 0;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .first .podium-stand {
+            background: linear-gradient(135deg, var(--gold), #FFA500);
+            padding: 35px 45px;
+        }
+        
+        .second .podium-stand {
+            background: linear-gradient(135deg, var(--silver), #A0A0A0);
+            padding: 25px 40px;
+        }
+        
+        .third .podium-stand {
+            background: linear-gradient(135deg, var(--bronze), #8B4513);
+            padding: 18px 35px;
+        }
+        
+        /* ========== FILTERS ========== */
+        .filters-section {
+            padding: 30px 5%;
+            background: var(--white);
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 120px;
+            z-index: 100;
+        }
+        
+        .filters-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-group label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .filter-group select {
+            padding: 10px 35px 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-family: inherit;
+            background: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236C757D' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .candidates-count {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .candidates-count strong {
+            color: var(--primary);
+        }
+        
+        /* ========== CANDIDATES GRID ========== */
+        .candidates-section {
+            padding: 40px 5%;
+        }
+        
+        .candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .candidate-card {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .candidate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .candidate-rank {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+        
+        .candidate-rank.rank-1 {
+            background: var(--gold);
+            color: var(--primary);
+        }
+        
+        .candidate-rank.rank-2 {
+            background: var(--silver);
+            color: var(--primary);
+        }
+        
+        .candidate-rank.rank-3 {
+            background: var(--bronze);
+            color: var(--white);
+        }
+        
+        .candidate-rank.rank-other {
+            background: var(--primary);
+            color: var(--white);
+        }
+        
+        .candidate-photo-container {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+        }
+        
+        .candidate-photo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .candidate-card:hover .candidate-photo {
+            transform: scale(1.05);
+        }
+        
+        .candidate-number {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: var(--accent);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .candidate-info {
+            padding: 20px;
+        }
+        
+        .candidate-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .candidate-bio {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .votes-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: var(--light-bg);
+            border-radius: 10px;
+        }
+        
+        .vote-stat {
+            text-align: center;
+        }
+        
+        .vote-stat .number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+        }
+        
+        .vote-stat .label {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+        
+        .vote-stat.total .number {
+            color: var(--accent);
+        }
+        
+        .candidate-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .candidate-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .referral-code {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .referral-code span {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .referral-code strong {
+            color: var(--primary);
+            font-family: monospace;
+        }
+        
+        .referral-code button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .referral-code button:hover {
+            color: var(--primary);
+        }
+        
+        /* ========== NO CANDIDATES ========== */
+        .no-candidates {
+            text-align: center;
+            padding: 60px 20px;
+            grid-column: 1 / -1;
+        }
+        
+        .no-candidates i {
+            font-size: 4rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .no-candidates h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .no-candidates p {
+            color: var(--gray);
+        }
+        
+        /* ========== RESULTS SECTION ========== */
+        .results-section {
+            padding: 60px 5%;
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            color: var(--white);
+            text-align: center;
+        }
+        
+        .results-section h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .results-section h2 span {
+            color: var(--accent);
+        }
+        
+        .results-section > p {
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+        
+        .winners-grid {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto 40px;
+        }
+        
+        .winner-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            min-width: 250px;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .winner-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .winner-card.first { border-color: var(--gold); }
+        .winner-card.second { border-color: var(--silver); }
+        .winner-card.third { border-color: var(--bronze); }
+        
+        .winner-medal {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .winner-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid var(--accent);
+        }
+        
+        .winner-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .winner-votes {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .winner-prize {
+            background: var(--accent);
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        /* ========== MODALS ========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--white);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        
+        /* Vote Modal */
+        .vote-candidate-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .vote-candidate-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+        }
+        
+        .vote-candidate-info h4 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .vote-candidate-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .vote-type-selector {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .vote-type-option {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .vote-type-option:hover {
+            border-color: var(--accent);
+        }
+        
+        .vote-type-option.selected {
+            border-color: var(--accent);
+            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .vote-type-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .vote-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .vote-type-header h5 {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .vote-type-header .badge {
+            background: var(--success);
+            color: var(--white);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+        
+        .vote-type-option p {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        .paid-votes-input {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 10px;
+        }
+        
+        .paid-votes-input.show {
+            display: block;
+        }
+        
+        .paid-votes-input label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .votes-amount-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .amount-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .amount-btn:hover {
+            border-color: var(--accent);
+        }
+        
+        .amount-btn.selected {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: var(--primary);
+        }
+        
+        .amount-btn .votes {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: block;
+        }
+        
+        .amount-btn .price {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .amount-btn.selected .price {
+            color: var(--primary);
+        }
+        
+        .custom-amount {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .custom-amount input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        
+        .custom-amount input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .total-price {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .total-price .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        /* Payment Instructions */
+        .payment-instructions {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .payment-instructions h5 {
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .payment-method {
+            display: flex;
+            gap: 15px;
+            padding: 12px;
+            background: var(--white);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .payment-method img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+        
+        .payment-method .number {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .payment-method .name {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        /* Ad Popup */
+        .ad-popup .modal {
+            max-width: 450px;
+        }
+        
+        .ad-popup .ad-media {
+            width: 100%;
+            max-height: 370px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .ad-popup .ad-content h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .ad-popup .ad-content p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+        
+        .ad-timer {
+            text-align: center;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .ad-timer p {
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .ad-timer .countdown {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* ========== LOADING ========== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--light-bg);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ========== TOAST ========== */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 3000;
+        }
+        
+        .toast {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .toast.warning { background: var(--warning); color: var(--primary); }
+        
+        /* ========== FOOTER ========== */
+        .footer {
+            background: var(--primary);
+            color: var(--white);
+            padding: 15px 5%;
+            text-align: center;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 992px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .filters-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .user-status-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .user-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .main-content {
+                padding-top: 180px;
+            }
+            
+            .filters-section {
+                top: 160px;
+            }
+            
+            .game-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .timer {
+                flex-wrap: wrap;
+            }
+            
+            .timer-box {
+                min-width: 70px;
+                padding: 12px 15px;
+            }
+            
+            .timer-box .number {
+                font-size: 1.5rem;
+            }
+            
+            .podium {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .podium-place {
+                order: unset !important;
+            }
+            
+            .candidates-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .votes-amount-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .candidate-card {
+                margin: 0 10px;
+            }
+            
+            .vote-candidate-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .prizes-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .prize-card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: var(--primary);
+            z-index: 2001;
+            transition: var(--transition);
+            padding: 15px 20px 30px;
+        }
+        
+        .mobile-menu.active {
+            left: 0;
+        }
+        
+        .mobile-menu ul {
+            list-style: none;
+        }
+        
+        .mobile-menu ul li {
+            margin-bottom: 3px;
+        }
+        
+        .mobile-menu ul a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .mobile-overlay.active {
+            display: block;
+        }
+            .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-logo img {
+            height: 45px;
+            width: auto;
+        }
+
+        @media (min-width: 768px) {
+            .navbar-logo img {
+                height: 40px;
+            }
+        }
+
+        .navbar-logo span {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        @media (min-width: 768px) {
+            .navbar-logo span {
+                font-size: 1.35rem;
+            }
+        }
+
+        .nav-links a {
+        color: var(--white);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+        position: relative;            /* IMPORTANT pour la barre */
+        padding: 6px 0;
+        }
+
+        /* Hover */
+        .nav-links a:hover {
+        color: var(--accent);
+        }
+
+        /* Barre sous le lien (page active) */
+        .nav-links a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 100%;
+        height: 3px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* Couleur du lien actif */
+        .nav-links a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        /* Feedback clic (petit flash) */
+        .nav-links a.clicked {
+        opacity: 0.7;
+        }
+
+        .mobile-menu a {
+        color: var(--white);
+        text-decoration: none;
+        font-size: 1rem;
+        position: relative;
+        padding: 6px 0;
+        display: inline-block;
+        }
+
+        .mobile-menu a.active {
+        color: var(--accent);
+        font-weight: 700;
+        }
+
+        .mobile-menu a.active::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 100%;
+        height: 1px;
+        background: var(--accent);
+        border-radius: 3px;
+        }
+
+        /* =========================================================
+   SOCIAL VOTE - GLOBAL RESPONSIVE PACK (ANDROID FIRST)
+   Colle ce bloc à la FIN du <style> de chaque page.
+   Objectif: 0 overflow, navbar clean, forms clean, mobile menu ok.
+   ========================================================= */
+
+html, body { max-width: 100%; overflow-x: hidden; }
+* { box-sizing: border-box; min-width: 0; }
+img, video, canvas { max-width: 100%; height: auto; }
+
+/* -------------------------
+   NAVBAR: mobile behavior
+   ------------------------- */
+
+/* Empêche les éléments navbar de déborder */
+.navbar {
+  max-width: 100%;
+  gap: 12px;
+}
+
+/* Sur petit écran, on cache les boutons auth dans la navbar
+   et on laisse le menu hamburger gérer l'auth */
+@media (max-width: 576px) {
+  .nav-auth { display: none !important; }
+}
+
+/* Si ton menu toggle n’apparaît pas partout, force-le sur mobile */
+@media (max-width: 992px) {
+  .menu-toggle { display: flex !important; }
+  .nav-links { display: none !important; }
+}
+
+/* -------------------------
+   BUTTONS: safe sizing
+   ------------------------- */
+.btn {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Sur mobile: boutons plus petits, mais restent sur 1 ligne quand possible */
+@media (max-width: 576px) {
+  .btn { padding: 10px 14px !important; border-radius: 14px !important; font-size: .95rem !important; }
+  .btn-lg { padding: 12px 16px !important; font-size: 1rem !important; }
+  .btn-sm { padding: 9px 12px !important; font-size: .85rem !important; }
+}
+
+/* Autoriser le retour à la ligne uniquement sur les boutons "longs"
+   => ajoute class="btn-wrap" sur les boutons qui ont du texte long */
+.btn.btn-wrap { white-space: normal; line-height: 1.2; }
+
+/* -------------------------
+   LAYOUT: grids -> 1 col on mobile
+   ------------------------- */
+
+/* Beaucoup de tes pages utilisent .form-row => on force 1 colonne en mobile */
+@media (max-width: 576px) {
+  .form-row { grid-template-columns: 1fr !important; }
+}
+
+/* Tables: scroll horizontal */
+.table-container,
+.votes-table,
+.referrals-table,
+.candidates-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* -------------------------
+   FORMS: no overflow
+   ------------------------- */
+input, select, textarea {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* input-group: ne doit pas dépasser */
+.input-group { width: 100%; max-width: 100%; }
+
+/* Referral input + bouton vérifier: stack sur mobile */
+@media (max-width: 576px) {
+  .referral-input-group { flex-direction: column !important; }
+  .referral-input-group .btn { width: 100% !important; }
+}
+
+/* Auth: double boutons (login/register) => stack sur très petit écran */
+@media (max-width: 420px) {
+  .auth-two-buttons { grid-template-columns: 1fr !important; }
+}
+
+/* Modals: éviter overflow */
+.modal { max-width: 95vw !important; }
+.modal-body { overflow-x: hidden; }
+
+    </style>
+
+<!-- ================= SEO & SOCIAL SHARING ================= -->
+<meta property="og:title" content="Social Vote - Ta communauté fait ta force">
+<meta property="og:description" content="Participez, votez pour vos candidats préférés et gagnez des prix exceptionnels !">
+<meta property="og:image" content="https://placehold.co/1200x630?text=Social+Vote"> <!-- Remplace par une belle image hébergée sur Cloudinary -->
+<meta property="og:url" content="https://ton-site.com">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+<body>
+    <!-- ========== NAVBAR ========== -->
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <span class="navbar-logo"><img src="assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
+        </a>
+        
+        <ul class="nav-links">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/vote/" class="active">Voter</a></li>
+            <li><a href="/referral/">Parrainage</a></li>
+            <li><a href="/history/">Historique</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
+        </ul>
+        
+        <div class="nav-auth" id="navAuth">
+            <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+            <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">S'inscrire</a>
+        </div>
+        
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileMenuClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="/vote/">Voter</a></li>
+            <li><a href="/referral/">Parrainage</a></li>
+            <li><a href="/history/">Historique</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
+            <li><a href="/rules/">Règlement</a></li>
+        </ul>
+    </div>
+    
+    <!-- ========== USER STATUS BAR ========== -->
+    <div class="user-status-bar" id="userStatusBar">
+        <div class="user-info" id="userInfo">
+            <i class="fas fa-user-circle" style="font-size: 1.5rem;"></i>
+            <span>Connectez-vous pour suivre vos votes</span>
+        </div>
+        <div class="user-stats" id="userStats">
+            <a href="/auth/" class="btn btn-primary btn-sm">
+                <i class="fas fa-sign-in-alt"></i>
+                Connexion
+            </a>
+        </div>
+    </div>
+    
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="main-content">
+        <!-- Game Header -->
+        <section class="game-header" id="gameHeader">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Chargement du jeu...</p>
+            </div>
+        </section>
+        
+        <!-- Prizes -->
+        <section class="prizes-section" id="prizesSection" style="display: none;">
+            <div class="section-title">
+                <h2>🎁 Prix à <span>Gagner</span></h2>
+            </div>
+            <div class="prizes-grid" id="prizesGrid"></div>
+        </section>
+        
+        <!-- Podium -->
+        <section class="podium-section" id="podiumSection" style="display: none;">
+            <div class="section-title">
+                <h2>🏆 Top <span>3</span> Actuel</h2>
+            </div>
+            <div class="podium" id="podium"></div>
+        </section>
+        
+        <!-- Filters -->
+        <section class="filters-section" id="filtersSection" style="display: none;">
+            <div class="filters-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Rechercher un candidat...">
+                </div>
+                
+                <div class="filter-group">
+                    <label>Trier par:</label>
+                    <select id="sortSelect">
+                        <option value="votes_desc">Plus de votes</option>
+                        <option value="votes_asc">Moins de votes</option>
+                        <option value="name_asc">Nom (A-Z)</option>
+                        <option value="name_desc">Nom (Z-A)</option>
+                        <option value="recent">Plus récent</option>
+                    </select>
+                </div>
+                
+                <div class="candidates-count">
+                    <strong id="candidatesCount">0</strong> candidats
+                </div>
+            </div>
+        </section>
+        
+        <!-- Candidates Grid -->
+        <section class="candidates-section" id="candidatesSection" style="display: none;">
+            <div class="candidates-grid" id="candidatesGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Chargement des candidats...</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Results Section (for ended games) -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <h2>🎉 Résultats <span>Officiels</span></h2>
+            <p>Le jeu est terminé. Voici les gagnants !</p>
+            <div class="winners-grid" id="winnersGrid"></div>
+            <a href="/history/" class="btn btn-primary btn-lg">
+                <i class="fas fa-history"></i>
+                Voir l'historique complet
+            </a>
+        </section>
+    </main>
+    
+    <!-- ========== VOTE MODAL ========== -->
+    <div class="modal-overlay" id="voteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-vote-yea"></i> Voter</h3>
+                <button class="modal-close" onclick="closeVoteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="vote-candidate-info" id="voteCandidateInfo">
+                    <!-- Populated dynamically -->
+                </div>
+                
+                <div class="vote-type-selector">
+                    <div class="vote-type-option" id="freeVoteOption" onclick="selectVoteType('free')">
+                        <div class="vote-type-header">
+                            <h5><i class="fas fa-gift"></i> Vote Gratuit</h5>
+                            <span class="badge" id="freeVoteBadge">Disponible</span>
+                        </div>
+                        <p>1 vote gratuit par candidat et par jeu</p>
+                    </div>
+                    
+                    <div class="vote-type-option" id="paidVoteOption" onclick="selectVoteType('paid')">
+                        <div class="vote-type-header">
+                            <h5><i class="fas fa-star"></i> Votes Payants</h5>
+                        </div>
+                        <p>Boostez votre candidat préféré avec des votes supplémentaires</p>
+                    </div>
+                </div>
+                
+                <div class="paid-votes-input" id="paidVotesInput">
+                    <label>Choisissez le nombre de votes:</label>
+                    <div class="votes-amount-grid">
+                        <button type="button" class="amount-btn" data-votes="1" onclick="selectAmount(1)">
+                            <span class="votes">1</span>
+                            <span class="price" id="price1">50 FCFA</span>
+                        </button>
+                        <button type="button" class="amount-btn" data-votes="5" onclick="selectAmount(5)">
+                            <span class="votes">5</span>
+                            <span class="price" id="price5">250 FCFA</span>
+                        </button>
+                        <button type="button" class="amount-btn" data-votes="10" onclick="selectAmount(10)">
+                            <span class="votes">10</span>
+                            <span class="price" id="price10">500 FCFA</span>
+                        </button>
+                        <button type="button" class="amount-btn" data-votes="20" onclick="selectAmount(20)">
+                            <span class="votes">20</span>
+                            <span class="price" id="price20">1000 FCFA</span>
+                        </button>
+                        <button type="button" class="amount-btn" data-votes="50" onclick="selectAmount(50)">
+                            <span class="votes">50</span>
+                            <span class="price" id="price50">2500 FCFA</span>
+                        </button>
+                        <button type="button" class="amount-btn" data-votes="100" onclick="selectAmount(100)">
+                            <span class="votes">100</span>
+                            <span class="price" id="price100">5000 FCFA</span>
+                        </button>
+                    </div>
+                    
+                    <div class="custom-amount">
+                        <input type="number" id="customVotes" placeholder="Autre quantité" min="1">
+                        <button type="button" class="btn btn-sm btn-outline" onclick="applyCustomAmount()">
+                            Appliquer
+                        </button>
+                    </div>
+                    
+                    <div class="total-price">
+                        <span>Total à payer:</span>
+                        <span class="amount" id="totalAmount">0 FCFA</span>
+                    </div>
+                    
+                    <div class="payment-instructions">
+                        <h5><i class="fas fa-info-circle"></i> Instructions de paiement</h5>
+                        <div class="payment-method">
+                            <img src="assets/images/mtn.png" alt="MTN">
+                            <div>
+                                <p class="number">229 01 90 08 62 67</p>
+                                <p class="name">MTN Mobile Money</p>
+                            </div>
+                        </div>
+                        <div class="payment-method">
+                            <img src="assets/images/moov.png" alt="Moov">
+                            <div>
+                                <p class="number">229 01 55 95 66 83</p>
+                                <p class="name">Moov Money</p>
+                            </div>
+                        </div>
+                        <div class="payment-method">
+                            <img src="assets/images/celtiis.png" alt="Celtiis">
+                            <div>
+                                <p class="number">229 01 40 30 47 51</p>
+                                <p class="name">Celtiis Cash</p>
+                            </div>
+                        </div>
+                        <p style="margin-top: 15px; font-size: 0.85rem; color: #856404;">
+                            <strong>Important:</strong> Envoyez le montant et contactez-nous sur WhatsApp avec la preuve de paiement.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeVoteModal()">Annuler</button>
+                <button class="btn btn-success" id="confirmVoteBtn" onclick="confirmVote()">
+                    <i class="fas fa-check"></i>
+                    Confirmer
+                </button>
+                <a href="https://wa.me/2290190086267" class="btn btn-primary" id="whatsappBtn" style="display: none;" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    Envoyer la preuve
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== AD POPUP ========== -->
+    <div class="modal-overlay ad-popup" id="adPopup">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-bullhorn"></i> Publicité</h3>
+                <button class="modal-close" id="adCloseBtn" disabled>
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img src="" alt="Publicité" class="ad-media" id="adMedia">
+                <div class="ad-content">
+                    <h4 id="adTitle"></h4>
+                    <p id="adDescription"></p>
+                </div>
+                <div class="ad-timer" id="adTimer">
+                    <p>Vous pouvez fermer dans</p>
+                    <span class="countdown" id="adCountdown">5</span>
+                </div>
+                <a href="#" class="btn btn-primary" id="adButton" target="_blank" style="width: 100%; display: none;">
+                    En savoir plus
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========== TOAST CONTAINER ========== -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <p>&copy; 2026 Social Vote. Tous droits réservés. | <a href="/rules/">Règlement</a> | <a href="/contact/">Contact</a></p>
+    </footer>
+    
+    <!-- ========== SCRIPTS ========== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // ============================================
+        // VARIABLES GLOBALES (Ajout)
+        // ============================================
+        let globalVisitorId = null;
+
+        // ============================================
+        // INITIALISATION (Ajout)
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ... tes inits existants ...
+            
+            // Lancer Fingerprint en arrière-plan
+            initFingerprint();
+        });
+
+        // 1. Récupérer l'empreinte unique
+        async function initFingerprint() {
+            try {
+                const fp = await FingerprintJS.load();
+                const result = await fp.get();
+                globalVisitorId = result.visitorId;
+                console.log("Visitor ID:", globalVisitorId);
+            } catch (e) {
+                console.warn("Fingerprint error:", e);
+            }
+        }
+
+        // 2. Fonction Confettis (Victoire visuelle)
+        function triggerConfetti() {
+            var count = 200;
+            var defaults = {
+                origin: { y: 0.7 }
+            };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const CONFIG = {
+            SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
+            CLOUDINARY_CLOUD_NAME: 'drvkea88c',
+            WHATSAPP_NUMBER: '22901900862676',
+            VOTE_PRICE: 50
+        };
+        
+        // Initialisation Supabase
+        const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+        let currentUser = null;
+        let currentGame = null;
+        let candidates = [];
+        let selectedCandidate = null;
+        let selectedVoteType = 'free';
+        let selectedVoteAmount = 1;
+        let votePrice = CONFIG.VOTE_PRICE;
+        let userVotes = {};
+        let countdownInterval = null;
+        let adCountdownInterval = null;
+        let voterIp = null;      // IP courante
+        let ipReady = false;     // pour savoir si on peut autoriser vote gratuit
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            setActiveNavLinks();
+            initMobileMenu();
+            initSearch();
+            initSort();
+            // Créer le bouton WhatsApp flottant
+            createWhatsAppButton();
+            await checkAuth();
+            await loadActiveGame();
+
+            voterIp = await getIP();
+            ipReady = !!voterIp;
+
+            if (!ipReady) {
+             showToast("Impossible de vérifier votre IP : vote gratuit désactivé sur cet appareil.", "warning");
+            }
+
+            await loadVoterVoteMap(); // << nouveau
+
+            await showOpeningAd();
+        });
+        
+        // ============================================
+        // AUTHENTIFICATION
+        // ============================================
+        async function checkAuth() {
+            try {
+                const session = localStorage.getItem('socialvote_session');
+                if (session) {
+                    currentUser = JSON.parse(session);
+                    renderNavAuth();
+                    updateUserStatusBar();
+                    updateNavAuth();
+                    await loadUserVotes();
+                }
+            } catch (error) {
+                console.error('Erreur auth:', error);
+            }
+        }
+        
+        function setActiveNavLinks() {
+            const path = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+            // Desktop
+            document.querySelectorAll('.nav-links a').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                a.classList.toggle('active', href === path);
+            });
+
+            // Mobile
+            document.querySelectorAll('.mobile-menu a').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                a.classList.toggle('active', href === path);
+            });
+
+            // Feedback clic
+            const allLinks = [
+                ...document.querySelectorAll('.nav-links a'),
+                ...document.querySelectorAll('.mobile-menu a')
+            ];
+
+            allLinks.forEach(a => {
+                a.addEventListener('click', () => {
+                a.classList.add('clicked');
+                setTimeout(() => a.classList.remove('clicked'), 200);
+                });
+            });
+        }
+
+        function updateUserStatusBar() {
+            const userInfo = document.getElementById('userInfo');
+            const userStats = document.getElementById('userStats');
+            
+            if (currentUser) {
+                userInfo.innerHTML = `
+                    <img src="${currentUser.photo_url || 'https://placehold.co/35x35?text=U'}" alt="${currentUser.full_name}">
+                    <span>Bonjour, <strong>${currentUser.full_name.split(' ')[0]}</strong></span>
+                `;
+                
+                userStats.innerHTML = `
+                    <div class="stat-badge">
+                        <i class="fas fa-vote-yea"></i>
+                        <span>Mes votes: <strong id="myVotesCount">0</strong></span>
+                    </div>
+                    <a href="/profile/" class="btn btn-primary btn-sm">
+                        <i class="fas fa-user"></i>
+                        Mon Profil
+                    </a>
+                `;
+            }
+        }
+        
+        function updateNavAuth() {
+            const navAuth = document.getElementById('navAuth');
+            if (currentUser) {
+                navAuth.innerHTML = `
+                    <a href="/profile/" class="btn btn-outline btn-sm">
+                        <i class="fas fa-user"></i>
+                        ${currentUser.full_name.split(' ')[0]}
+                    </a>
+                    <button class="btn btn-primary btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                `;
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('socialvote_session');
+            window.location.reload();
+        }
+        
+        async function loadUserVotes() {
+            if (!currentUser || !currentGame) return;
+            
+            try {
+                const { data: votes, error } = await supabaseClient
+                    .from('votes')
+                    .select('candidate_entry_id, vote_type')
+                    .eq('game_id', currentGame.id)
+                    .eq('voter_id', currentUser.id);
+                
+                if (error) throw error;
+                
+                userVotes = {};
+                let totalVotes = 0;
+                
+                votes.forEach(vote => {
+                    if (!userVotes[vote.candidate_entry_id]) {
+                        userVotes[vote.candidate_entry_id] = { free: false, paid: 0 };
+                    }
+                    if (vote.vote_type === 'free') {
+                        userVotes[vote.candidate_entry_id].free = true;
+                    }
+                    totalVotes++;
+                });
+                
+                const myVotesCount = document.getElementById('myVotesCount');
+                if (myVotesCount) {
+                    myVotesCount.textContent = totalVotes;
+                }
+            } catch (error) {
+                console.error('Erreur chargement votes:', error);
+            }
+        }
+        
+        async function loadVoterVoteMap() {
+  if (!currentGame) return;
+
+  try {
+    // Si connecté: votes liés au user OU à l'IP
+    // Si pas connecté: votes liés à l'IP uniquement
+    let query = supabaseClient
+      .from('votes')
+      .select('candidate_entry_id, vote_type')
+      .eq('game_id', currentGame.id)
+      .eq('vote_type', 'free');
+
+    if (currentUser?.id) {
+      if (voterIp) {
+        query = query.or(`voter_id.eq.${currentUser.id},voter_ip.eq.${voterIp}`);
+      } else {
+        query = query.eq('voter_id', currentUser.id);
+      }
+    } else {
+      // pas connecté => IP obligatoire sinon pas de free vote fiable
+      if (!voterIp) {
+        userVotes = {};
+        return;
+      }
+      query = query.eq('voter_ip', voterIp);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // userVotes map: entryId => { free: true }
+    userVotes = userVotes || {};
+    for (const v of (data || [])) {
+      userVotes[v.candidate_entry_id] = userVotes[v.candidate_entry_id] || { free: false, paid: 0 };
+      userVotes[v.candidate_entry_id].free = true;
+    }
+
+    // Rafraîchir l’affichage des candidats pour mettre à jour les boutons
+    displayCandidates();
+  } catch (e) {
+    console.error("loadVoterVoteMap error:", e);
+  }
+}
+
+        // ============================================
+        // MOBILE MENU
+        // ============================================
+        function initMobileMenu() {
+            const menuToggle = document.getElementById('menuToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mobileMenuClose = document.getElementById('mobileMenuClose');
+            
+            menuToggle.addEventListener('click', () => {
+                mobileMenu.classList.add('active');
+                mobileOverlay.classList.add('active');
+            });
+            
+            const closeMenu = () => {
+                mobileMenu.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+            };
+            
+            mobileMenuClose.addEventListener('click', closeMenu);
+            mobileOverlay.addEventListener('click', closeMenu);
+        }
+        
+        // ============================================
+        // CHARGEMENT DU JEU
+        // ============================================
+        async function loadActiveGame() {
+            try {
+                // Mettre à jour les statuts
+                await updateGameStatuses();
+                
+                // Chercher un jeu actif ou en attente
+                const { data: games, error } = await supabaseClient
+                    .from('games')
+                    .select('*')
+                    .in('status', ['active', 'pending', 'ended'])
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                if (games && games.length > 0) {
+                    currentGame = games[0];
+                    
+                    // Charger les prix
+                    const { data: prizes } = await supabaseClient
+                        .from('game_prizes')
+                        .select('*')
+                        .eq('game_id', currentGame.id)
+                        .order('position', { ascending: true });
+                    
+                    currentGame.prizes = prizes || [];
+                    
+                    // Charger les paramètres de vote
+                    votePrice = currentGame.vote_price || CONFIG.VOTE_PRICE;
+                    updateVotePrices();
+                    
+                    displayGameHeader();
+                    
+                    if (currentGame.status === 'ended') {
+                        await displayResults();
+                    } else {
+                        await loadCandidates();
+                    }
+                } else {
+                    displayNoGame();
+                }
+            } catch (error) {
+                console.error('Erreur chargement jeu:', error);
+                displayNoGame();
+            }
+        }
+        
+        async function updateGameStatuses() {
+            const now = new Date().toISOString();
+            
+            try {
+                // Démarrer les jeux
+                await supabaseClient
+                    .from('games')
+                    .update({ status: 'active' })
+                    .eq('status', 'pending')
+                    .lte('start_time', now);
+                
+                // Terminer les jeux
+                await supabaseClient
+                    .from('games')
+                    .update({ status: 'ended' })
+                    .eq('status', 'active')
+                    .lte('end_time', now);
+            } catch (error) {
+                console.error('Erreur mise à jour statuts:', error);
+            }
+        }
+        
+        function displayGameHeader() {
+            const header = document.getElementById('gameHeader');
+            
+            const statusConfig = {
+                active: { class: 'active', text: 'En cours', icon: 'pulse' },
+                pending: { class: 'pending', text: 'Inscriptions ouvertes', icon: 'clock' },
+                ended: { class: 'ended', text: 'Terminé', icon: 'flag-checkered' }
+            };
+            
+            const status = statusConfig[currentGame.status];
+            const startDate = new Date(currentGame.start_time);
+            const endDate = new Date(currentGame.end_time);
+            
+            header.innerHTML = `
+                <div class="game-status ${status.class}">
+                    ${status.icon === 'pulse' ? '<span class="pulse"></span>' : `<i class="fas fa-${status.icon}"></i>`}
+                    ${status.text}
+                </div>
+                <h1>${currentGame.title}</h1>
+                <p>${currentGame.description || ''}</p>
+                
+                ${currentGame.status !== 'ended' ? `
+                    <div class="timer-container">
+                        <p class="timer-label">
+                            ${currentGame.status === 'active' ? '⏱️ Temps restant' : '⏰ Le jeu commence dans'}
+                        </p>
+                        <div class="timer">
+                            <div class="timer-box">
+                                <span class="number" id="days">00</span>
+                                <span class="label">Jours</span>
+                            </div>
+                            <div class="timer-box">
+                                <span class="number" id="hours">00</span>
+                                <span class="label">Heures</span>
+                            </div>
+                            <div class="timer-box">
+                                <span class="number" id="minutes">00</span>
+                                <span class="label">Minutes</span>
+                            </div>
+                            <div class="timer-box">
+                                <span class="number" id="seconds">00</span>
+                                <span class="label">Secondes</span>
+                            </div>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            
+            if (currentGame.status !== 'ended') {
+                startCountdown();
+            }
+            
+            // Afficher les prix
+            if (currentGame.prizes && currentGame.prizes.length > 0) {
+                displayPrizes();
+            }
+        }
+        
+        function displayPrizes() {
+            const section = document.getElementById('prizesSection');
+            const grid = document.getElementById('prizesGrid');
+            
+            const tierClasses = ['gold', 'silver', 'bronze'];
+            
+            grid.innerHTML = currentGame.prizes.map((prize, index) => `
+                <div class="prize-card ${tierClasses[index] || ''}">
+                    <span class="prize-position">${prize.position}</span>
+                    <img src="${prize.photo_url || 'https://placehold.co/100x100?text=Prix'}" 
+                         alt="${prize.title}" loading="lazy" class="prize-image">
+                    <h4>${prize.title}</h4>
+                    <p>${prize.description || ''}</p>
+                </div>
+            `).join('');
+            
+            section.style.display = 'block';
+        }
+        
+        function displayNoGame() {
+            const header = document.getElementById('gameHeader');
+            header.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-gamepad" style="font-size: 4rem; color: var(--accent); margin-bottom: 20px;"></i>
+                    <h1>Aucun jeu en cours</h1>
+                    <p style="margin-bottom: 30px;">Le prochain jeu sera bientôt annoncé. Restez connecté !</p>
+                    <a href="index.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home"></i>
+                        Retour à l'accueil
+                    </a>
+                </div>
+            `;
+        }
+        
+        // ============================================
+        // COUNTDOWN
+        // ============================================
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            const updateTimer = () => {
+                if (!currentGame) return;
+                
+                const now = new Date().getTime();
+                const targetDate = currentGame.status === 'active' 
+                    ? new Date(currentGame.end_time).getTime()
+                    : new Date(currentGame.start_time).getTime();
+                
+                const distance = targetDate - now;
+                
+                if (distance <= 0) {
+                    clearInterval(countdownInterval);
+                    setTimeout(() => window.location.reload(), 1000);
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            };
+            
+            updateTimer();
+            countdownInterval = setInterval(updateTimer, 1000);
+        }
+        
+        // ============================================
+        // CHARGEMENT DES CANDIDATS
+        // ============================================
+        async function loadCandidates() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('game_entries')
+                    .select(`
+                        *,
+                        candidate_profiles (
+                            username,
+                            referral_code,
+                            biography
+                        ),
+                        users:user_id (
+                            full_name,
+                            photo_url
+                        )
+                    `)
+                    .eq('game_id', currentGame.id)
+                    .eq('status', 'approved')
+                    .order('total_votes', { ascending: false });
+                
+                if (error) throw error;
+                
+                candidates = data || [];
+                
+                // Ajouter le rang
+                candidates.forEach((c, index) => {
+                    c.rank = index + 1;
+                });
+                
+                displayCandidates();
+                displayTop3();
+                
+                // Charger les votes utilisateur
+                if (currentUser) {
+                    await loadUserVotes();
+                }
+                
+                // Activer les filtres
+                document.getElementById('filtersSection').style.display = 'block';
+                document.getElementById('candidatesSection').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur chargement candidats:', error);
+            }
+        }
+        
+        function displayCandidates(filteredCandidates = null) {
+            const grid = document.getElementById('candidatesGrid');
+            const displayList = filteredCandidates || candidates;
+            
+            document.getElementById('candidatesCount').textContent = displayList.length;
+            
+            if (displayList.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-candidates">
+                        <i class="fas fa-users-slash"></i>
+                        <h3>Aucun candidat trouvé</h3>
+                        <p>Aucun candidat ne correspond à votre recherche.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = displayList.map(candidate => {
+                const user = candidate.users || {};
+                const profile = candidate.candidate_profiles || {};
+                
+                const rankClass = candidate.rank <= 3 ? `rank-${candidate.rank}` : 'rank-other';
+                const canVoteFree = !hasVotedFree(candidate.id);
+                
+                return `
+                    <div class="candidate-card" data-id="${candidate.id}">
+                        ${candidate.rank <= 10 ? `
+                            <span class="candidate-rank ${rankClass}">${candidate.rank}</span>
+                        ` : ''}
+                        
+                        <div class="candidate-photo-container">
+                            <img src="${user.photo_url || 'https://placehold.co/300x220?text=Photo'}" 
+                                 alt="${user.full_name}" loading="lazy" class="candidate-photo">
+                            <span class="candidate-number">${candidate.candidate_number}</span>
+                        </div>
+                        
+                        <div class="candidate-info">
+                            <h3 class="candidate-name">${user.full_name || 'Candidat'}</h3>
+                            <p class="candidate-bio">${profile.biography || 'Pas de description'}</p>
+                            
+                            <div class="votes-display">
+                                <div class="vote-stat">
+                                    <span class="number">${candidate.free_votes || 0}</span>
+                                    <span class="label">Gratuits</span>
+                                </div>
+                                <div class="vote-stat">
+                                    <span class="number">${candidate.paid_votes || 0}</span>
+                                    <span class="label">Payants</span>
+                                </div>
+                                <div class="vote-stat">
+                                    <span class="number">${candidate.referral_bonus_votes || 0}</span>
+                                    <span class="label">Bonus</span>
+                                </div>
+                                <div class="vote-stat total">
+                                    <span class="number">${candidate.total_votes || 0}</span>
+                                    <span class="label">Total</span>
+                                </div>
+                            </div>
+                            
+                            <div class="candidate-actions">
+                                ${currentGame.status === 'active' ? `
+                                    ${canVoteFree ? `
+                                        <button class="btn btn-success" onclick="openVoteModal('${candidate.id}')">
+                                            <i class="fas fa-vote-yea"></i>
+                                            Vote Gratuit
+                                        </button>
+                                    ` : `
+                                        <button class="btn btn-primary" onclick="openVoteModal('${candidate.id}')">
+                                            <i class="fas fa-plus"></i>
+                                            Voter +
+                                        </button>
+                                    `}
+                                ` : `
+                                    <button class="btn" disabled>
+                                        <i class="fas fa-clock"></i>
+                                        Vote fermé
+                                    </button>
+                                `}
+                            </div>
+                            
+                            <div class="referral-code">
+                                <span>Code: <strong>${profile.referral_code || 'N/A'}</strong></span>
+                                <button onclick="copyToClipboard('${profile.referral_code}')" title="Copier">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function displayTop3() {
+            if (candidates.length === 0) return;
+            
+            const top3 = candidates.slice(0, 3);
+            const podium = document.getElementById('podium');
+            const positions = ['first', 'second', 'third'];
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            podium.innerHTML = top3.map((candidate, index) => {
+                const user = candidate.users || {};
+                return `
+                    <div class="podium-place ${positions[index]}" onclick="openVoteModal('${candidate.id}')">
+                        <img src="${user.photo_url || 'https://placehold.co/110x110?text=Photo'}" 
+                             alt="${user.full_name}" loading="lazy" class="podium-photo">
+                        <p class="podium-name">${user.full_name || 'Candidat'}</p>
+                        <p class="podium-votes">${candidate.total_votes || 0} votes</p>
+                        <div class="podium-stand">${medals[index]}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('podiumSection').style.display = 'block';
+        }
+        
+        function hasVotedFree(entryId) {
+            return userVotes[entryId]?.free || false;
+        }
+        
+        // ============================================
+        // RÉSULTATS
+        // ============================================
+        async function displayResults() {
+            try {
+                const { data: winners, error } = await supabaseClient
+                    .from('game_entries')
+                    .select(`
+                        *,
+                        candidate_profiles (username, referral_code),
+                        users:user_id (full_name, photo_url)
+                    `)
+                    .eq('game_id', currentGame.id)
+                    .eq('status', 'approved')
+                    .order('total_votes', { ascending: false })
+                    .limit(currentGame.winners_count || 3);
+                
+                if (error) throw error;
+                
+                const section = document.getElementById('resultsSection');
+                const grid = document.getElementById('winnersGrid');
+                
+                const positions = ['first', 'second', 'third'];
+                const medals = ['🥇', '🥈', '🥉'];
+                
+                grid.innerHTML = winners.map((winner, index) => {
+                    const user = winner.users || {};
+                    const prize = currentGame.prizes?.[index];
+                    
+                    return `
+                        <div class="winner-card ${positions[index] || ''}">
+                            <div class="winner-medal">${medals[index] || '🏅'}</div>
+                            <img src="${user.photo_url || 'https://placehold.co/100x100?text=Photo'}" 
+                                 alt="${user.full_name}" loading="lazy" class="winner-photo">
+                            <h4 class="winner-name">${user.full_name || 'Gagnant'}</h4>
+                            <p class="winner-votes">${winner.total_votes || 0} votes</p>
+                            ${prize ? `<span class="winner-prize">${prize.title}</span>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                section.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erreur affichage résultats:', error);
+            }
+        }
+        
+        // ============================================
+        // RECHERCHE ET TRI
+        // ============================================
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            let searchTimeout;
+            
+            searchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterCandidates();
+                }, 300);
+            });
+        }
+        
+        function initSort() {
+            const sortSelect = document.getElementById('sortSelect');
+            sortSelect.addEventListener('change', filterCandidates);
+        }
+        
+        function filterCandidates() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const sortBy = document.getElementById('sortSelect').value;
+            
+            let filtered = [...candidates];
+            
+            // Recherche
+            if (searchTerm) {
+                filtered = filtered.filter(c => {
+                    const name = c.users?.full_name?.toLowerCase() || '';
+                    const number = c.candidate_number?.toLowerCase() || '';
+                    const code = c.candidate_profiles?.referral_code?.toLowerCase() || '';
+                    return name.includes(searchTerm) || number.includes(searchTerm) || code.includes(searchTerm);
+                });
+            }
+            
+            // Tri
+            switch (sortBy) {
+                case 'votes_desc':
+                    filtered.sort((a, b) => (b.total_votes || 0) - (a.total_votes || 0));
+                    break;
+                case 'votes_asc':
+                    filtered.sort((a, b) => (a.total_votes || 0) - (b.total_votes || 0));
+                    break;
+                case 'name_asc':
+                    filtered.sort((a, b) => (a.users?.full_name || '').localeCompare(b.users?.full_name || ''));
+                    break;
+                case 'name_desc':
+                    filtered.sort((a, b) => (b.users?.full_name || '').localeCompare(a.users?.full_name || ''));
+                    break;
+                case 'recent':
+                    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    break;
+            }
+            
+            displayCandidates(filtered);
+        }
+        
+        // ============================================
+        // MODAL DE VOTE
+        // ============================================
+        function openVoteModal(entryId) {
+            if (currentGame.status !== 'active') {
+                showToast('Les votes ne sont pas encore ouverts', 'warning');
+                return;
+            }
+            
+            if (!currentUser && !ipReady) {
+                showToast("Vote gratuit indisponible : impossible de vérifier votre IP.", "warning");
+                 return;
+            }
+
+            selectedCandidate = candidates.find(c => c.id === entryId);
+            if (!selectedCandidate) return;
+            
+            const user = selectedCandidate.users || {};
+            const canVoteFree = !hasVotedFree(entryId);
+            
+            // Remplir les infos du candidat
+            document.getElementById('voteCandidateInfo').innerHTML = `
+                <img src="${user.photo_url || 'https://placehold.co/80x80?text=Photo'}" alt="${user.full_name}">
+                <div>
+                    <h4>${user.full_name || 'Candidat'}</h4>
+                    <p>${selectedCandidate.candidate_number} • ${selectedCandidate.total_votes || 0} votes actuels</p>
+                </div>
+            `;
+            
+            // Configurer les options de vote
+            const freeOption = document.getElementById('freeVoteOption');
+            const freeVoteBadge = document.getElementById('freeVoteBadge');
+            
+            if (canVoteFree) {
+                freeOption.classList.remove('disabled');
+                freeVoteBadge.textContent = 'Disponible';
+                freeVoteBadge.style.background = 'var(--success)';
+                selectVoteType('free');
+            } else {
+                freeOption.classList.add('disabled');
+                freeVoteBadge.textContent = 'Déjà utilisé';
+                freeVoteBadge.style.background = 'var(--gray)';
+                selectVoteType('paid');
+            }
+            
+            document.getElementById('voteModal').classList.add('active');
+        }
+        
+        function closeVoteModal() {
+            document.getElementById('voteModal').classList.remove('active');
+            selectedCandidate = null;
+            selectedVoteType = 'free';
+            selectedVoteAmount = 1;
+            
+            // Reset
+            document.getElementById('paidVotesInput').classList.remove('show');
+            document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('customVotes').value = '';
+        }
+        
+        function selectVoteType(type) {
+            selectedVoteType = type;
+            
+            document.querySelectorAll('.vote-type-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            if (type === 'free') {
+                document.getElementById('freeVoteOption').classList.add('selected');
+                document.getElementById('paidVotesInput').classList.remove('show');
+                document.getElementById('confirmVoteBtn').style.display = 'block';
+                document.getElementById('whatsappBtn').style.display = 'none';
+            } else {
+                document.getElementById('paidVoteOption').classList.add('selected');
+                document.getElementById('paidVotesInput').classList.add('show');
+                document.getElementById('confirmVoteBtn').style.display = 'none';
+                document.getElementById('whatsappBtn').style.display = 'block';
+                updateTotalPrice();
+            }
+        }
+        
+        function selectAmount(votes) {
+            selectedVoteAmount = votes;
+            
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.toggle('selected', parseInt(btn.dataset.votes) === votes);
+            });
+            
+            document.getElementById('customVotes').value = '';
+            updateTotalPrice();
+            updateWhatsAppLink();
+        }
+        
+        function applyCustomAmount() {
+            const custom = parseInt(document.getElementById('customVotes').value);
+            if (custom && custom > 0) {
+                selectedVoteAmount = custom;
+                document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+                updateTotalPrice();
+                updateWhatsAppLink();
+            }
+        }
+        
+        function updateTotalPrice() {
+            const total = selectedVoteAmount * votePrice;
+            document.getElementById('totalAmount').textContent = `${total.toLocaleString()} FCFA`;
+        }
+        
+        function updateVotePrices() {
+            [1, 5, 10, 20, 50, 100].forEach(amount => {
+                const element = document.getElementById(`price${amount}`);
+                if (element) {
+                    element.textContent = `${(amount * votePrice).toLocaleString()} FCFA`;
+                }
+            });
+        }
+        
+        function updateWhatsAppLink() {
+            const total = selectedVoteAmount * votePrice;
+            const user = selectedCandidate?.users || {};
+            const message = encodeURIComponent(
+                `Bonjour! Je souhaite acheter ${selectedVoteAmount} vote(s) pour ${user.full_name || 'un candidat'} (${selectedCandidate?.candidate_number || ''}).\n\nMontant: ${total} FCFA\n\nJe vous envoie la preuve de paiement.`
+            );
+            
+            document.getElementById('whatsappBtn').href = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${message}`;
+        }
+        
+        // ============================================
+        // CONFIRMATION DU VOTE
+        // ============================================
+        async function confirmVote() {
+            if (!selectedCandidate) return;
+            
+            if (selectedVoteType === 'free') {
+                // Vérifier si déjà voté
+                if (hasVotedFree(selectedCandidate.id)) {
+                    showToast('Vous avez déjà utilisé votre vote gratuit pour ce candidat', 'warning');
+                    return;
+                }
+                
+                // Afficher la pub avant le vote
+                const adShown = await showVoteAd();
+                
+                if (adShown === false) {
+                    // L'utilisateur a fermé la pub, on continue le vote
+                }
+                
+                // Enregistrer le vote
+                await processFreeVote();
+            }
+        }
+        
+        async function processFreeVote() {
+            try {
+                // Créer le vote
+                const { error: voteError } = await supabaseClient
+                .from('votes')
+                .insert([{
+                    game_id: currentGame.id,
+                    candidate_entry_id: selectedCandidate.id,
+                    voter_id: currentUser?.id || null,
+                    voter_ip: await getIP(),     // Ton code existant
+                    visitor_id: globalVisitorId, // <--- NOUVEAU (Fingerprint)
+                    vote_type: 'free',
+                    vote_count: 1,
+                    amount_paid: 0
+                }]);
+
+                if (voteError) {
+                // 23505 = violation index unique => vote gratuit déjà utilisé
+                if (voteError.code === '23505') {
+                    userVotes[selectedCandidate.id] = userVotes[selectedCandidate.id] || { free: false, paid: 0 };
+                    userVotes[selectedCandidate.id].free = true;
+                    displayCandidates();
+                    closeVoteModal();
+                    showToast("Vous avez déjà voté gratuitement pour ce candidat (IP).", "warning");
+                    return;
+                }
+                throw voteError;
+                }
+                
+                // Mettre à jour les votes du candidat
+                const newFreeVotes = (selectedCandidate.free_votes || 0) + 1;
+                const newTotalVotes = (selectedCandidate.total_votes || 0) + 1;
+                
+                await supabaseClient
+                    .from('game_entries')
+                    .update({
+                        free_votes: newFreeVotes,
+                        total_votes: newTotalVotes
+                    })
+                    .eq('id', selectedCandidate.id);
+                
+                // Mettre à jour les stats
+                await updateGlobalStats('total_votes', 1);
+                
+                // Log
+                await logActivity('vote', `Vote gratuit pour ${selectedCandidate.candidate_number}`);
+                
+                // Mettre à jour l'interface
+                userVotes[selectedCandidate.id] = { free: true, paid: 0 };
+                
+                closeVoteModal();
+                showToast('Vote enregistré avec succès ! 🎉', 'success');
+                triggerConfetti(); // <--- NOUVEAU (Boum !)
+                // Recharger les candidats
+                await loadCandidates();
+                
+            } catch (error) {
+                console.error('Erreur vote:', error);
+                showToast('Erreur lors du vote. Réessayez.', 'error');
+            }
+        }
+        
+        // ============================================
+        // PUBLICITÉS
+        // ============================================
+        async function showOpeningAd() {
+            const lastPopup = sessionStorage.getItem('socialvote_opening_ad');
+            if (lastPopup) return;
+            
+            try {
+                const { data: ads } = await supabaseClient
+                    .from('advertisements')
+                    .select('*')
+                    .eq('position', 'vote_popup')
+                    .eq('is_active', true)
+                    .limit(1);
+                
+                if (ads && ads.length > 0) {
+                    displayAd(ads[0], false);
+                    sessionStorage.setItem('socialvote_opening_ad', 'true');
+                }
+            } catch (error) {
+                console.error('Erreur pub:', error);
+            }
+        }
+        
+        async function showVoteAd() {
+            return new Promise(async (resolve) => {
+                try {
+                    const { data: ads } = await supabaseClient
+                        .from('advertisements')
+                        .select('*')
+                        .eq('position', 'vote_before')
+                        .eq('is_active', true)
+                        .limit(1);
+                    
+                    if (ads && ads.length > 0) {
+                        displayAd(ads[0], true, resolve);
+                    } else {
+                        resolve(false);
+                    }
+                } catch (error) {
+                    console.error('Erreur pub:', error);
+                    resolve(false);
+                }
+            });
+        }
+        
+        function displayAd(ad, requireTimer, onComplete) {
+            const popup = document.getElementById('adPopup');
+            const media = document.getElementById('adMedia');
+            const title = document.getElementById('adTitle');
+            const description = document.getElementById('adDescription');
+            const button = document.getElementById('adButton');
+            const closeBtn = document.getElementById('adCloseBtn');
+            const timerDiv = document.getElementById('adTimer');
+            const countdown = document.getElementById('adCountdown');
+            
+            // Vérifier si c'est une vidéo ou une image
+            if (ad.media_type === 'video') {
+                media.outerHTML = `<video src="${ad.media_url}" class="ad-media" id="adMedia" autoplay muted></video>`;
+            } else {
+                media.src = ad.media_url || 'https://placehold.co/450x250?text=Publicité';
+            }
+            
+            title.textContent = ad.title || '';
+            description.textContent = ad.description || '';
+            
+            if (ad.button_link) {
+                button.href = ad.button_link;
+                button.textContent = ad.button_text || 'En savoir plus';
+                button.style.display = 'block';
+            } else {
+                button.style.display = 'none';
+            }
+            
+            if (requireTimer) {
+                timerDiv.style.display = 'block';
+                closeBtn.disabled = true;
+                let seconds = 5;
+                countdown.textContent = seconds;
+                
+                adCountdownInterval = setInterval(() => {
+                    seconds--;
+                    countdown.textContent = seconds;
+                    
+                    if (seconds <= 0) {
+                        clearInterval(adCountdownInterval);
+                        timerDiv.style.display = 'none';
+                        closeBtn.disabled = false;
+                        
+                        closeBtn.onclick = () => {
+                            AdTracker.stopWatchTimer(ad.id); // <--- AJOUTE ÇA
+                            popup.classList.remove('active');
+                            if (onComplete) onComplete(true);
+                        };
+                    }
+                }, 1000);
+            } else {
+                timerDiv.style.display = 'none';
+                closeBtn.disabled = false;
+                closeBtn.onclick = () => {
+                    AdTracker.stopWatchTimer(ad.id); // <--- AJOUTE ÇA
+                    popup.classList.remove('active');
+                };
+            }
+            
+            popup.classList.add('active');
+
+               // AJOUT TRACKING
+            popup.setAttribute('data-ad-id', ad.id);
+            
+            const btn = document.getElementById('adButton'); // Si différent
+            if (btn) btn.onclick = () => AdTracker.trackClick(ad.id);
+
+            popup.classList.add('active');
+            
+            // Force la vue
+            AdTracker.trackView(ad.id);
+            AdTracker.startWatchTimer(ad.id);
+
+            
+        }
+        
+        // ============================================
+        // UTILITAIRES
+        // ============================================
+        async function getIP() {
+  // 1) ipify
+  try {
+    const r = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+    const j = await r.json();
+    if (j?.ip) return j.ip;
+  } catch (_) {}
+
+  // 2) Cloudflare trace (souvent + fiable)
+  try {
+    const r = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store' });
+    const t = await r.text();
+    const line = t.split('\n').find(l => l.startsWith('ip='));
+    const ip = line?.split('=')?.[1]?.trim();
+    if (ip) return ip;
+  } catch (_) {}
+
+  return null; // IMPORTANT: null si impossible
+}
+        
+        function copyToClipboard(text) {
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Code copié !', 'success');
+            });
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        async function updateGlobalStats(key, increment) {
+            try {
+                const { data: stats } = await supabaseClient
+                    .from('site_statistics')
+                    .select('stat_value')
+                    .eq('stat_key', 'global')
+                    .single();
+                
+                if (stats) {
+                    const values = stats.stat_value;
+                    values[key] = (values[key] || 0) + increment;
+                    
+                    await supabaseClient
+                        .from('site_statistics')
+                        .update({ stat_value: values, updated_at: new Date().toISOString() })
+                        .eq('stat_key', 'global');
+                }
+            } catch (error) {
+                console.error('Erreur stats:', error);
+            }
+        }
+        
+        async function logActivity(actionType, description) {
+            try {
+                await supabaseClient
+                    .from('activity_logs')
+                    .insert([{
+                        user_id: currentUser?.id || null,
+                        action_type: actionType,
+                        description: description,
+                        ip_address: await getIP(),
+                        created_at: new Date().toISOString()
+                    }]);
+            } catch (error) {
+                console.error('Erreur log:', error);
+            }
+        }
+        
+        // Rafraîchir les votes toutes les 30 secondes
+        setInterval(async () => {
+            if (currentGame && currentGame.status === 'active') {
+                await loadCandidates();
+            }
+        }, 10000);
+
+        function renderNavAuth() {
+  const navAuth = document.getElementById('navAuth');
+  if (!navAuth) return;
+
+  if (currentUser) {
+    navAuth.innerHTML = `
+      <a href="/auth/?tab=candidate" class="btn btn-primary btn-sm">
+        <i class="fas fa-star"></i> S'inscrire comme candidat
+      </a>
+      <a href="/profile/" class="btn btn-outline btn-sm">
+        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+      </a>
+      <button class="btn btn-outline btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    `;
+
+    // Mobile menu: remplacer Connexion/Inscription par Profil/Déconnexion
+    patchMobileMenuForLoggedIn();
+  } else {
+    navAuth.innerHTML = `
+      <a href="/auth/" class="btn btn-outline btn-sm">Connexion</a>
+      <a href="/auth/?tab=register" class="btn btn-primary btn-sm">S'inscrire</a>
+    `;
+
+    patchMobileMenuForLoggedOut();
+  }
+}
+
+function patchMobileMenuForLoggedIn() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  // Enlever anciens liens si présents
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  // Ajouter Profil + Déconnexion (si pas déjà)
+  const liProfile = document.createElement('li');
+  liProfile.setAttribute('data-auth-link', 'true');
+  liProfile.innerHTML = `<a href="/profile/">Mon Profil</a>`;
+
+  const liCandidate = document.createElement('li');
+  liCandidate.setAttribute('data-auth-link', 'true');
+  liCandidate.innerHTML = `<a href="/auth/?tab=candidate">S'inscrire comme candidat</a>`;
+
+  const liLogout = document.createElement('li');
+  liLogout.setAttribute('data-auth-link', 'true');
+  liLogout.innerHTML = `<a href="#" onclick="logout(); return false;">Déconnexion</a>`;
+
+  menu.appendChild(liCandidate);
+  menu.appendChild(liProfile);
+  menu.appendChild(liLogout);
+}
+
+function patchMobileMenuForLoggedOut() {
+  const menu = document.querySelector('.mobile-menu ul');
+  if (!menu) return;
+
+  menu.querySelectorAll('[data-auth-link]').forEach(el => el.remove());
+
+  const liLogin = document.createElement('li');
+  liLogin.setAttribute('data-auth-link', 'true');
+  liLogin.innerHTML = `<a href="/auth/">Connexion</a>`;
+
+  const liRegister = document.createElement('li');
+  liRegister.setAttribute('data-auth-link', 'true');
+  liRegister.innerHTML = `<a href="/auth/?tab=register">S'inscrire</a>`;
+
+  menu.appendChild(liLogin);
+  menu.appendChild(liRegister);
+}
+
+// ==========================================
+// BOUTON WHATSAPP FLOTTANT
+// ==========================================
+
+function createWhatsAppButton() {
+  const whatsappBtn = document.createElement('a');
+  whatsappBtn.href = 'https://wa.me/2290190086267';
+  whatsappBtn.target = '_blank';
+  whatsappBtn.className = 'whatsapp-float';
+  whatsappBtn.innerHTML = `
+    <img src="https://img.icons8.com/?size=100&id=85088&format=png&color=000000" alt="WhatsApp" style="width: 100%; height: 100%;">
+  `;
+  whatsappBtn.style.cssText = `
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 40px;
+    height: 40px;
+    background-color: #25D366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 9998;
+    transition: all 0.3s ease;
+    padding: 9px;
+  `;
+  
+  whatsappBtn.addEventListener('mouseenter', () => {
+    whatsappBtn.style.transform = 'scale(1.1)';
+  });
+  
+  whatsappBtn.addEventListener('mouseleave', () => {
+    whatsappBtn.style.transform = 'scale(1)';
+  });
+  
+  document.body.appendChild(whatsappBtn);
+}
+
+// ============================================
+// SYSTEME DE TRACKING PUBLICITAIRE
+// ============================================
+
+const AdTracker = {
+    viewedAds: new Set(), // Pour ne pas compter 2 fois la même vue dans la session
+    watchTimers: {}, // Pour chronométrer le temps de vue
+
+    // 1. Initialiser le tracking des vues (IntersectionObserver)
+    init: function() {
+        if (!('IntersectionObserver' in window)) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const adId = entry.target.dataset.adId;
+                if (!adId) return;
+
+                if (entry.isIntersecting) {
+                    // La pub entre dans l'écran
+                    this.trackView(adId);
+                    this.startWatchTimer(adId);
+                } else {
+                    // La pub sort de l'écran
+                    this.stopWatchTimer(adId);
+                }
+            });
+        }, { threshold: 0.5 }); // Compte comme vu si 50% de la pub est visible
+
+        // Observer toutes les pubs (carrousel et popups)
+        document.querySelectorAll('[data-ad-id]').forEach(el => observer.observe(el));
+    },
+
+    // 2. Enregistrer une vue (Impression)
+    trackView: async function(adId) {
+        if (this.viewedAds.has(adId)) return; // Déjà vu cette session
+        this.viewedAds.add(adId);
+
+        console.log("Ad View:", adId);
+        await this.sendEvent(adId, 'view');
+    },
+
+    // 3. Enregistrer un clic
+    trackClick: async function(adId) {
+        console.log("Ad Click:", adId);
+        await this.sendEvent(adId, 'click');
+    },
+
+    // 4. Chronomètre (Watch Time)
+    startWatchTimer: function(adId) {
+        if (this.watchTimers[adId]) return; // Déjà en cours
+        this.watchTimers[adId] = Date.now();
+    },
+
+    stopWatchTimer: async function(adId) {
+        if (!this.watchTimers[adId]) return;
+        
+        const duration = Math.round((Date.now() - this.watchTimers[adId]) / 1000);
+        delete this.watchTimers[adId];
+
+        if (duration > 1) { // On ne compte pas les coups d'œil < 1s
+            console.log("Ad Watch Time:", adId, duration + "s");
+            await this.sendEvent(adId, 'watch_time', duration);
+        }
+    },
+
+    // 5. Envoi vers Supabase
+    sendEvent: async function(adId, type, value = 1) {
+        try {
+            await supabaseClient.from('ad_events').insert([{
+                ad_id: adId,
+                event_type: type,
+                event_value: value,
+                // On peut ajouter visitor_id si connecté
+                visitor_id: currentUser ? currentUser.id : null,
+                user_agent: navigator.userAgent
+            }]);
+        } catch (e) {
+            console.warn("Tracking error:", e);
+        }
+    }
+};
+
+// Lancer le tracking quand le DOM est prêt (ou après chargement des pubs)
+// document.addEventListener('DOMContentLoaded', () => setTimeout(AdTracker.init, 2000));
+// À la fin du DOMContentLoaded ou du script
+setTimeout(() => AdTracker.init(), 1000);
+    </script>
+</body>
+</html>
