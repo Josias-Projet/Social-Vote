@@ -1877,9 +1877,12 @@ input, select, textarea {
                     <i class="fas fa-check"></i>
                     Confirmer
                 </button>
-                <a href="https://wa.me/2290190086267" class="btn btn-primary" id="whatsappBtn" style="display: none;" target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    Envoyer la preuve
+                <a href="https://wa.me/2290140304751?text=Bonjour%2C%20je%20viens%20de%20payer%20pour%20des%20votes.%0A%0ACandidat%3A%20%5BNom%20du%20Candidat%5D%0AMontant%3A%20%5BVotre%20montant%5D%0A%0A%5BJoindre%20capture%20d%27%C3%A9cran%5D" 
+                    target="_blank" 
+                    class="btn btn-success btn-lg" 
+                    style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
+                        <i class="fab fa-whatsapp"></i>
+                        Envoyer la preuve
                 </a>
             </div>
         </div>
@@ -1976,7 +1979,7 @@ input, select, textarea {
             SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
             SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
             CLOUDINARY_CLOUD_NAME: 'drvkea88c',
-            WHATSAPP_NUMBER: '22901900862676',
+            WHATSAPP_NUMBER: '2290140304751',
             VOTE_PRICE: 50
         };
         
@@ -3205,7 +3208,7 @@ function patchMobileMenuForLoggedOut() {
 
 function createWhatsAppButton() {
   const whatsappBtn = document.createElement('a');
-  whatsappBtn.href = 'https://wa.me/2290190086267';
+  whatsappBtn.href = 'https://wa.me/2290140304751';
   whatsappBtn.target = '_blank';
   whatsappBtn.className = 'whatsapp-float';
   whatsappBtn.innerHTML = `
