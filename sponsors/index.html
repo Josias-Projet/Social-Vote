@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <link rel="icon" type="image/png" href="assets/images/favicon.png">
+   <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <style>
     :root{
       --primary:#0A1F44;
@@ -312,11 +312,11 @@ input, select, textarea {
 </head>
 <body>
   <nav class="navbar">
-    <a href="index.html" class="navbar-brand">
-      <span class="navbar-logo"><img src="assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
+    <a href="/" class="navbar-brand">
+      <span class="navbar-logo"><img src="/assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html">Accueil</a></li>
+      <li><a href="/">Accueil</a></li>
       <li><a href="/vote/">Voter</a></li>
       <li><a href="/referral/">Parrainage</a></li>
       <li><a href="/history/">Historique</a></li>
@@ -334,7 +334,7 @@ input, select, textarea {
   <div class="mobile-menu" id="mobileMenu">
     <button class="mobile-menu-close" id="mobileMenuClose"><i class="fas fa-times"></i></button>
     <ul>
-      <li><a href="index.html">Accueil</a></li>
+      <li><a href="/">Accueil</a></li>
       <li><a href="/vote/">Voter</a></li>
       <li><a href="/referral/">Parrainage</a></li>
       <li><a href="/history/">Historique</a></li>
@@ -424,7 +424,7 @@ input, select, textarea {
     }
 
     function setActiveNavLinks() {
-      const path = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+      const path = (window.location.pathname.split('/').pop() || '/').toLowerCase();
 
       // Desktop
       document.querySelectorAll('.nav-links a').forEach(a => {

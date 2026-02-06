@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-     <link rel="icon" type="image/png" href="assets/images/favicon.png">
+     <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <style>
         /* ============================================
            SOCIAL VOTE - AUTH PAGE STYLES
@@ -1087,10 +1087,10 @@ input, select, textarea {
 <body>
     <!-- ========== NAVBAR ========== -->
     <nav class="navbar">
-        <a href="index.html" class="navbar-brand">
-            <span class="navbar-logo"><img src="assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
+        <a href="/" class="navbar-brand">
+            <span class="navbar-logo"><img src="/assets/images/logo-white.png" alt="Social Vote" onerror="this.style.display='none'"></span>
         </a>
-        <a href="index.html" class="nav-back">
+        <a href="/" class="nav-back">
             <i class="fas fa-arrow-left"></i>
             Retour à l'accueil
         </a>
@@ -1267,7 +1267,7 @@ input, select, textarea {
                     <h4><i class="fas fa-mobile-alt"></i> Choisissez votre méthode</h4>
                     
                     <div class="payment-method" data-method="mtn" onclick="selectPaymentMethod(this)">
-                        <img src="assets/images/mtn.png" alt="MTN">
+                        <img src="/assets/images/mtn.png" alt="MTN">
                         <div class="method-info">
                             <h5>MTN Mobile Money</h5>
                             <p class="method-number">229 01 90 08 62 67</p>
@@ -1275,7 +1275,7 @@ input, select, textarea {
                     </div>
                     
                     <div class="payment-method" data-method="moov" onclick="selectPaymentMethod(this)">
-                        <img src="assets/images/moov.png" alt="Moov">
+                        <img src="/assets/images/moov.png" alt="Moov">
                         <div class="method-info">
                             <h5>Moov Money</h5>
                             <p class="method-number">229 01 55 95 66 83</p>
@@ -1283,7 +1283,7 @@ input, select, textarea {
                     </div>
                     
                     <div class="payment-method" data-method="celtiis" onclick="selectPaymentMethod(this)">
-                        <img src="assets/images/celtiis.png" alt="Celtiis">
+                        <img src="/assets/images/celtiis.png" alt="Celtiis">
                         <div class="method-info">
                             <h5>Celtiis Cash</h5>
                             <p class="method-number">229 01 40 30 47 51</p>
@@ -1522,7 +1522,7 @@ input, select, textarea {
                     if (users.role === 'admin') {
                         window.location.href = 'private_2005/admin_21.html';
                     } else {
-                        window.location.href = 'index.html';
+                        window.location.href = '/';
                     }
                 }, 1500);
                 
@@ -1612,7 +1612,7 @@ input, select, textarea {
                 
                 // Redirection
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '/';
                 }, 1500);
                 
             } catch (error) {
@@ -1667,7 +1667,7 @@ input, select, textarea {
                         <span>Aucun jeu n'est actuellement ouvert aux inscriptions. Revenez bientôt !</span>
                     </div>
                     
-                    <a href="index.html" class="btn btn-primary">
+                    <a href="/" class="btn btn-primary">
                         <i class="fas fa-home"></i>
                         Retour à l'accueil
                     </a>
