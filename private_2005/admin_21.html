@@ -2423,7 +2423,7 @@ const ONESIGNAL_APP_ID = "43ee5835-c6b1-45c8-ad82-6db5a374dcc7";
  */
 async function sendNotification(message, filters = [], title = "Social Vote", externalUserIds = []) {
     // Sécurité basique : ne rien faire si pas configuré
-    if (ONESIGNAL_APP_ID.includes("43ee5835-c6b1-45c8-ad82-6db5a374dcc7")) {
+    if (ONESIGNAL_APP_ID.includes("TON_APP_ID")) {
         console.warn("OneSignal non configuré.");
         return;
     }
