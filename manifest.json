@@ -1,9 +1,9 @@
 {
     "name": "Social Vote",
-    "short_name": "SocialVote",
+    "short_name": "Social Vote",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#0A1F44",
+    "background_color": "#FFFFFF",
     "theme_color": "#0A1F44",
     "icons": [
       {
