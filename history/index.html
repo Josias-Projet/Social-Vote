@@ -1389,6 +1389,31 @@ input, select, textarea {
 .modal { max-width: 95vw !important; }
 .modal-body { overflow-x: hidden; }
 
+
+/* Force les avatars à être des cercles parfaits */
+.table-user img, 
+.candidate-photo,
+.mini-podium-photo,
+.profile-photo {
+    width: 50px;       /* Ou la taille que tu veux */
+    height: 50px;      /* DOIT être égal à width */
+    min-width: 50px;   /* Empêche l'écrasement */
+    min-height: 50px;
+    border-radius: 50%;
+    object-fit: cover; /* COUPE l'image pour remplir le cercle sans déformer */
+    aspect-ratio: 1/1; /* Sécurité moderne pour forcer le carré/cercle */
+}
+
+/* Spécifique pour la table historique sur mobile */
+@media (max-width: 576px) {
+    .table-user img {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+}
+
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -1401,6 +1426,21 @@ input, select, textarea {
 <!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "ImageObject",
+      "contentUrl": "https://ton-image-prix-exemple.jpg",
+      "license": "https://social-vote.site/",
+      "acquireLicensePage": "https://social-vote.site/",
+      "creditText": "Social Vote",
+      "creator": {
+        "@type": "Organization",
+        "name": "Social Vote"
+      },
+      "copyrightNotice": "Social Vote"
+    }
+    </script>
 </head>
 <body>
     <!-- ========== NAVBAR ========== -->
@@ -2124,11 +2164,23 @@ input, select, textarea {
 
                         ${photos.length ? `
                             <div class="square-grid">
-                            ${photos.map(url => `
-                                <div class="square" onclick="openZoom('${url}')">
-                                <img src="${url}" alt="Prix" loading="lazy">
-                                </div>
-                            `).join('')}
+                                ${photos.map(url => {
+                                    // Création dynamique du texte SEO
+                                    const rank = index + 1;
+                                    const rankText = rank === 1 ? '1er' : rank + 'ème';
+                                    const winnerName = winner.users?.full_name || 'Gagnant';
+                                    const gameTitle = game.title || 'Concours';
+                                    const prizeTitle = prize.title || 'Récompense';
+                                    
+                                    // Texte complet : "TitrePrix remporté par NomGagnant (Xème) - NomJeu - Social Vote"
+                                    const altSEO = `${prizeTitle} remporté par ${winnerName} (${rankText} place) - ${gameTitle} - Social Vote`;
+
+                                    return `
+                                    <div class="square" onclick="openZoom('${url}')">
+                                        <img src="${url}" alt="${altSEO}" loading="lazy">
+                                    </div>
+                                    `;
+                                }).join('')}
                             </div>
                         ` : ''}
                         </div>

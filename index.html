@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Vote - Plateforme de jeux et votes communautaires</title>
-    <meta name="description" content="Bienvenue sur Social Vote, la plateforme officielle pour participer à des compétitions, recevoir des votes, gagner des prix et recevez également des primes de parrainage. Rejoignez la communauté !">
+    <meta name="description" content="Bienvenue sur Social Vote, la plateforme officielle pour participer à des compétitions, recevoir des votes, gagner des prix et recever également des primes de parrainage. Rejoignez la communauté !">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1640,11 +1640,29 @@ input, select, textarea {
         text-transform: capitalize;   /* Optionnel: Majuscule seulement au début */
     }
 }
+
+.btn-download-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #3DDC84; /* Vert Android */
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(61, 220, 132, 0.4);
+    transition: transform 0.2s;
+}
+.btn-download-app:hover {
+    transform: translateY(-3px);
+    background: #32b36b;
+}
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
 <meta property="og:title" content="Social Vote - Ta communauté fait ta force">
-<meta property="og:description" content="Participez, votez pour vos candidats préférés puis gagnez des prix exceptionnels et des primes de parrainage !">
+<meta name="description" content="Bienvenue sur Social Vote, la plateforme officielle pour participer à des compétitions, voter pour vos candidats puis gagner des prix et primes de parainage. Rejoignez la communauté !">
 <meta property="og:image" content="https://placehold.co/1200x630?text=Social+Vote"> <!-- Remplace par une belle image hébergée sur Cloudinary -->
 <meta property="og:url" content="https://social-vote.site">
 <meta name="twitter:card" content="summary_large_image">
@@ -1652,6 +1670,21 @@ input, select, textarea {
 <!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+<script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "ImageObject",
+      "contentUrl": "https://ton-image-prix-exemple.jpg",
+      "license": "https://social-vote.site/",
+      "acquireLicensePage": "https://social-vote.site/",
+      "creditText": "Social Vote",
+      "creator": {
+        "@type": "Organization",
+        "name": "Social Vote"
+      },
+      "copyrightNotice": "Social Vote"
+    }
+    </script>
 </head>
 <body>
     <!-- ========== NAVBAR ========== -->
@@ -1818,6 +1851,7 @@ input, select, textarea {
                 <p>Remportez des prix exceptionnels si vous êtes dans le top !</p>
             </div>
         </div>
+        
     </section>
     
     <!-- ========== REFERRAL SECTION ========== -->
@@ -1992,6 +2026,13 @@ input, select, textarea {
             <i class="fas fa-rocket"></i>
             Commencer maintenant
         </a>
+        <br><br>
+        <div class="app-download-section" style="text-align:center; margin-top: 20px;">
+            <p style="color: white; margin-bottom:10px; font-size:1.1rem; font-weight: bold;">Meilleure expérience sur mobile ?</p>
+            <a href="TON_LIEN_GITHUB_RAW_ICI" class="btn-download-app">
+                <i class="fab fa-android"></i> Télécharger l'App
+            </a>
+        </div>
     </section>
     
     <!-- ========== FOOTER ========== -->
@@ -2001,9 +2042,10 @@ input, select, textarea {
                 <h4>Social Vote</h4>
                 <p>La plateforme de jeux communautaires où ta communauté fait ta force. Participe, vote et gagne !</p>
                 <div class="social-links">
-                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61558773743122"><i class="fab fa-facebook-f"></i></a>
                 <!-- ==========    <a href="#"><i class="fab fa-instagram"></i></a>   ========== -->
-                    <a href="#"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.tiktok.com/@social_vote?_r=1&_d=f1jg0klhfd7j7l&sec_uid=MS4wLjABAAAAW0OyPXgL2MPQgquye2wg4x4AkjsbMa-N6UHm5Ku6Ts0tQ4jpLFw2XKn8LyQ1elpn&share_author_id=7497053060368827398&sharer_language=fr&source=h5_m&u_code=ek2880igl1e61h&timestamp=1770558277&user_id=7497053060368827398&sec_user_id=MS4wLjABAAAAW0OyPXgL2MPQgquye2wg4x4AkjsbMa-N6UHm5Ku6Ts0tQ4jpLFw2XKn8LyQ1elpn&item_author_type=1&utm_source=copy&utm_campaign=client_share&utm_medium=android&share_iid=7603259448483661589&share_link_id=306eee4c-f47a-4e04-a4b3-c63755af3703&share_app_id=1233&ugbiz_name=ACCOUNT&ug_btm=b8727%2Cb7360&social_share_type=5&enable_checksum=1
+                    "><i class="fab fa-tiktok"></i></a>
                     <a href="https://whatsapp.com/channel/0029Vb807UXHQbS7d7x86z3O"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>

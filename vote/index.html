@@ -2751,7 +2751,7 @@ input, select, textarea {
             
             // Remplir les infos du candidat
             document.getElementById('voteCandidateInfo').innerHTML = `
-                <img src="${user.photo_url || 'https://placehold.co/80x80?text=Photo'}" alt="${user.full_name}">
+                <img src="${user.photo_url || 'https://placehold.co/80x80?text=Photo'}" alt="${user.full_name}" loading="lazy">
                 <div>
                     <h4>${user.full_name || 'Candidat'}</h4>
                     <p>${selectedCandidate.candidate_number} • ${selectedCandidate.total_votes || 0} votes actuels</p>
