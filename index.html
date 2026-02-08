@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="manifest" href="../manifest.json">
      <link rel="icon" type="image/png" href="/assets/images/favicon.png">
     <style>
         /* ============================================
@@ -2057,7 +2057,7 @@ input, select, textarea {
         <br><br>
         <div class="app-download-section" style="text-align:center; margin-top: 20px;">
             <p style="color: white; margin-bottom:10px; font-size:1.1rem; font-weight: bold;">Meilleure expérience sur mobile ?</p>
-            <a href="..." class="btn-download-app" onclick="trackAppDownload()">
+            <a href="/assets/images/icon.png" class="btn-download-app" onclick="trackAppDownload()">
                 <i class="fab fa-android"></i> Télécharger l'App
             </a>
         </div>
@@ -3196,16 +3196,30 @@ const AdTracker = {
 
 async function trackAppDownload() {
     try {
+        console.log("Tracking download..."); // Pour voir si ça se lance
+        
         await supabaseClient.from('app_downloads').insert([{
-            user_id: currentUser?.id || null,
+            user_id: currentUser ? currentUser.id : null, // Optionnel
+            ip_address: null, // Tu peux laisser null ou appeler getIP()
             user_agent: navigator.userAgent
         }]);
-        console.log("Téléchargement tracké !");
-    } catch(e) { console.error(e); }
+        
+        console.log("Download enregistré !");
+        
+    } catch(e) {
+        console.error("Erreur tracking download:", e);
+    }
+    // Pas besoin de preventDefault(), on veut que le lien s'ouvre
 }
+
 
 // Lancer le tracking quand le DOM est prêt (ou après chargement des pubs)
 // document.addEventListener('DOMContentLoaded', () => setTimeout(AdTracker.init, 2000));
     </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
 </body>
 </html>

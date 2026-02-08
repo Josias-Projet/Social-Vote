@@ -1,0 +1,20 @@
+{
+    "name": "Social Vote",
+    "short_name": "SocialVote",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#0A1F44",
+    "theme_color": "#0A1F44",
+    "icons": [
+      {
+        "src": "assets/images/icon.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "assets/images/icon.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
