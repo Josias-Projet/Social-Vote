@@ -2190,6 +2190,25 @@ input, select, textarea {
             } catch (error) {
                 console.error('Erreur auth:', error);
             }
+            // Dans checkAuth(), une fois que currentUser est défini :
+
+            if (currentUser) {
+                // On dit à OneSignal : "Cet utilisateur est l'ID ..."
+                if (window.OneSignal) {
+                    window.OneSignal.push(function() {
+                        // 1. Lier l'ID Supabase
+                        OneSignal.setExternalUserId(currentUser.id);
+                        
+                        // 2. Ajouter le tag (Candidat ou User)
+                        OneSignal.sendTag("role", currentUser.role); 
+                        
+                        // 3. (Optionnel) Si c'est un candidat, on ajoute son ID de profil pour les votes
+                        if (candidateProfile) {
+                            OneSignal.sendTag("candidate_id", candidateProfile.id);
+                        }
+                    });
+                }
+            }
         }
         
         function setActiveNavLinks() {
