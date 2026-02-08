@@ -1551,6 +1551,35 @@ input, select, textarea {
 <!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+
+<!-- OneSignal SDK -->
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script>
+window.OneSignal = window.OneSignal || [];
+OneSignal.push(function() {
+    OneSignal.init({
+    appId: "43ee5835-c6b1-45c8-ad82-6db5a374dcc7", // <--- METS TON ID ICI
+    safari_web_id: "TON_SAFARI_ID", // Optionnel (donné par OneSignal)
+    notifyButton: {
+        enable: true, // Affiche la petite cloche rouge en bas
+    },
+    allowLocalhostAsSecureOrigin: true, // Pour tester en local
+    });
+    
+    // Identifier l'utilisateur connecté pour les notifs ciblées
+    OneSignal.on('subscriptionChange', function (isSubscribed) {
+        if (isSubscribed && currentUser) {
+            // On lie l'ID OneSignal à l'ID Supabase
+            OneSignal.setExternalUserId(currentUser.id);
+            // On ajoute des tags pour cibler (Candidat ou User)
+            OneSignal.sendTags({
+                role: currentUser.role, // 'user' ou 'candidate'
+                candidate_id: candidateProfile?.id || null // Pour cibler un candidat précis
+            });
+        }
+    });
+});
+</script>
 </head>
 <body>
     <!-- ========== NAVBAR ========== -->

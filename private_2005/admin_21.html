@@ -1340,6 +1340,9 @@
 <!-- ================= LIBRAIRIES (CONFETTI + FINGERPRINT) ================= -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+
+<!-- OneSignal SDK -->
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
 </head>
 <body>
     <!-- ========== SIDEBAR ========== -->
@@ -1467,6 +1470,18 @@
                 <div id="currentGameStatus"></div>
                 
                 <!-- Charts Row -->
+                <!-- Downloads Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fab fa-android"></i> Historique Téléchargements (30 jours)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="downloadsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; margin-bottom: 25px;">
                     <div class="card">
                         <div class="card-header">
@@ -1730,6 +1745,7 @@
                 </div>
             </section>
             
+            <!-- ========== APP web ========== -->
             
             <!-- ========== ADS ========== -->
             <section class="content-section" id="adsSection">
@@ -1888,6 +1904,36 @@
                         </form>
                     </div>
                 </div>
+
+            <!-- COLLE LE CODE CI-DESSOUS ICI, AVANT LA FIN DE LA SECTION -->
+    
+                <div class="card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bell"></i> Envoyer une Notification Push</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Titre</label>
+                            <input id="notifTitle" class="form-control" value="Info Social Vote">
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea id="notifMessage" class="form-control" rows="3" placeholder="Écrivez votre message ici..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Cible</label>
+                            <select id="notifTarget" class="form-control">
+                                <option value="all">Tout le monde (Abonnés)</option>
+                                <option value="candidates">Candidats uniquement</option>
+                                <option value="users">Utilisateurs simples</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="sendManualNotif()">
+                            <i class="fas fa-paper-plane"></i> Envoyer
+                        </button>
+                    </div>
+                </div>
+
             </section>
             
             <!-- ========== LOGS ========== -->
@@ -2361,6 +2407,79 @@
         const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         
         // ============================================
+// SYSTEME DE NOTIFICATIONS ONESIGNAL
+// ============================================
+
+// REMPLACE CES VALEURS PAR TES VRAIES CLES
+const ONESIGNAL_API_KEY = "os_v2_app_ipxfqnogwfc4rlmcnw22g5g4y4ktetrsmqne7pem3zff6gxk4ehmpbtd3kfmklud5vfwttq4jkaytg7hiigiw2vcjduo2ggaydvgalq"; // Trouvée dans Settings > Keys
+const ONESIGNAL_APP_ID = "43ee5835-c6b1-45c8-ad82-6db5a374dcc7";
+
+/**
+ * Envoie une notification Push via l'API OneSignal
+ * @param {string} message - Le texte de la notification
+ * @param {Array} filters - Filtres de ciblage (vide = tous les abonnés)
+ * @param {string} title - Le titre (par défaut "Social Vote")
+ * @param {Array} externalUserIds - Liste d'IDs Supabase spécifiques (optionnel)
+ */
+async function sendNotification(message, filters = [], title = "Social Vote", externalUserIds = []) {
+    // Sécurité basique : ne rien faire si pas configuré
+    if (ONESIGNAL_APP_ID.includes("43ee5835-c6b1-45c8-ad82-6db5a374dcc7")) {
+        console.warn("OneSignal non configuré.");
+        return;
+    }
+
+    const headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": "Basic " + ONESIGNAL_API_KEY
+    };
+
+    const data = {
+        app_id: ONESIGNAL_APP_ID,
+        headings: { "en": title }, // Titre (en = défaut pour tous)
+        contents: { "en": message }, // Message
+        // Icône par défaut (optionnel, sinon utilise celle configurée dans OneSignal)
+        // small_icon: "ic_stat_onesignal_default" 
+    };
+
+    // Logique de ciblage (Priorité : IDs spécifiques > Filtres > Tout le monde)
+    if (externalUserIds && externalUserIds.length > 0) {
+        // Cibler des utilisateurs précis (ex: un parrain)
+        data.include_external_user_ids = externalUserIds;
+    } else if (filters && filters.length > 0) {
+        // Cibler par tags (ex: candidats)
+        data.filters = filters;
+    } else {
+        // Cibler tout le monde
+        data.included_segments = ["Subscribed Users"];
+    }
+
+    console.log("Envoi notif...", data);
+
+    try {
+        const response = await fetch("https://onesignal.com/api/v1/notifications", {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        
+        if (result.id) {
+            console.log("Notif envoyée ! ID:", result.id);
+            // On affiche un toast seulement si c'est une action manuelle (pour ne pas spammer l'admin)
+            // showToast("Notification envoyée !", "success"); 
+            return true;
+        } else {
+            console.error("Erreur OneSignal:", result);
+            return false;
+        }
+    } catch (e) {
+        console.error("Erreur réseau notif:", e);
+        return false;
+    }
+}
+
+        // ============================================
         // VARIABLES GLOBALES
         // ============================================
         let adminUser = null;
@@ -2766,11 +2885,12 @@
             
             try {
                 // Load stats
-                const [usersCount, candidatesCount, gamesCount, votesData] = await Promise.all([
+                const [usersCount, candidatesCount, gamesCount, votesData, downloadsCount] = await Promise.all([
                     supabaseClient.from('users').select('*', { count: 'exact', head: true }),
                     supabaseClient.from('game_entries').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
                     supabaseClient.from('games').select('*', { count: 'exact', head: true }),
-                    supabaseClient.from('votes').select('vote_count')
+                    supabaseClient.from('votes').select('vote_count, amount_paid, voted_at'), // On récupère tout d'un coup pour optimiser
+                    supabaseClient.from('app_downloads').select('*', { count: 'exact', head: true }) // <--- NOUVEAU
                 ]);
                 
                 const totalVotes = votesData.data?.reduce((sum, v) => sum + (v.vote_count || 1), 0) || 0;
@@ -2823,6 +2943,16 @@
                             <p>Candidats Actifs</p>
                         </div>
                     </div>
+
+                    <!-- NOUVELLE CARTE DOWNLOADS -->
+                    <div class="stat-card">
+                        <div class="icon purple"><i class="fab fa-android"></i></div> <!-- Icône Android -->
+                        <div class="info">
+                            <h4>${downloadsCount.count || 0}</h4>
+                            <p>Téléchargements App</p>
+                        </div>
+                    </div>
+
                     <div class="stat-card">
                         <div class="icon gold"><i class="fas fa-vote-yea"></i></div>
                         <div class="info">
@@ -2866,6 +2996,15 @@
                 // Load recent activity
                 await loadRecentActivity();
                 
+                // ...
+                    await loadActivityChart();
+                    await loadVotesDistributionChart();
+                    
+                    await loadDownloadsChart(); // <--- AJOUTE ÇA
+                    
+                    await loadRecentActivity();
+                // ...
+
             } catch (error) {
                 console.error('Dashboard error:', error);
                 showToast('Erreur de chargement du dashboard', 'error');
@@ -3033,6 +3172,87 @@
             });
         }
         
+        async function loadDownloadsChart() {
+            const ctx = document.getElementById('downloadsChart');
+            if (!ctx) return;
+
+            // 1. Récupérer les téléchargements des 30 derniers jours
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+            const { data: downloads, error } = await supabaseClient
+                .from('app_downloads')
+                .select('created_at')
+                .gte('created_at', thirtyDaysAgo.toISOString());
+
+            if (error) {
+                console.error("Erreur chart downloads:", error);
+                return;
+            }
+
+            // 2. Grouper par jour (YYYY-MM-DD)
+            const dailyData = {};
+            // Initialiser les 30 derniers jours à 0 (pour avoir une courbe continue)
+            for (let i = 0; i < 30; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - (29 - i));
+                const key = d.toISOString().split('T')[0];
+                dailyData[key] = 0;
+            }
+
+            // Remplir avec les données
+            downloads.forEach(d => {
+                const dateKey = d.created_at.split('T')[0];
+                if (dailyData[dateKey] !== undefined) {
+                    dailyData[dateKey]++;
+                }
+            });
+
+            const labels = Object.keys(dailyData).map(d => {
+                const date = new Date(d);
+                return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+            });
+            const data = Object.values(dailyData);
+
+            // 3. Créer le graphique
+            if (window.downloadsChartInstance) window.downloadsChartInstance.destroy();
+
+            window.downloadsChartInstance = new Chart(ctx, {
+                type: 'line', // ou 'bar' si tu préfères des bâtons
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Téléchargements',
+                        data: data,
+                        borderColor: '#3DDC84', // Vert Android
+                        backgroundColor: 'rgba(61, 220, 132, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4, // Courbe lisse
+                        fill: true,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => ` ${context.parsed.y} téléchargements`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { precision: 0 } // Pas de virgules (on ne télécharge pas 0.5 app)
+                        }
+                    }
+                }
+            });
+        }
+
         async function loadRecentActivity() {
             const { data: logs } = await supabaseClient
                 .from('activity_logs')
@@ -3310,6 +3530,11 @@
                 await logAdminActivity('create_game', `Jeu créé (RPC): ${title}`);
                 closeModal('createGameModal');
                 showToast('Jeu créé avec succès !', 'success');
+                // Après succès de création
+                await sendNotification(
+                    `Un nouveau jeu "${title}" est en attente ! Préparez-vous ! 🎮`, 
+                    [] // Tout le monde
+                );
                 await loadGames();
 
             } catch (e) {
@@ -3336,7 +3561,10 @@
                 showToast('Jeu démarré !', 'success');
                 await loadGames();
                 await loadCurrentGameStatus();
-                
+                await sendNotification(
+                    `Le jeu "${game.title}" commence MAINTENANT ! À vos votes ! 🚀`, 
+                    [] 
+                );
             } catch (error) {
                 console.error('Start game error:', error);
                 showToast('Erreur lors du démarrage', 'error');
@@ -4050,7 +4278,13 @@ async function applyReferralBonusesOnApproval(entryId) {
                 
                 showToast('Paiement marqué comme effectué !', 'success');
                 await loadReferrals();
-                
+                // Dans markAsPaid ou upsertAndMarkPaid
+                await sendNotification(
+                    `Félicitations ! Votre prime de ${bonusAmount} FCFA a été payée.`,
+                    [], // Pas de filtre
+                    "Paiement Reçu 💰",
+                    [referrerId] // On cible l'ID Supabase du parrain
+                );
             } catch (error) {
                 console.error('Payment error:', error);
                 showToast('Erreur lors de la mise à jour', 'error');
@@ -4662,6 +4896,19 @@ async function loadFinancialChartMonthly(ctx, startDate) {
                 showToast('Votes ajoutés avec succès !', 'success');
                 await loadVotes();
                 
+                // (Logique simplifiée)
+                const newTotal = oldTotal + voteCount;
+                if (Math.floor(newTotal / 10) > Math.floor(oldTotal / 10)) {
+                    // On a franchi un palier de 10
+                    // Cible : tag 'candidate_id' = ID du candidat
+                    const filters = [{"field": "tag", "key": "candidate_id", "relation": "=", "value": candidateId}];
+                    sendNotification(
+                        `Bravo ! Vous avez dépassé les ${newTotal} votes ! Continuez ! 🔥`,
+                        filters,
+                        "Nouveau Palier Atteint !"
+                    );
+                }
+
             } catch (error) {
                 console.error('Add votes error:', error);
                 showToast('Erreur lors de l\'ajout des votes', 'error');
@@ -6276,6 +6523,46 @@ document.querySelectorAll('.menu-item[data-section="ads"]').forEach(btn => {
         loadAds();
     });
 });
+
+
+// ============================================
+// ENVOI MANUEL NOTIFICATION
+// ============================================
+async function sendManualNotif() {
+    const title = document.getElementById('notifTitle').value.trim();
+    const msg = document.getElementById('notifMessage').value.trim();
+    const target = document.getElementById('notifTarget').value;
+
+    if (!msg) {
+        showToast("Le message est vide !", "error");
+        return;
+    }
+
+    if (!confirm(`Envoyer cette notification à : ${target} ?`)) return;
+
+    showLoading("Envoi en cours...");
+
+    // Préparation des filtres selon la cible
+    let filters = [];
+    if (target === 'candidates') {
+        filters = [{"field": "tag", "key": "role", "relation": "=", "value": "candidate"}];
+    } else if (target === 'users') {
+        filters = [{"field": "tag", "key": "role", "relation": "=", "value": "user"}];
+    }
+    // Si target === 'all', filters reste vide [] -> OneSignal envoie à "Subscribed Users"
+
+    // Appel de la fonction principale (celle que je t'ai donnée avant)
+    const success = await sendNotification(msg, filters, title);
+
+    hideLoading();
+
+    if (success) {
+        showToast("Notification envoyée avec succès !", "success");
+        document.getElementById('notifMessage').value = ""; // Vider le message
+    } else {
+        showToast("Erreur lors de l'envoi (Vérifiez la console)", "error");
+    }
+}
     </script>
 </body>
 </html>
