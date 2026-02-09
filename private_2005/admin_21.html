@@ -6559,29 +6559,42 @@ async function sendManualNotif() {
         return;
     }
 
-    if (!confirm(`Envoyer cette notification à : ${target} ?`)) return;
+    if (!confirm(`Envoyer cette notification ?`)) return;
 
     showLoading("Envoi en cours...");
 
-    // Préparation des filtres selon la cible
-    let filters = [];
-    if (target === 'candidates') {
-        filters = [{"field": "tag", "key": "role", "relation": "=", "value": "candidate"}];
-    } else if (target === 'users') {
-        filters = [{"field": "tag", "key": "role", "relation": "=", "value": "user"}];
-    }
-    // Si target === 'all', filters reste vide [] -> OneSignal envoie à "Subscribed Users"
-
-    // Appel de la fonction principale (celle que je t'ai donnée avant)
-    const success = await sendNotification(msg, filters, title);
+    // --- MODIFICATION POUR LE TEST ---
+    // Au lieu de filtres complexes, on envoie directement à ton ID qui marche (vert)
+    // Tu pourras remettre la logique "target" plus tard quand tu auras de vrais utilisateurs
+    
+    // Ton ID OneSignal (celui que tu m'as montré en vert)
+    const myTestID = "66b1853a-f35b-4168-ac64-fea279d2371d"; 
+    
+    // On appelle l'Edge Function avec ce paramètre spécifique
+    // Note: On passe null pour filters et external_ids
+    const { data, error } = await supabaseClient.functions.invoke('send-push', {
+        body: { 
+            message: msg, 
+            title: title, 
+            player_ids: [myTestID] // <--- C'est ça qui force l'envoi à toi
+        }
+    });
 
     hideLoading();
 
-    if (success) {
-        showToast("Notification envoyée avec succès !", "success");
-        document.getElementById('notifMessage').value = ""; // Vider le message
+    if (error) {
+        console.error("Erreur Edge Function:", error);
+        showToast("Erreur réseau", "error");
+        return;
+    }
+
+    if (data && data.errors) {
+        console.error("Erreur OneSignal API:", data.errors);
+        showToast("Erreur OneSignal: " + JSON.stringify(data.errors), "error");
     } else {
-        showToast("Erreur lors de l'envoi (Vérifiez la console)", "error");
+        console.log("Notif envoyée ! Réponse:", data);
+        showToast("Notification envoyée avec succès !", "success");
+        document.getElementById('notifMessage').value = "";
     }
 }
     </script>
