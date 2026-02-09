@@ -1819,124 +1819,138 @@ input, select, textarea {
         </section>
     </main>
     
-    <!-- ========== VOTE MODAL ========== -->
-    <div class="modal-overlay" id="voteModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-vote-yea"></i> Voter</h3>
-                <button class="modal-close" onclick="closeVoteModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+   <!-- ========== VOTE MODAL ========== -->
+<div class="modal-overlay" id="voteModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3><i class="fas fa-vote-yea"></i> Voter</h3>
+            <button class="modal-close" onclick="closeVoteModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Infos Candidat -->
+            <div class="vote-candidate-info" id="voteCandidateInfo">
+                <!-- Rempli par le JS -->
             </div>
-            <div class="modal-body">
-                <div class="vote-candidate-info" id="voteCandidateInfo">
-                    <!-- Populated dynamically -->
+            
+            <!-- Choix du type -->
+            <div class="vote-type-selector">
+                <div class="vote-type-option" id="freeVoteOption" onclick="selectVoteType('free')">
+                    <div class="vote-type-header">
+                        <h5><i class="fas fa-gift"></i> Vote Gratuit</h5>
+                        <span class="badge" id="freeVoteBadge">Disponible</span>
+                    </div>
+                    <p>1 vote gratuit par candidat et par jeu</p>
                 </div>
                 
-                <div class="vote-type-selector">
-                    <div class="vote-type-option" id="freeVoteOption" onclick="selectVoteType('free')">
-                        <div class="vote-type-header">
-                            <h5><i class="fas fa-gift"></i> Vote Gratuit</h5>
-                            <span class="badge" id="freeVoteBadge">Disponible</span>
-                        </div>
-                        <p>1 vote gratuit par candidat et par jeu</p>
+                <div class="vote-type-option" id="paidVoteOption" onclick="selectVoteType('paid')">
+                    <div class="vote-type-header">
+                        <h5><i class="fas fa-star"></i> Votes Payants</h5>
                     </div>
-                    
-                    <div class="vote-type-option" id="paidVoteOption" onclick="selectVoteType('paid')">
-                        <div class="vote-type-header">
-                            <h5><i class="fas fa-star"></i> Votes Payants</h5>
-                        </div>
-                        <p>Boostez votre candidat préféré avec des votes supplémentaires</p>
-                    </div>
-                </div>
-                
-                <div class="paid-votes-input" id="paidVotesInput">
-                    <label>Choisissez le nombre de votes:</label>
-                    <div class="votes-amount-grid">
-                        <button type="button" class="amount-btn" data-votes="1" onclick="selectAmount(1)">
-                            <span class="votes">1</span>
-                            <span class="price" id="price1">50 FCFA</span>
-                        </button>
-                        <button type="button" class="amount-btn" data-votes="5" onclick="selectAmount(5)">
-                            <span class="votes">5</span>
-                            <span class="price" id="price5">250 FCFA</span>
-                        </button>
-                        <button type="button" class="amount-btn" data-votes="10" onclick="selectAmount(10)">
-                            <span class="votes">10</span>
-                            <span class="price" id="price10">500 FCFA</span>
-                        </button>
-                        <button type="button" class="amount-btn" data-votes="20" onclick="selectAmount(20)">
-                            <span class="votes">20</span>
-                            <span class="price" id="price20">1000 FCFA</span>
-                        </button>
-                        <button type="button" class="amount-btn" data-votes="50" onclick="selectAmount(50)">
-                            <span class="votes">50</span>
-                            <span class="price" id="price50">2500 FCFA</span>
-                        </button>
-                        <button type="button" class="amount-btn" data-votes="100" onclick="selectAmount(100)">
-                            <span class="votes">100</span>
-                            <span class="price" id="price100">5000 FCFA</span>
-                        </button>
-                    </div>
-                    
-                    <div class="custom-amount">
-                        <input type="number" id="customVotes" placeholder="Autre quantité" min="1">
-                        <button type="button" class="btn btn-sm btn-outline" onclick="applyCustomAmount()">
-                            Appliquer
-                        </button>
-                    </div>
-                    
-                    <div class="total-price">
-                        <span>Total à payer:</span>
-                        <span class="amount" id="totalAmount">0 FCFA</span>
-                    </div>
-                    
-                    <div class="payment-instructions">
-                        <h5><i class="fas fa-info-circle"></i> Instructions de paiement</h5>
-                        <div class="payment-method">
-                            <img src="/assets/images/mtn.png" alt="MTN">
-                            <div>
-                                <p class="number">229 01 90 08 62 67</p>
-                                <p class="name">MTN Mobile Money</p>
-                            </div>
-                        </div>
-                        <div class="payment-method">
-                            <img src="/assets/images/moov.png" alt="Moov">
-                            <div>
-                                <p class="number">229 01 55 95 66 83</p>
-                                <p class="name">Moov Money</p>
-                            </div>
-                        </div>
-                        <div class="payment-method">
-                            <img src="/assets/images/celtiis.png" alt="Celtiis">
-                            <div>
-                                <p class="number">229 01 40 30 47 51</p>
-                                <p class="name">Celtiis Cash</p>
-                            </div>
-                        </div>
-                        <p style="margin-top: 15px; font-size: 0.85rem; color: #856404;">
-                            <strong>Important:</strong> Envoyez le montant et contactez-nous sur WhatsApp avec la preuve de paiement.
-                        </p>
-                    </div>
+                    <p>Boostez votre candidat préféré</p>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeVoteModal()">Annuler</button>
-                <button class="btn btn-success" id="confirmVoteBtn" onclick="confirmVote()">
-                    <i class="fas fa-check"></i>
-                    Confirmer
-                </button>
-                <a href="https://wa.me/2290140304751?text=Bonjour%2C%20je%20viens%20de%20payer%20pour%20des%20votes.%0A%0ACandidat%3A%20%5BNom%20du%20Candidat%5D%0AMontant%3A%20%5BVotre%20montant%5D%0A%0A%5BJoindre%20capture%20d%27%C3%A9cran%5D" 
-                    target="_blank" 
-                    class="btn btn-success btn-lg" 
-                    style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;">
-                        <i class="fab fa-whatsapp"></i>
-                        Envoyer la preuve
-                </a>
+            
+            <!-- Zone Paiement (Cachée par défaut) -->
+            <div class="paid-votes-input" id="paidVotesInput">
+                <label>Choisissez le nombre de votes:</label>
+                <div class="votes-amount-grid">
+                    <button type="button" class="amount-btn" data-votes="1" onclick="selectAmount(1)">
+                        <span class="votes">1</span>
+                        <span class="price" id="price1">50 FCFA</span>
+                    </button>
+                    <button type="button" class="amount-btn" data-votes="5" onclick="selectAmount(5)">
+                        <span class="votes">5</span>
+                        <span class="price" id="price5">250 FCFA</span>
+                    </button>
+                    <button type="button" class="amount-btn" data-votes="10" onclick="selectAmount(10)">
+                        <span class="votes">10</span>
+                        <span class="price" id="price10">500 FCFA</span>
+                    </button>
+                    <button type="button" class="amount-btn" data-votes="20" onclick="selectAmount(20)">
+                        <span class="votes">20</span>
+                        <span class="price" id="price20">1000 FCFA</span>
+                    </button>
+                    <button type="button" class="amount-btn" data-votes="50" onclick="selectAmount(50)">
+                        <span class="votes">50</span>
+                        <span class="price" id="price50">2500 FCFA</span>
+                    </button>
+                    <button type="button" class="amount-btn" data-votes="100" onclick="selectAmount(100)">
+                        <span class="votes">100</span>
+                        <span class="price" id="price100">5000 FCFA</span>
+                    </button>
+                </div>
+                
+                <div class="custom-amount">
+                    <input type="number" id="customVotes" placeholder="Autre quantité" min="1" oninput="applyCustomAmount()">
+                    <button type="button" class="btn btn-sm btn-outline" onclick="applyCustomAmount()">
+                        Appliquer
+                    </button>
+                </div>
+                
+                <div class="total-price">
+                    <span>Total à payer:</span>
+                    <span class="amount" id="totalAmount">0 FCFA</span>
+                </div>
+                
+                <div class="payment-instructions">
+                    <h5><i class="fas fa-info-circle"></i> Instructions de paiement</h5>
+                    <div class="payment-method">
+                        <img src="assets/images/mtn.png" alt="MTN" width="40">
+                        <div>
+                            <p class="number">229 01 90 08 62 67</p>
+                            <p class="name">MTN Mobile Money</p>
+                        </div>
+                    </div>
+                    <div class="payment-method">
+                        <img src="assets/images/moov.png" alt="Moov" width="40">
+                        <div>
+                            <p class="number">229 01 55 95 66 83</p>
+                            <p class="name">Moov Money</p>
+                        </div>
+                    </div>
+                    <div class="payment-method">
+                        <img src="assets/images/celtiis.png" alt="Celtiis" width="40">
+                        <div>
+                            <p class="number">229 01 40 30 47 51</p>
+                            <p class="name">Celtiis Cash</p>
+                        </div>
+                    </div>
+                    
+                    <!-- AJOUT DU NOM -->
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; font-size: 0.9rem;">
+                        <i class="fas fa-user"></i> Nom : <strong>Josias Akodjenou</strong>
+                    </div>
+
+                    <p style="margin-top: 10px; font-size: 0.85rem; color: #856404;">
+                        <strong>Important:</strong> Envoyez le montant exact et cliquez sur le bouton ci-dessous pour envoyer la preuve sur WhatsApp.
+                    </p>
+                </div>
             </div>
         </div>
+        
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeVoteModal()">Annuler</button>
+            
+            <!-- Bouton Confirm (Gratuit) -->
+            <button class="btn btn-success" id="confirmVoteBtn" onclick="confirmVote()">
+                <i class="fas fa-check"></i>
+                Confirmer
+            </button>
+            
+            <!-- Bouton WhatsApp (Payant) - ID AJOUTÉ -->
+            <a href="https://wa.me/2290190086267" 
+                id="whatsappBtn"
+                target="_blank" 
+                class="btn btn-success" 
+                style="display: none; align-items: center; justify-content: center; gap: 8px; text-decoration: none;">
+                    <i class="fab fa-whatsapp"></i>
+                    Envoyer la preuve
+            </a>
+        </div>
     </div>
-    
+</div>
     <!-- ========== AD POPUP ========== -->
     <div class="modal-overlay ad-popup" id="adPopup">
         <div class="modal">
