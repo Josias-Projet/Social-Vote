@@ -2475,26 +2475,27 @@ async function sendNotification(message, filters = [], title = "Social Vote", ex
 
     console.log("Envoi notif...", data);
 
-    try {
-        // Dans admin_21.html, remplace l'appel fetch par :
+        try {
         const { data, error } = await supabaseClient.functions.invoke('send-push', {
             body: { message, title, filters, external_ids: externalUserIds }
         });
 
-
-        const result = await response.json();
-        
-        if (result.id) {
-            console.log("Notif envoyée ! ID:", result.id);
-            // On affiche un toast seulement si c'est une action manuelle (pour ne pas spammer l'admin)
-            // showToast("Notification envoyée !", "success"); 
-            return true;
-        } else {
-            console.error("Erreur OneSignal:", result);
+        if (error) {
+            console.error("Erreur Edge Function:", error);
             return false;
         }
+
+        // Si l'Edge Function renvoie une erreur OneSignal (ex: 400 Bad Request)
+        if (data && data.errors) {
+            console.error("Erreur OneSignal API:", data.errors);
+            return false;
+        }
+
+        console.log("Notif envoyée ! Réponse:", data);
+        return true;
+
     } catch (e) {
-        console.error("Erreur réseau notif:", e);
+        console.error("Erreur JS Client:", e);
         return false;
     }
 }
