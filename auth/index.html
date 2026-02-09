@@ -1636,7 +1636,14 @@ input, select, textarea {
                 // Sauvegarder la session
                 currentUser = newUser;
                 localStorage.setItem('socialvote_session', JSON.stringify(newUser));
-                
+                // === AJOUTE LE CODE ICI ===
+                if (window.OneSignalDeferred) {
+                    window.OneSignalDeferred.push(function(OneSignal) {
+                        OneSignal.login(user.id);
+                        OneSignal.User.addTag("role", user.role);
+                    });
+                }
+                // ==========================
                 hideLoading();
                 
                 showAlert('registerAlert', 'Compte créé avec succès ! Redirection...', 'success');
