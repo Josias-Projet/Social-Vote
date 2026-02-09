@@ -6547,54 +6547,52 @@ document.querySelectorAll('.menu-item[data-section="ads"]').forEach(btn => {
 
 
 // ============================================
-// ENVOI MANUEL NOTIFICATION
+// ENVOI MANUEL NOTIFICATION (Finale)
 // ============================================
 async function sendManualNotif() {
     const title = document.getElementById('notifTitle').value.trim();
     const msg = document.getElementById('notifMessage').value.trim();
     const target = document.getElementById('notifTarget').value;
 
+    // Validation basique
     if (!msg) {
         showToast("Le message est vide !", "error");
         return;
     }
 
-    if (!confirm(`Envoyer cette notification ?`)) return;
+    if (!confirm(`Envoyer cette notification à : ${target} ?`)) return;
 
     showLoading("Envoi en cours...");
 
-    // --- MODIFICATION POUR LE TEST ---
-    // Au lieu de filtres complexes, on envoie directement à ton ID qui marche (vert)
-    // Tu pourras remettre la logique "target" plus tard quand tu auras de vrais utilisateurs
-    
-    // Ton ID OneSignal (celui que tu m'as montré en vert)
-    const myTestID = "66b1853a-f35b-4168-ac64-fea279d2371d"; 
-    
-    // On appelle l'Edge Function avec ce paramètre spécifique
-    // Note: On passe null pour filters et external_ids
-    const { data, error } = await supabaseClient.functions.invoke('send-push', {
-        body: { 
-            message: msg, 
-            title: title, 
-            player_ids: [myTestID] // <--- C'est ça qui force l'envoi à toi
+    try {
+        // 1. Préparation des filtres selon la cible
+        let filters = [];
+        
+        if (target === 'candidates') {
+            // Cible les utilisateurs ayant le tag role="candidate"
+            filters = [{"field": "tag", "key": "role", "relation": "=", "value": "candidate"}];
+        } else if (target === 'users') {
+            // Cible les utilisateurs ayant le tag role="user"
+            filters = [{"field": "tag", "key": "role", "relation": "=", "value": "user"}];
         }
-    });
+        // Si target === 'all', on laisse filters vide -> L'Edge Function utilisera "Subscribed Users"
 
-    hideLoading();
+        // 2. Appel de la fonction d'envoi principale
+        // On passe null pour externalUserIds car c'est un envoi de masse/segmenté
+        const success = await sendNotification(msg, filters, title, null);
 
-    if (error) {
-        console.error("Erreur Edge Function:", error);
-        showToast("Erreur réseau", "error");
-        return;
-    }
+        if (success) {
+            showToast("Notification envoyée avec succès !", "success");
+            document.getElementById('notifMessage').value = ""; // Vider le champ message
+        } else {
+            showToast("Erreur lors de l'envoi (Vérifiez la console)", "error");
+        }
 
-    if (data && data.errors) {
-        console.error("Erreur OneSignal API:", data.errors);
-        showToast("Erreur OneSignal: " + JSON.stringify(data.errors), "error");
-    } else {
-        console.log("Notif envoyée ! Réponse:", data);
-        showToast("Notification envoyée avec succès !", "success");
-        document.getElementById('notifMessage').value = "";
+    } catch (e) {
+        console.error("Erreur sendManualNotif:", e);
+        showToast("Erreur critique JS", "error");
+    } finally {
+        hideLoading();
     }
 }
     </script>
