@@ -1525,7 +1525,16 @@ input, select, textarea {
                 // Sauvegarder la session
                 currentUser = users;
                 localStorage.setItem('socialvote_session', JSON.stringify(users));
-                
+
+                // === AJOUTE LE CODE ICI ===
+                if (window.OneSignalDeferred) {
+                    window.OneSignalDeferred.push(function(OneSignal) {
+                        OneSignal.login(user.id);
+                        OneSignal.User.addTag("role", user.role);
+                    });
+                }
+                // ==========================
+                                
                 // Mettre à jour la dernière connexion
                 await supabaseClient
                     .from('users')
@@ -1542,7 +1551,7 @@ input, select, textarea {
                 // Redirection
                 setTimeout(() => {
                     if (users.role === 'admin') {
-                        window.location.href = 'private_2005/admin_21.html';
+                        window.location.href = '/private_2005/admin_21.html';
                     } else {
                         window.location.href = '/';
                     }
