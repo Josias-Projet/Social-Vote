@@ -1343,6 +1343,26 @@
 
 <!-- OneSignal SDK -->
 <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "43ee5835-c6b1-45c8-ad82-6db5a374dcc7",
+      allowLocalhostAsSecureOrigin: true, // Important pour tes tests locaux
+    });
+    
+    // Forcer la demande d'autorisation (Slide Prompt)
+    OneSignal.Slidedown.promptPush();
+    
+    // Gérer l'identification utilisateur (quand connecté)
+    // On doit attendre que OneSignal soit prêt
+    if (typeof currentUser !== 'undefined' && currentUser) {
+        OneSignal.login(currentUser.id); // Nouvelle méthode v16 pour l'ID externe
+        OneSignal.User.addTag("role", currentUser.role);
+    }
+  });
+</script>
 </head>
 <body>
     <!-- ========== SIDEBAR ========== -->
