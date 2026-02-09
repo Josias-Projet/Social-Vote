@@ -1897,21 +1897,21 @@ input, select, textarea {
                 <div class="payment-instructions">
                     <h5><i class="fas fa-info-circle"></i> Instructions de paiement</h5>
                     <div class="payment-method">
-                        <img src="assets/images/mtn.png" alt="MTN" width="40">
+                        <img src="/assets/images/mtn.png" alt="MTN" width="40">
                         <div>
                             <p class="number">229 01 90 08 62 67</p>
                             <p class="name">MTN Mobile Money</p>
                         </div>
                     </div>
                     <div class="payment-method">
-                        <img src="assets/images/moov.png" alt="Moov" width="40">
+                        <img src="/assets/images/moov.png" alt="Moov" width="40">
                         <div>
                             <p class="number">229 01 55 95 66 83</p>
                             <p class="name">Moov Money</p>
                         </div>
                     </div>
                     <div class="payment-method">
-                        <img src="assets/images/celtiis.png" alt="Celtiis" width="40">
+                        <img src="/assets/images/celtiis.png" alt="Celtiis" width="40">
                         <div>
                             <p class="number">229 01 40 30 47 51</p>
                             <p class="name">Celtiis Cash</p>
@@ -2883,15 +2883,28 @@ input, select, textarea {
         }
         
         function updateWhatsAppLink() {
-            const total = selectedVoteAmount * votePrice;
-            const user = selectedCandidate?.users || {};
-            const message = encodeURIComponent(
-                `Bonjour! Je souhaite acheter ${selectedVoteAmount} vote(s) pour ${user.full_name || 'un candidat'} (${selectedCandidate?.candidate_number || ''}).\n\nMontant: ${total} FCFA\n\nJe vous envoie la preuve de paiement.`
-            );
+                const total = selectedVoteAmount * votePrice;
+                const user = selectedCandidate?.users || {};
+                const name = user.full_name || 'Candidat';
+                const number = selectedCandidate?.candidate_number || '';
+                
+                // Numéro Admin (celui qui reçoit l'argent)
+                const adminNumber = CONFIG.WHATSAPP_NUMBER.replace(/[^0-9]/g, '');
             
-            document.getElementById('whatsappBtn').href = `https://wa.me/${CONFIG.WHATSAPP_NUMBER}?text=${message}`;
-        }
-        
+                const message = `Bonjour, je souhaite acheter des votes.
+                
+            Candidat: ${name} (${number})
+            Quantité: ${selectedVoteAmount} votes
+            Montant à payer: ${total} FCFA
+            
+            [Je joins la preuve de paiement ci-dessous]`;
+            
+                const link = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
+                
+                const btn = document.getElementById('whatsappBtn');
+                if(btn) btn.href = link;
+            }
+                    
         // ============================================
         // CONFIRMATION DU VOTE
         // ============================================
