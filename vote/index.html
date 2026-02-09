@@ -2883,27 +2883,36 @@ input, select, textarea {
         }
         
         function updateWhatsAppLink() {
-                const total = selectedVoteAmount * votePrice;
-                const user = selectedCandidate?.users || {};
-                const name = user.full_name || 'Candidat';
-                const number = selectedCandidate?.candidate_number || '';
-                
-                // Numéro Admin (celui qui reçoit l'argent)
-                const adminNumber = CONFIG.WHATSAPP_NUMBER.replace(/[^0-9]/g, '');
+            const total = selectedVoteAmount * votePrice;
             
-                const message = `Bonjour, je souhaite acheter des votes.
-                
-            Candidat: ${name} (${number})
-            Quantité: ${selectedVoteAmount} votes
-            Montant à payer: ${total} FCFA
+            // Sécurité si les infos candidat ne sont pas chargées
+            const user = selectedCandidate?.users || {};
+            const name = user.full_name || 'Candidat Inconnu';
+            const number = selectedCandidate?.candidate_number || 'N/A';
             
-            [Je joins la preuve de paiement ci-dessous]`;
+            // Ton numéro (nettoyé)
+            const adminNumber = "2290140304751"; 
+        
+            // Construction du message ligne par ligne
+            let text = "Bonjour, je souhaite acheter des votes.\n";
+            text += "----------------------\n";
+            text += "Candidat : " + name + " (" + number + ")\n";
+            text += "Nombre de votes : " + selectedVoteAmount + "\n";
+            text += "Montant total : " + total + " FCFA\n";
+            text += "----------------------\n";
+            text += "Voici ma preuve de paiement en image ci-dessous :";
+        
+            // Encodage strict pour l'URL
+            const encodedText = encodeURIComponent(text);
             
-                const link = `https://wa.me/${adminNumber}?text=${encodeURIComponent(message)}`;
-                
-                const btn = document.getElementById('whatsappBtn');
-                if(btn) btn.href = link;
+            const link = `https://wa.me/${adminNumber}?text=${encodedText}`;
+            
+            const btn = document.getElementById('whatsappBtn');
+            if(btn) {
+                btn.href = link;
+                console.log("Lien WhatsApp généré :", link); // Pour vérifier dans la console
             }
+        }
                     
         // ============================================
         // CONFIRMATION DU VOTE
