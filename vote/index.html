@@ -2920,22 +2920,37 @@ input, select, textarea {
         async function confirmVote() {
             if (!selectedCandidate) return;
             
-            if (selectedVoteType === 'free') {
-                // Vérifier si déjà voté
-                if (hasVotedFree(selectedCandidate.id)) {
-                    showToast('Vous avez déjà utilisé votre vote gratuit pour ce candidat', 'warning');
-                    return;
+            // 1. Désactiver le bouton pour éviter le double-clic
+            const btn = document.getElementById('confirmVoteBtn');
+            if (btn) {
+                if (btn.disabled) return; // Si déjà désactivé, on arrête tout (protection)
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
+            }
+        
+            try {
+                if (selectedVoteType === 'free') {
+                    // Vérification locale rapide
+                    if (hasVotedFree(selectedCandidate.id)) {
+                        showToast('Vous avez déjà utilisé votre vote gratuit pour ce candidat', 'warning');
+                        return;
+                    }
+                    
+                    // Affichage Pub (si configuré)
+                    const adShown = await showVoteAd();
+                    
+                    // Envoi du vote
+                    await processFreeVote();
                 }
-                
-                // Afficher la pub avant le vote
-                const adShown = await showVoteAd();
-                
-                if (adShown === false) {
-                    // L'utilisateur a fermé la pub, on continue le vote
+            } catch (e) {
+                console.error(e);
+                showToast("Erreur inattendue", "error");
+            } finally {
+                // 2. Réactiver le bouton à la fin (Quoi qu'il arrive)
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Confirmer';
                 }
-                
-                // Enregistrer le vote
-                await processFreeVote();
             }
         }
         
@@ -3140,24 +3155,24 @@ input, select, textarea {
         // UTILITAIRES
         // ============================================
         async function getIP() {
-  // 1) ipify
-  try {
-    const r = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
-    const j = await r.json();
-    if (j?.ip) return j.ip;
-  } catch (_) {}
-
-  // 2) Cloudflare trace (souvent + fiable)
-  try {
-    const r = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store' });
-    const t = await r.text();
-    const line = t.split('\n').find(l => l.startsWith('ip='));
-    const ip = line?.split('=')?.[1]?.trim();
-    if (ip) return ip;
-  } catch (_) {}
-
-  return null; // IMPORTANT: null si impossible
-}
+          // 1) ipify
+          try {
+            const r = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+            const j = await r.json();
+            if (j?.ip) return j.ip;
+          } catch (_) {}
+        
+          // 2) Cloudflare trace (souvent + fiable)
+          try {
+            const r = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store' });
+            const t = await r.text();
+            const line = t.split('\n').find(l => l.startsWith('ip='));
+            const ip = line?.split('=')?.[1]?.trim();
+            if (ip) return ip;
+          } catch (_) {}
+        
+          return null; // IMPORTANT: null si impossible
+        }
         
         function copyToClipboard(text) {
             if (!text) return;
