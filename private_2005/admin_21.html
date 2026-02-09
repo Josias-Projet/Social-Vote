@@ -2476,11 +2476,11 @@ async function sendNotification(message, filters = [], title = "Social Vote", ex
     console.log("Envoi notif...", data);
 
     try {
-        const response = await fetch("https://onesignal.com/api/v1/notifications", {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify(data)
+        // Dans admin_21.html, remplace l'appel fetch par :
+        const { data, error } = await supabaseClient.functions.invoke('send-push', {
+            body: { message, title, filters, external_ids: externalUserIds }
         });
+
 
         const result = await response.json();
         
