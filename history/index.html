@@ -1470,7 +1470,50 @@ input, select, textarea {
     overflow-wrap: break-word;
     font-size: 1.1rem !important; /* Réduit un peu la taille */
 }
-        
+
+
+        /* Podium dans le modal */
+.podium-display {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+.podium-winner {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    width: 220px; /* Largeur fixe pour alignement */
+    border: 1px solid #eee;
+}
+/* Médaille Or pour le 1er */
+.podium-winner.position-1 { border: 2px solid var(--accent); transform: scale(1.05); z-index: 2; }
+
+/* Photo Grosse et Ronde */
+.winner-avatar-container { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
+.winner-photo-large {
+    width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
+    border: 4px solid var(--light-bg);
+}
+.winner-badge {
+    position: absolute; top: 0; right: 0;
+    background: var(--accent); color: var(--primary);
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; border: 2px solid #fff;
+}
+
+/* Prix */
+.prize-box { margin-top: 15px; background: var(--light-bg); padding: 10px; border-radius: 10px; }
+.prize-title { display: block; margin-bottom: 5px; color: var(--primary); font-size: 0.9rem; }
+.prize-gallery { display: flex; gap: 5px; justify-content: center; }
+.prize-gallery img {
+    width: 50px; height: 50px; border-radius: 8px; object-fit: cover; cursor: zoom-in;
+    border: 1px solid #ddd;
+}
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -2125,57 +2168,115 @@ function getThumbnailUrl(url, width = 150) {
         // GAME MODAL
         // ============================================
 function openGameModal(gameId) {
-    // On récupère le jeu depuis notre liste locale (pas besoin de refaire une requête !)
     const game = allGames.find(g => g.id === gameId);
     if (!game) return;
 
-    const modalTitle = document.getElementById('modalGameTitle');
-    const modalBody = document.getElementById('modalBody');
     const modal = document.getElementById('gameModal');
+    const modalBody = document.getElementById('modalBody');
+    document.getElementById('modalGameTitle').textContent = game.title;
 
-    if(modalTitle) modalTitle.textContent = game.title;
-
-    // On récupère tous les candidats du jeu
+    // --- PRÉPARATION DES DONNÉES ---
+    
+    // Candidats (Approuvés & Triés)
     const candidates = (game.game_entries || [])
         .filter(e => e.status === 'approved')
         .sort((a, b) => b.total_votes - a.total_votes);
 
-    // On prépare le HTML du tableau
-    const rows = candidates.map((c, i) => `
-        <tr>
-            <td><span class="table-rank rank-${i+1}">${i+1}</span></td>
-            <td>
-                <div class="table-user">
-                    <img src="${getThumbnailUrl(c.users?.photo_url, 50)}" onerror="this.src='https://placehold.co/50?text=U'">
-                    <div>
-                        <span class="name">${c.users?.full_name}</span>
-                        <span class="number">${c.candidate_number}</span>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="votes-breakdown">
-                    <span class="free" title="Gratuits"><i class="fas fa-gift"></i> ${c.free_votes}</span>
-                    <span class="paid" title="Payants"><i class="fas fa-coins"></i> ${c.paid_votes}</span>
-                    <span class="bonus" title="Bonus"><i class="fas fa-star"></i> ${c.referral_bonus_votes}</span>
-                </div>
-            </td>
-            <td><strong>${c.total_votes}</strong></td>
-        </tr>
-    `).join('');
+    // Gagnants (Top X)
+    const winners = candidates.slice(0, game.winners_count || 3);
 
-    modalBody.innerHTML = `
-        <div class="candidates-table-section">
+    // Calcul Durée
+    const duration = Math.ceil((new Date(game.end_time) - new Date(game.start_time)) / (86400000));
+
+    // --- GÉNÉRATION HTML ---
+
+    let content = `
+        <!-- 1. Infos du Jeu -->
+        <div class="modal-game-info">
+            <div class="modal-info-item"><div class="icon"><i class="fas fa-calendar-alt"></i></div><div class="text"><span class="label">Début</span><span class="value">${formatDate(game.start_time)}</span></div></div>
+            <div class="modal-info-item"><div class="icon"><i class="fas fa-flag-checkered"></i></div><div class="text"><span class="label">Fin</span><span class="value">${formatDate(game.end_time)}</span></div></div>
+            <div class="modal-info-item"><div class="icon"><i class="fas fa-users"></i></div><div class="text"><span class="label">Participants</span><span class="value">${candidates.length}</span></div></div>
+            <div class="modal-info-item"><div class="icon"><i class="fas fa-vote-yea"></i></div><div class="text"><span class="label">Total Votes</span><span class="value">${candidates.reduce((s,c)=>s+c.total_votes,0)}</span></div></div>
+        </div>
+
+        <!-- 2. Podium & Prix Réels -->
+        <h4 style="text-align:center; margin:25px 0 15px; color:var(--primary);">🏆 Les Gagnants & Prix</h4>
+        <div class="podium-display">
+            ${winners.map((w, i) => {
+                const pos = i + 1;
+                // Trouver le prix (Réel > Annoncé > Rien)
+                const realPrize = (game.game_awarded_prizes || []).find(p => p.position === pos);
+                const announcedPrize = (game.game_prizes || []).find(p => p.position === pos);
+                const prize = realPrize || announcedPrize;
+                
+                // Photos du prix
+                const prizePhotos = (realPrize?.photos || [prize?.photo_url]).filter(Boolean);
+
+                return `
+                <div class="podium-winner position-${pos}">
+                    <div class="winner-avatar-container">
+                        <span class="winner-badge">${pos}</span>
+                        <img src="${getThumbnailUrl(w.users?.photo_url, 200)}" 
+                             class="winner-photo-large" 
+                             onerror="this.src='https://placehold.co/150?text=U'">
+                    </div>
+                    <h5 class="winner-name">${w.users?.full_name}</h5>
+                    <p class="winner-votes">${w.total_votes} votes</p>
+                    
+                    ${prize ? `
+                        <div class="prize-box">
+                            <strong class="prize-title">${prize.title}</strong>
+                            ${prizePhotos.length ? `
+                                <div class="prize-gallery">
+                                    ${prizePhotos.map(url => `
+                                        <img src="${getThumbnailUrl(url, 100)}" onclick="openZoom('${url}')" loading="lazy">
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+                `;
+            }).join('')}
+        </div>
+
+        <!-- 3. Tableau Complet -->
+        <h4 style="margin:30px 0 15px; color:var(--primary);">📊 Classement Détailé</h4>
+        <div class="table-container">
             <table class="candidates-table">
-                <thead>
-                    <tr><th>Rang</th><th>Candidat</th><th>Détails</th><th>Total</th></tr>
-                </thead>
-                <tbody>${rows}</tbody>
+                <thead><tr><th>#</th><th>Candidat</th><th>Détails</th><th>Total</th></tr></thead>
+                <tbody>
+                    ${candidates.map((c, i) => `
+                        <tr>
+                            <td><strong>${i+1}</strong></td>
+                            <td>
+                                <div class="table-user">
+                                    <img src="${getThumbnailUrl(c.users?.photo_url, 50)}">
+                                    <div><span class="name">${c.users?.full_name}</span></div>
+                                </div>
+                            </td>
+                            <td>
+                                <small style="color:var(--gray)">
+                                    <i class="fas fa-gift"></i> ${c.free_votes} | 
+                                    <i class="fas fa-coins"></i> ${c.paid_votes} | 
+                                    <i class="fas fa-star"></i> ${c.referral_bonus_votes}
+                                </small>
+                            </td>
+                            <td><strong style="color:var(--accent)">${c.total_votes}</strong></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
             </table>
         </div>
     `;
 
+    modalBody.innerHTML = content;
     modal.classList.add('active');
+}
+
+// Fonction pour fermer (Indispensable)
+function closeGameModal() {
+    document.getElementById('gameModal').classList.remove('active');
 }
         
         // ============================================
@@ -2408,6 +2509,28 @@ function createWhatsAppButton() {
         loadGames(false); // false = ne pas reset, ajouter à la suite
     }
 });
+
+        // Initialisation des filtres (Appeler dans DOMContentLoaded)
+function initFilters() {
+    // Remplir les années dynamiquement
+    const yearSelect = document.getElementById('yearFilter');
+    const currentYear = new Date().getFullYear();
+    for(let y = currentYear; y >= currentYear - 5; y--) {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+    }
+
+    // Écouteurs d'événements
+    ['yearFilter', 'monthFilter', 'statusFilter'].forEach(id => {
+        document.getElementById(id).addEventListener('change', () => loadGames(true)); // true = reset liste
+    });
+
+    // Recherche avec délai (pour ne pas spammer)
+    let searchTimeout;
+    document.getElementById('searchInput').addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => loadGames(true), 500);
+    });
+}
     </script>
 </body>
 </html>
