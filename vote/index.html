@@ -2954,78 +2954,77 @@ input, select, textarea {
             }
         }
         
-        async function processFreeVote() {
+       async function processFreeVote() {
             try {
-                // Créer le vote
-                const { error: voteError } = await supabaseClient
-                .from('votes')
-                .insert([{
-                    game_id: currentGame.id,
-                    candidate_entry_id: selectedCandidate.id,
-                    voter_id: currentUser?.id || null,
-                    voter_ip: await getIP(),     // Ton code existant
-                    visitor_id: globalVisitorId, // <--- NOUVEAU (Fingerprint)
-                    vote_type: 'free',
-                    vote_count: 1,
-                    amount_paid: 0
-                }]);
-
-                if (voteError) {
-                // 23505 = violation index unique => vote gratuit déjà utilisé
-                if (voteError.code === '23505') {
-                    userVotes[selectedCandidate.id] = userVotes[selectedCandidate.id] || { free: false, paid: 0 };
-                    userVotes[selectedCandidate.id].free = true;
-                    displayCandidates();
-                    closeVoteModal();
-                    showToast("Vous avez déjà voté gratuitement pour ce candidat (IP).", "warning");
+                // 1. Sécurité IP/User
+                if (!currentUser && !ipReady) {
+                    showToast("Impossible de vérifier votre IP.", "warning");
                     return;
                 }
-                throw voteError;
+        
+                // 2. Insertion du vote (Le moment critique)
+                const { error: voteError } = await supabaseClient
+                    .from('votes')
+                    .insert([{
+                        game_id: currentGame.id,
+                        candidate_entry_id: selectedCandidate.id,
+                        voter_id: currentUser?.id || null,
+                        voter_ip: voterIp || null,
+                        visitor_id: typeof globalVisitorId !== 'undefined' ? globalVisitorId : null,
+                        vote_type: 'free',
+                        vote_count: 1,
+                        amount_paid: 0,
+                        voted_at: new Date().toISOString()
+                    }]);
+        
+                // 3. Gestion des erreurs SQL
+                if (voteError) {
+                    // Si c'est un doublon (déjà voté), on le dit gentiment
+                    if (voteError.code === '23505') {
+                        showToast("Vous avez déjà voté pour ce candidat.", "warning");
+                        closeVoteModal();
+                        // On marque localement qu'il a voté
+                        if (userVotes) {
+                            userVotes[selectedCandidate.id] = userVotes[selectedCandidate.id] || { free: false };
+                            userVotes[selectedCandidate.id].free = true;
+                            displayCandidates();
+                        }
+                        return; 
+                    }
+                    // Sinon, c'est une vraie erreur, on la lance vers le catch
+                    throw voteError;
                 }
-                
-                // Mettre à jour les votes du candidat
-                const newFreeVotes = (selectedCandidate.free_votes || 0) + 1;
-                const newTotalVotes = (selectedCandidate.total_votes || 0) + 1;
-                
-                await supabaseClient
-                    .from('game_entries')
-                    .update({
-                        free_votes: newFreeVotes,
-                        total_votes: newTotalVotes
-                    })
-                    .eq('id', selectedCandidate.id);
-                
-                // Mettre à jour les stats
-                await updateGlobalStats('total_votes', 1);
-                
-                // Log
-                await logActivity('vote', `Vote gratuit pour ${selectedCandidate.candidate_number}`);
-                
-                // Mettre à jour l'interface
-                userVotes[selectedCandidate.id] = { free: true, paid: 0 };
-                
+        
+                // --- À PARTIR D'ICI, LE VOTE EST RÉUSSI ---
+        
+                // 4. Feedback Utilisateur
                 closeVoteModal();
                 showToast('Vote enregistré avec succès ! 🎉', 'success');
-                triggerConfetti(); // <--- NOUVEAU (Boum !)
-                // Recharger les candidats
-                await loadCandidates();
-                
-                // (Logique simplifiée)
-                const newTotal = oldTotal + voteCount;
-                if (Math.floor(newTotal / 10) > Math.floor(oldTotal / 10)) {
-                    // On a franchi un palier de 10
-                    // Cible : tag 'candidate_id' = ID du candidat
-                    const filters = [{"field": "tag", "key": "candidate_id", "relation": "=", "value": candidateId}];
-                    sendNotification(
-                        `Bravo ! Vous avez dépassé les ${newTotal} votes ! Continuez ! 🔥`,
-                        filters,
-                        "Nouveau Palier Atteint !"
-                    );
+        
+                // 5. Mise à jour de l'interface (Sécurisée)
+                // On met ça dans un bloc try/catch séparé pour ne pas dire "Erreur vote" si les confettis plantent
+                try {
+                    // Animation
+                    if (typeof triggerConfetti === 'function') {
+                        triggerConfetti();
+                    }
+                    
+                    // Mise à jour locale immédiate (pour la réactivité)
+                    if (userVotes) {
+                        userVotes[selectedCandidate.id] = userVotes[selectedCandidate.id] || { free: false };
+                        userVotes[selectedCandidate.id].free = true;
+                    }
+        
+                    // Rechargement des données serveur
+                    await loadCandidates();
+                    
+                } catch (uiError) {
+                    console.warn("Erreur affichage/rechargement (non critique):", uiError);
                 }
-
+        
             } catch (error) {
-                console.error('Erreur vote:', error);
-                showToast('Erreur lors du vote. Réessayez.', 'error');
+                console.error("Erreur critique vote:", error);
+                showToast("Erreur lors du vote, veuillez réessayer.", "error");
             }
         }
         
