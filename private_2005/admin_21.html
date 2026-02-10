@@ -4471,6 +4471,81 @@ function renderAnalyticsChart(visits, period) {
     // Je peux te donner le code complet du chart si tu veux, c'est le même principe que 'loadFinancialChart'.
 }
 
+
+        function renderAnalyticsChart(visits, period) {
+    const ctx = document.getElementById('analyticsChart');
+    if (!ctx) return;
+
+    // 1. Préparer les dates (Axe X)
+    const daysMap = {};
+    const today = new Date();
+    const daysCount = period === 'today' ? 24 : (parseInt(period) || 30); // 24h ou N jours
+    
+    for (let i = daysCount - 1; i >= 0; i--) {
+        const d = new Date();
+        if (period === 'today') {
+            d.setHours(d.getHours() - i);
+            const label = d.getHours() + 'h';
+            daysMap[label] = { views: 0, visitors: new Set() };
+        } else {
+            d.setDate(d.getDate() - i);
+            const label = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+            daysMap[label] = { views: 0, visitors: new Set() };
+        }
+    }
+
+    // 2. Remplir les données
+    visits.forEach(v => {
+        const d = new Date(v.created_at);
+        let label;
+        if (period === 'today') label = d.getHours() + 'h';
+        else label = d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+
+        if (daysMap[label]) {
+            daysMap[label].views++;
+            daysMap[label].visitors.add(v.ip_address);
+        }
+    });
+
+    // 3. Dessiner le graphique
+    if (window.analyticsChartInstance) window.analyticsChartInstance.destroy();
+
+    window.analyticsChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Object.keys(daysMap),
+            datasets: [
+                {
+                    label: 'Pages Vues',
+                    data: Object.values(daysMap).map(d => d.views),
+                    borderColor: '#0A1F44', // Bleu Nuit
+                    backgroundColor: 'rgba(10, 31, 68, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Visiteurs Uniques',
+                    data: Object.values(daysMap).map(d => d.visitors.size),
+                    borderColor: '#D4AF37', // Or
+                    borderDash: [5, 5], // Pointillés pour différencier
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: { mode: 'index', intersect: false },
+                legend: { position: 'top' }
+            },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+        
                         
         async function loadFinances() {
             showLoading('Chargement des finances...');
@@ -6703,6 +6778,8 @@ async function sendManualNotif() {
         hideLoading();
     }
 }
+
+        
     </script>
 </body>
 </html>
