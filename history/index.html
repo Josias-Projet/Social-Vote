@@ -1815,6 +1815,14 @@ input, select, textarea {
             localStorage.removeItem('socialvote_session');
             window.location.reload();
         }
+
+        // Fonction utilitaire pour optimiser les images Cloudinary
+function getThumbnailUrl(url, width = 150) {
+    if (!url) return 'https://placehold.co/150x150?text=U';
+    if (!url.includes('cloudinary.com')) return url;
+    // Ajoute les paramètres de redimensionnement et qualité auto
+    return url.replace('/upload/', `/upload/w_${width},c_fill,q_auto,f_auto/`);
+}
         
         // ============================================
         // MOBILE MENU
