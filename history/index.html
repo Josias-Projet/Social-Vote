@@ -1718,7 +1718,7 @@ input, select, textarea {
         // VARIABLES GLOBALES
         // ============================================
         let currentUser = null;
-        let allGames = [];
+        
         let filteredGames = [];
         let globalStats = {
             totalGames: 0,
@@ -1726,7 +1726,11 @@ input, select, textarea {
             totalVotes: 0,
             totalWinners: 0
         };
-        
+        let allGames = [];        // Stocke tous les jeux chargés
+        let currentPage = 0;      // Pour la pagination
+        const PAGE_SIZE = 10;     // Nombre de jeux par chargement
+        let isLoadingMore = false; // Pour éviter le double chargement
+        let hasMoreGames = true;  // Pour savoir si on doit continuer
         // ============================================
         // INITIALISATION
         // ============================================
@@ -1958,105 +1962,82 @@ function getThumbnailUrl(url, width = 150) {
         // ============================================
         // LOAD GAMES
         // ============================================
-        async function loadGames() {
-            const container = document.getElementById('gamesList');
-            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement optimisé...</p></div>';
+        async function loadGames(reset = true) {
+    const container = document.getElementById('gamesList');
+    
+    if (reset) {
+        container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement de l\'historique...</p></div>';
+        currentPage = 0;
+        allGames = [];
+        hasMoreGames = true;
+    }
+
+    if (!hasMoreGames || isLoadingMore) return;
+    isLoadingMore = true;
+
+    try {
+        // Récupérer les filtres
+        const year = document.getElementById('yearFilter').value;
+        const month = document.getElementById('monthFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const search = document.getElementById('searchInput').value.trim();
+
+        // Construction de la requête
+        let query = supabaseClient
+            .from('games')
+            .select(`
+                *,
+                game_prizes(*),
+                game_awarded_prizes(*),
+                game_entries(
+                    id, total_votes, status, 
+                    users:user_id(full_name, photo_url)
+                )
+            `)
+            .in('status', ['ended', 'archived']) // On veut les deux statuts
+            .order('end_time', { ascending: false })
+            .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
+
+        // Application des filtres SQL (C'est mieux que filtrer en JS pour la pagination)
+        if (status) query = query.eq('status', status);
+        if (search) query = query.ilike('title', `%${search}%`);
         
-            try {
-                // 1. REQUÊTE OPTIMISÉE : On récupère TOUT d'un coup grâce aux relations Supabase
-                // On limite à 10 jeux pour commencer (Pagination invisible)
-                const { data: games, error } = await supabaseClient
-                    .from('games')
-                    .select(`
-                        *,
-                        game_prizes(*),
-                        game_awarded_prizes(*),
-                        game_entries(
-                            id, total_votes, status, 
-                            users:user_id(full_name, photo_url)
-                        )
-                    `)
-                    .in('status', ['ended', 'archived'])
-                    .order('end_time', { ascending: false })
-                    .limit(10); // <--- LIMITE IMPORTANTE POUR LA VITESSE
+        // Note: Pour Année/Mois, Supabase SQL est complexe. 
+        // Si tu as beaucoup de données, on filtre en JS après, sinon on utilise des ranges de date.
+        // Pour l'instant, on filtre en JS pour simplifier, sauf si tu as 10 000 jeux.
+
+        const { data: games, error } = await query;
+
+        if (error) throw error;
+
+        if (games.length < PAGE_SIZE) hasMoreGames = false;
         
-                if (error) throw error;
-        
-                if (!games || games.length === 0) {
-                    container.innerHTML = '<div class="no-games"><h3>Aucun jeu terminé</h3></div>';
-                    return;
-                }
-        
-                // 2. Traitement des données en mémoire (beaucoup plus rapide que des requêtes)
-                const gamesHTML = games.map(game => {
-                    // Filtrer les gagnants (approuvés + triés)
-                    const winners = (game.game_entries || [])
-                        .filter(e => e.status === 'approved')
-                        .sort((a, b) => b.total_votes - a.total_votes)
-                        .slice(0, game.winners_count || 3);
-        
-                    // Stats rapides
-                    const candidatesCount = game.game_entries?.length || 0;
-                    const totalVotes = game.game_entries?.reduce((sum, e) => sum + (e.total_votes || 0), 0) || 0;
-                    const duration = Math.ceil((new Date(game.end_time) - new Date(game.start_time)) / (1000 * 60 * 60 * 24));
-        
-                    // Génération HTML (Ton design existant)
-                    return `
-                        <div class="game-card">
-                            <div class="game-card-header">
-                                <div>
-                                    <h3><i class="fas fa-trophy"></i> ${game.title}</h3>
-                                    <div class="game-meta">
-                                        <span><i class="fas fa-clock"></i> ${duration} jours</span>
-                                        <span><i class="fas fa-calendar"></i> ${formatDate(game.end_time)}</span>
-                                    </div>
-                                </div>
-                                <span class="game-status ended">Terminé</span>
-                            </div>
-                            
-                            <div class="game-card-body">
-                                <!-- Mini Podium -->
-                                <div class="mini-podium">
-                                    ${winners.map((w, i) => `
-                                        <div class="mini-podium-place ${i===0?'first':i===1?'second':'third'}">
-                                            <img src="${getThumbnailUrl(w.users?.photo_url || '', 100)}" 
-                                                 class="mini-podium-photo" 
-                                                 onerror="this.src='https://placehold.co/100?text=U'">
-                                            <p class="mini-podium-name">${w.users?.full_name?.split(' ')[0] || 'Gagnant'}</p>
-                                            <span class="mini-podium-votes">${w.total_votes} pts</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-        
-                                <!-- Stats -->
-                                <div class="game-stats-row">
-                                    <div class="stat"><span class="val">${candidatesCount}</span><span class="lbl">Candidats</span></div>
-                                    <div class="stat"><span class="val">${totalVotes}</span><span class="lbl">Votes</span></div>
-                                </div>
-        
-                                <button class="btn btn-primary btn-sm" onclick="openGameModal('${game.id}')" style="width:100%; margin-top:15px;">
-                                    Voir le classement complet
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-        
-                container.innerHTML = gamesHTML;
-                
-                // Stocker les jeux en mémoire pour le modal (évite de refaire une requête)
-                window.allGamesCache = games; 
-        
-            } catch (err) {
-                console.error("Erreur historique:", err);
-                container.innerHTML = '<p class="error">Erreur de chargement.</p>';
-            }
-        }
+        // Filtrage JS supplémentaire (Année/Mois)
+        const filteredGames = games.filter(game => {
+            const date = new Date(game.end_time);
+            if (year && date.getFullYear().toString() !== year) return false;
+            if (month && (date.getMonth() + 1).toString() !== month) return false;
+            return true;
+        });
+
+        // Ajouter aux jeux existants
+        allGames = reset ? filteredGames : [...allGames, ...filteredGames];
+        currentPage++;
+
+        renderGamesList(allGames);
+
+    } catch (err) {
+        console.error("Erreur historique:", err);
+        container.innerHTML = '<div class="no-games"><i class="fas fa-exclamation-circle"></i><p>Erreur de chargement.</p></div>';
+    } finally {
+        isLoadingMore = false;
+    }
+}
         
         // ============================================
         // RENDER GAMES
         // ============================================
-        function renderGames(games) {
+        function renderGamesList(games) {
             const container = document.getElementById('gamesList');
             
             if (games.length === 0) {
@@ -2064,97 +2045,71 @@ function getThumbnailUrl(url, width = 150) {
                     <div class="no-games">
                         <i class="fas fa-history"></i>
                         <h3>Aucun jeu trouvé</h3>
-                        <p>Aucun jeu ne correspond à vos critères de recherche.</p>
-                        <button class="btn btn-primary" onclick="resetFilters()">
-                            <i class="fas fa-redo"></i>
-                            Réinitialiser les filtres
-                        </button>
-                    </div>
-                `;
+                        <p>Essayez de modifier vos filtres.</p>
+                    </div>`;
                 return;
             }
-            
-            container.innerHTML = games.map(game => {
-                const startDate = new Date(game.start_time);
-                const endDate = new Date(game.end_time);
-                const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        
+            const html = games.map(game => {
+                // Filtrer et trier les gagnants
+                const winners = (game.game_entries || [])
+                    .filter(e => e.status === 'approved')
+                    .sort((a, b) => b.total_votes - a.total_votes)
+                    .slice(0, 3); // Top 3 seulement
+        
+                // Calculs
+                const candidatesCount = game.game_entries?.length || 0;
+                const totalVotes = game.game_entries?.reduce((sum, e) => sum + (e.total_votes || 0), 0) || 0;
+                const duration = Math.ceil((new Date(game.end_time) - new Date(game.start_time)) / (1000 * 60 * 60 * 24));
                 
+                // Statut (Traduction et Couleur)
+                const isArchived = game.status === 'archived';
+                const statusLabel = isArchived ? 'Archivé' : 'Terminé';
+                const statusClass = isArchived ? 'archived' : 'ended'; // Assure-toi d'avoir le CSS .game-status.archived { background: gray; }
+        
                 return `
                     <div class="game-card">
                         <div class="game-card-header">
                             <div>
                                 <h3><i class="fas fa-trophy"></i> ${game.title}</h3>
                                 <div class="game-meta">
-                                    <div class="game-meta-item">
-                                        <i class="fas fa-calendar-alt"></i>
-                                        <span>${formatDate(game.start_time)} - ${formatDate(game.end_time)}</span>
-                                    </div>
-                                    <div class="game-meta-item">
-                                        <i class="fas fa-clock"></i>
-                                        <span>${duration} jours</span>
-                                    </div>
+                                    <span><i class="fas fa-clock"></i> ${duration} jours</span>
+                                    <span><i class="fas fa-calendar"></i> ${formatDate(game.end_time)}</span>
                                 </div>
                             </div>
-                            <span class="game-status ${game.status}">
-                                ${game.status === 'archived' ? '📁 Archivé' : '✅ Terminé'}
-                            </span>
+                            <span class="game-status ${statusClass}">${statusLabel}</span>
                         </div>
                         
                         <div class="game-card-body">
-                            <!-- Mini Podium -->
-                            ${game.winners.length > 0 ? `
-                                <div class="mini-podium">
-                                    ${game.winners.slice(0, 3).map((winner, index) => {
-                                        const positions = ['first', 'second', 'third'];
-                                        const medals = ['🥇', '🥈', '🥉'];
-                                        return `
-                                            <div class="mini-podium-place ${positions[index]}">
-                                                <img src="${winner.users?.photo_url || 'https://placehold.co/90x90?text=Photo'}" 
-                                                     alt="${winner.users?.full_name}" loading="lazy" class="mini-podium-photo">
-                                                <p class="mini-podium-name">${winner.users?.full_name || 'Gagnant'}</p>
-                                                <p class="mini-podium-votes">${winner.total_votes || 0} votes</p>
-                                                <span class="mini-podium-medal">${medals[index]}</span>
-                                            </div>
-                                        `;
-                                    }).join('')}
-                                </div>
-                            ` : `
-                                <p style="text-align: center; color: var(--gray); padding: 20px;">
-                                    <i class="fas fa-user-slash"></i> Aucun gagnant enregistré
-                                </p>
-                            `}
-                            
-                            <!-- Game Stats -->
+                            <!-- Podium -->
+                            <div class="mini-podium">
+                                ${winners.map((w, i) => `
+                                    <div class="mini-podium-place ${i===0?'first':i===1?'second':'third'}">
+                                        <img src="${getThumbnailUrl(w.users?.photo_url, 150)}" 
+                                             class="mini-podium-photo" 
+                                             style="width: ${i===0?'70px':'60px'}; height: ${i===0?'70px':'60px'};" 
+                                             onerror="this.src='https://placehold.co/150?text=U'">
+                                        <p class="mini-podium-name">${w.users?.full_name?.split(' ')[0] || 'Gagnant'}</p>
+                                        <span class="mini-podium-votes">${w.total_votes} pts</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+        
+                            <!-- Stats -->
                             <div class="game-stats-row">
-                                <div class="game-stat-item">
-                                    <span class="value">${game.candidatesCount}</span>
-                                    <span class="label">Candidats</span>
-                                </div>
-                                <div class="game-stat-item">
-                                    <span class="value">${game.totalVotes.toLocaleString()}</span>
-                                    <span class="label">Votes</span>
-                                </div>
-                                <div class="game-stat-item">
-                                    <span class="value">${game.registration_fee || 0}</span>
-                                    <span class="label">FCFA Inscription</span>
-                                </div>
-                                <div class="game-stat-item">
-                                    <span class="value">${game.winners_count || 3}</span>
-                                    <span class="label">Gagnants</span>
-                                </div>
+                                <div class="stat"><span class="val">${candidatesCount}</span><span class="lbl">Candidats</span></div>
+                                <div class="stat"><span class="val">${totalVotes}</span><span class="lbl">Votes</span></div>
                             </div>
-                            
-                            <!-- Actions -->
-                            <div class="game-actions">
-                                <button class="btn btn-primary" onclick="openGameModal('${game.id}')">
-                                    <i class="fas fa-eye"></i>
-                                    Voir les détails
-                                </button>
-                            </div>
+        
+                            <button class="btn btn-primary btn-sm" onclick="openGameModal('${game.id}')" style="width:100%; margin-top:15px;">
+                                Voir le classement complet
+                            </button>
                         </div>
                     </div>
                 `;
             }).join('');
+        
+            container.innerHTML = html;
         }
         
         function resetFilters() {
@@ -2169,206 +2124,59 @@ function getThumbnailUrl(url, width = 150) {
         // ============================================
         // GAME MODAL
         // ============================================
-        async function openGameModal(gameId) {
-        const game = allGames.find(g => g.id === gameId);
-        if (!game) return;
+function openGameModal(gameId) {
+    // On récupère le jeu depuis notre liste locale (pas besoin de refaire une requête !)
+    const game = allGames.find(g => g.id === gameId);
+    if (!game) return;
 
-        document.getElementById('modalGameTitle').textContent = game.title;
+    const modalTitle = document.getElementById('modalGameTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modal = document.getElementById('gameModal');
 
-        // Load all candidates for this game
-        const { data: allCandidates, error: cErr } = await supabaseClient
-            .from('game_entries')
-            .select(`*, users:user_id (full_name, photo_url)`)
-            .eq('game_id', gameId)
-            .eq('status', 'approved')
-            .order('total_votes', { ascending: false });
+    if(modalTitle) modalTitle.textContent = game.title;
 
-        if (cErr) {
-            console.error(cErr);
-            return;
-        }
+    // On récupère tous les candidats du jeu
+    const candidates = (game.game_entries || [])
+        .filter(e => e.status === 'approved')
+        .sort((a, b) => b.total_votes - a.total_votes);
 
-        const startDate = new Date(game.start_time);
-        const endDate = new Date(game.end_time);
-        const duration = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-
-        const modalBody = document.getElementById('modalBody');
-
-        const winners = (game.winners || []).slice(0, game.winners_count || 3);
-
-        modalBody.innerHTML = `
-            <!-- Game Info -->
-            <div class="modal-game-info">
-            <div class="modal-info-item">
-                <div class="icon"><i class="fas fa-calendar-alt"></i></div>
-                <div class="text">
-                <span class="label">Date de début</span>
-                <span class="value">${formatDateTime(game.start_time)}</span>
-                </div>
-            </div>
-            <div class="modal-info-item">
-                <div class="icon"><i class="fas fa-calendar-check"></i></div>
-                <div class="text">
-                <span class="label">Date de fin</span>
-                <span class="value">${formatDateTime(game.end_time)}</span>
-                </div>
-            </div>
-            <div class="modal-info-item">
-                <div class="icon"><i class="fas fa-clock"></i></div>
-                <div class="text">
-                <span class="label">Durée</span>
-                <span class="value">${duration} jours</span>
-                </div>
-            </div>
-            <div class="modal-info-item">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <div class="text">
-                <span class="label">Participants</span>
-                <span class="value">${allCandidates?.length || 0}</span>
-                </div>
-            </div>
-            <div class="modal-info-item">
-                <div class="icon"><i class="fas fa-vote-yea"></i></div>
-                <div class="text">
-                <span class="label">Total votes</span>
-                <span class="value">${game.totalVotes?.toLocaleString() || 0}</span>
-                </div>
-            </div>
-            <div class="modal-info-item">
-                <div class="icon"><i class="fas fa-money-bill"></i></div>
-                <div class="text">
-                <span class="label">Inscription</span>
-                <span class="value">${game.registration_fee || 0} FCFA</span>
-                </div>
-            </div>
-            </div>
-
-            <!-- Full Podium -->
-            ${winners.length > 0 ? `
-            <div class="full-podium">
-                <h4>🏆 Podium des Gagnants</h4>
-                <div class="podium-display">
-                ${winners.map((winner, index) => {
-                    const positions = ['first', 'second', 'third'];
-                    const medals = ['🥇', '🥈', '🥉'];
-
-                    const prize = (game.awarded_prizes?.[index] || game.prizes?.[index]) || null;
-
-                    const photos = prize
-                    ? (Array.isArray(prize.photos) && prize.photos.length ? prize.photos : (prize.photo_url ? [prize.photo_url] : []))
-                    : [];
-
-                    return `
-                    <div class="podium-winner ${positions[index] || ''}">
-                        <img src="${winner.users?.photo_url || 'https://placehold.co/130x130?text=Photo'}"
-                            alt="${winner.users?.full_name || 'Gagnant'}" loading="lazy" class="podium-photo"
-                            onerror="this.src='https://placehold.co/130x130?text=Photo'">
-                        
-                        <div class="podium-info">
-                        <h5>${winner.users?.full_name || 'Gagnant'}</h5>
-                        <p class="votes">${winner.total_votes || 0} votes</p>
-                        ${prize ? `<span class="prize">${prize.title}</span>` : ''}
-
-                        ${photos.length ? `
-                            <div class="square-grid">
-                                ${photos.map(url => {
-                                    // Création dynamique du texte SEO
-                                    const rank = index + 1;
-                                    const rankText = rank === 1 ? '1er' : rank + 'ème';
-                                    const winnerName = winner.users?.full_name || 'Gagnant';
-                                    const gameTitle = game.title || 'Concours';
-                                    const prizeTitle = prize.title || 'Récompense';
-                                    
-                                    // Texte complet : "TitrePrix remporté par NomGagnant (Xème) - NomJeu - Social Vote"
-                                    const altSEO = `${prizeTitle} remporté par ${winnerName} (${rankText} place) - ${gameTitle} - Social Vote`;
-
-                                    return `
-                                    <div class="square" onclick="openZoom('${url}')">
-                                        <img src="${url}" alt="${altSEO}" loading="lazy">
-                                    </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        ` : ''}
-                        </div>
-
-                        <div class="podium-stand">${medals[index] || '🏅'}</div>
+    // On prépare le HTML du tableau
+    const rows = candidates.map((c, i) => `
+        <tr>
+            <td><span class="table-rank rank-${i+1}">${i+1}</span></td>
+            <td>
+                <div class="table-user">
+                    <img src="${getThumbnailUrl(c.users?.photo_url, 50)}" onerror="this.src='https://placehold.co/50?text=U'">
+                    <div>
+                        <span class="name">${c.users?.full_name}</span>
+                        <span class="number">${c.candidate_number}</span>
                     </div>
-                    `;
-                }).join('')}
                 </div>
-            </div>
-            ` : ''}
+            </td>
+            <td>
+                <div class="votes-breakdown">
+                    <span class="free" title="Gratuits"><i class="fas fa-gift"></i> ${c.free_votes}</span>
+                    <span class="paid" title="Payants"><i class="fas fa-coins"></i> ${c.paid_votes}</span>
+                    <span class="bonus" title="Bonus"><i class="fas fa-star"></i> ${c.referral_bonus_votes}</span>
+                </div>
+            </td>
+            <td><strong>${c.total_votes}</strong></td>
+        </tr>
+    `).join('');
 
-            <!-- All Candidates Table -->
-            <div class="candidates-table-section">
-            <h4><i class="fas fa-list-ol"></i> Classement Complet</h4>
-            ${allCandidates && allCandidates.length > 0 ? `
-                <table class="candidates-table">
+    modalBody.innerHTML = `
+        <div class="candidates-table-section">
+            <table class="candidates-table">
                 <thead>
-                    <tr>
-                    <th>Rang</th>
-                    <th>Candidat</th>
-                    <th>Détail Votes</th>
-                    <th>Total</th>
-                    </tr>
+                    <tr><th>Rang</th><th>Candidat</th><th>Détails</th><th>Total</th></tr>
                 </thead>
-                <tbody>
-                    ${allCandidates.map((candidate, index) => {
-                    const rankClass = index < 3 ? `rank-${index + 1}` : 'rank-other';
-                    return `
-                        <tr>
-                        <td><span class="table-rank ${rankClass}">${index + 1}</span></td>
-                        <td>
-                            <div class="table-user">
-                            <img src="${candidate.users?.photo_url || 'https://placehold.co/40x40?text=U'}"
-                                alt="${candidate.users?.full_name || 'Candidat'}"
-                                onerror="this.src='https://placehold.co/40x40?text=U'" loading="lazy">
-                            <div>
-                                <span class="name">${candidate.users?.full_name || 'Candidat'}</span>
-                                <span class="number">${candidate.candidate_number || ''}</span>
-                            </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="votes-breakdown">
-                            <span class="free"><i class="fas fa-gift"></i> ${candidate.free_votes || 0}</span>
-                            <span class="paid"><i class="fas fa-coins"></i> ${candidate.paid_votes || 0}</span>
-                            <span class="bonus"><i class="fas fa-star"></i> ${candidate.referral_bonus_votes || 0}</span>
-                            </div>
-                        </td>
-                        <td><strong style="color: var(--accent); font-size: 1.1rem;">${candidate.total_votes || 0}</strong></td>
-                        </tr>
-                    `;
-                    }).join('')}
-                </tbody>
-                </table>
-            ` : `
-                <p style="text-align: center; color: var(--gray); padding: 30px;">
-                Aucun candidat trouvé pour ce jeu.
-                </p>
-            `}
-            </div>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+    `;
 
-            <!-- Charts Section -->
-            <div class="charts-section">
-            <h4>📊 Répartition des Votes</h4>
-            <div class="chart-container">
-                <canvas id="votesChart"></canvas>
-            </div>
-            </div>
-        `;
-
-        document.getElementById('gameModal').classList.add('active');
-
-        if (allCandidates && allCandidates.length > 0) {
-            createVotesChart(allCandidates.slice(0, 10));
-        }
-        }
-        
-        function closeGameModal() {
-            document.getElementById('gameModal').classList.remove('active');
-        }
+    modal.classList.add('active');
+}
         
         // ============================================
         // CHARTS
@@ -2593,6 +2401,13 @@ function createWhatsAppButton() {
   
   document.body.appendChild(whatsappBtn);
 }
+
+        window.addEventListener('scroll', () => {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        // Si on est à 500px de la fin, on charge la suite
+        loadGames(false); // false = ne pas reset, ajouter à la suite
+    }
+});
     </script>
 </body>
 </html>
