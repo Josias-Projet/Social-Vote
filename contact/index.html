@@ -339,6 +339,45 @@ input, select, textarea {
     overflow-wrap: break-word;
     font-size: 1.1rem !important; /* Réduit un peu la taille */
 }
+
+      /* Style spécifique pour la grille des réseaux sociaux */
+.social-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 5px 0;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--light-bg); /* Même fond gris clair que vos autres éléments */
+  border-radius: 14px;         /* Même arrondi que vos cartes 'channel' */
+  text-decoration: none;
+  transition: var(--transition);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.social-item i {
+  font-size: 1.3rem;
+  color: var(--accent);        /* Même couleur dorée que vos icônes de page */
+}
+
+/* Interaction au survol */
+.social-item:hover {
+  transform: translateY(-3px);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  border-color: var(--accent);
+}
+
+.social-item:hover i {
+  color: var(--primary);       /* L'icône change de couleur au survol pour dynamiser */
+}
+      
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -450,6 +489,24 @@ input, select, textarea {
         </form>
       </section>
 
+      <aside class="card">
+        <div class="social-section" style="margin-bottom: 25px;">
+  <h2 style="font-size: 1.5rem; margin-bottom: 15px;">
+    <i class="fas fa-share-nodes" style="color:var(--accent); margin-right: 10px;"></i>Suivez-nous
+  </h2>
+  <div class="social-grid">
+    <a href="https://www.facebook.com/profile.php?id=61558773743122" class="social-item" title="Facebook">
+      <i class="fab fa-facebook-f"></i>
+    </a>
+    <a href="https://www.tiktok.com/@social_vote?_r=1&_d=f1jg0klhfd7j7l&sec_uid=MS4wLjABAAAAW0OyPXgL2MPQgquye2wg4x4AkjsbMa-N6UHm5Ku6Ts0tQ4jpLFw2XKn8LyQ1elpn&share_author_id=7497053060368827398&sharer_language=fr&source=h5_m&u_code=ek2880igl1e61h&timestamp=1770558277&user_id=7497053060368827398&sec_user_id=MS4wLjABAAAAW0OyPXgL2MPQgquye2wg4x4AkjsbMa-N6UHm5Ku6Ts0tQ4jpLFw2XKn8LyQ1elpn&item_author_type=1&utm_source=copy&utm_campaign=client_share&utm_medium=android&share_iid=7603259448483661589&share_link_id=306eee4c-f47a-4e04-a4b3-c63755af3703&share_app_id=1233&ugbiz_name=ACCOUNT&ug_btm=b8727%2Cb7360&social_share_type=5&enable_checksum=1" class="social-item" title="TikTok">
+      <i class="fab fa-tiktok"></i>
+    </a>
+    <a href="https://whatsapp.com/channel/0029Vb807UXHQbS7d7x86z3O" class="social-item" title="whatsapp">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+  </div>
+        </div>
+      </aside>
       <aside class="card">
         <h2><i class="fas fa-headset" style="color:var(--accent)"></i> Canaux</h2>
         <div class="channels">
@@ -594,18 +651,31 @@ input, select, textarea {
         if(error) throw error;
 
         const wa = (data?.setting_value?.whatsapp || CONFIG.DEFAULT_WHATSAPP).replace(/[^0-9]/g,'');
+
         document.getElementById('waNumber').textContent = '+' + wa;
+
         document.getElementById('waLink').href = `https://wa.me/${wa}`;
 
-        document.getElementById('phoneNumber').textContent = '+' + 2290190086267`;
-        document.getElementById('phoneLink').href = `tel:+2290190086267`;
+
+
+        document.getElementById('phoneNumber').textContent = '+' + wa;
+
+        document.getElementById('phoneLink').href = `tel:+${wa}`;
+
       }catch(e){
+
         const wa = CONFIG.DEFAULT_WHATSAPP;
+
         document.getElementById('waNumber').textContent = '+' + wa;
+
         document.getElementById('waLink').href = `https://wa.me/${wa}`;
-        document.getElementById('phoneNumber').textContent = '+' + 2290190086267`;
-        document.getElementById('phoneLink').href = `tel:+2290190086267``;
+
+        document.getElementById('phoneNumber').textContent = '+' + wa;
+
+        document.getElementById('phoneLink').href = `tel:+${wa}`;
+
       }
+
     }
 
     function initForm() {
