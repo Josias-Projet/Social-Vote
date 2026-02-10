@@ -3534,12 +3534,6 @@ const Analytics = {
             this.startHeartbeat();
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
-
-            // ... dans l'insert Supabase ...
-            referrer: document.referrer,
-            utm_source: urlParams.get('utm_source'),
-            utm_campaign: urlParams.get('utm_campaign'),
     },
 
     startHeartbeat: function() {
@@ -3551,9 +3545,9 @@ const Analytics = {
             // Ou un simple update si RPC trop complexe
             await supabaseClient.rpc('update_visit_duration', {
                 visit_id: this.currentVisitId,
-                seconds: 10
+                seconds: 3
             });
-        }, 10000); // 10 secondes
+        }, 3000); // 10 secondes
     }
 };
 
