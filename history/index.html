@@ -2181,19 +2181,19 @@ function getThumbnailUrl(url, width = 150) {
                                              style="width: ${i===0?'70px':'60px'}; height: ${i===0?'70px':'60px'};" 
                                              onerror="this.src='https://placehold.co/150?text=U'">
                                         <p class="mini-podium-name">${w.users?.full_name?.split(' ')[0] || 'Gagnant'}</p>
-                                        <span class="mini-podium-votes">${w.total_votes} pts</span>
+                                        <span class="mini-podium-votes">${w.total_votes} votes</span>
                                     </div>
                                 `).join('')}
                             </div>
         
                             <!-- Stats -->
                             <div class="game-stats-row">
-                                <div class="stat"><span class="val">${candidatesCount}</span><span class="lbl">Candidats</span></div>
-                                <div class="stat"><span class="val">${totalVotes}</span><span class="lbl">Votes</span></div>
+                                <div class="stat"><span class="val">${candidatesCount}</span><span class="lbl"> Candidats</span></div>
+                                <div class="stat"><span class="val">${totalVotes}</span><span class="lbl"> Votes</span></div>
                             </div>
         
                             <button class="btn btn-primary btn-sm" onclick="openGameModal('${game.id}')" style="width:100%; margin-top:15px;">
-                                Voir le classement complet
+                                Voir plus
                             </button>
                         </div>
                     </div>
@@ -2240,7 +2240,7 @@ function openGameModal(gameId) {
         </div>
 
         <!-- 2. Podium Complet -->
-        <h4 class="modal-section-title">🏆 Les Gagnants</h4>
+        <h4 class="modal-section-title">🏆 Les Gagnants</h4> <br>
         <div class="podium-display">
             ${winners.map((w, i) => {
                 const pos = i + 1;
