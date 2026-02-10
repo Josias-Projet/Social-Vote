@@ -2490,6 +2490,23 @@ input, select, textarea {
                     <h4>${prize.title}</h4>
                     <p>${prize.description || ''}</p>
                 </div>
+                // ... (code des prix existant) ...
+
+// AJOUT DU BLOC CTA
+const ctaBlock = `
+    <div style="margin-top: 30px; text-align: center; background: rgba(212, 175, 55, 0.1); padding: 20px; border-radius: 15px; border: 1px solid var(--accent);">
+        <h4 style="color: var(--primary); margin-bottom: 10px;">Vous voulez aussi gagner ? 🏆</h4>
+        <p style="color: var(--gray); font-size: 0.9rem; margin-bottom: 15px;">Inscrivez-vous dès maintenant pour tenter votre chance !</p>
+        <a href="auth.html?tab=candidate" class="btn btn-primary btn-sm">
+            <i class="fas fa-user-plus"></i> S'inscrire comme candidat
+        </a>
+    </div>
+`;
+
+// Injecter le CTA dans le HTML généré
+// (Assure-toi de l'ajouter à la chaîne de caractère avant de faire .innerHTML = ...)
+// Exemple :
+// container.innerHTML = prizesHTML + ctaBlock + ...
             `).join('');
             
             section.style.display = 'block';
