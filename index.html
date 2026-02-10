@@ -1664,10 +1664,33 @@ input, select, textarea {
    ================================================== */
 
 /* 1. Centrage des images de prix (Fix Android) */
-.prize-image, .ad-image {
-    margin-left: auto !important;
-    margin-right: auto !important;
+/* Conteneur de la grille */
+.prizes-grid {
+    display: flex;
+    justify-content: center; /* Centre les cartes si elles ne remplissent pas la ligne */
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* La carte elle-même */
+.prize-card {
+    /* ... tes autres styles ... */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centre tout le contenu horizontalement */
+    text-align: center;  /* Centre le texte */
+}
+
+/* L'image */
+.prize-image {
+    width: 150px !important;
+    height: 150px !important;
+    margin: 0 auto 15px auto !important; /* Force les marges auto */
     display: block !important;
+    border-radius: 15px;
+    object-fit: cover;
+    /* Correctif spécifique Android */
+    align-self: center !important; 
 }
 
 /* 2. Boutons longs (S'inscrire...) qui débordent */
