@@ -1514,6 +1514,54 @@ input, select, textarea {
     width: 50px; height: 50px; border-radius: 8px; object-fit: cover; cursor: zoom-in;
     border: 1px solid #ddd;
 }
+
+        /* --- CSS MODAL COMPACT --- */
+
+/* Infos Méta */
+.modal-meta-bar {
+    display: flex; justify-content: space-around; background: var(--light-bg);
+    padding: 10px; border-radius: 10px; font-size: 0.85rem; color: var(--gray);
+    margin-bottom: 20px;
+}
+
+/* Podium Amélioré */
+.winner-stats-row {
+    display: flex; justify-content: center; gap: 8px; font-size: 0.75rem;
+    margin: 5px 0; color: var(--dark-gray); background: #f5f5f5;
+    padding: 4px; border-radius: 20px; display: inline-flex;
+}
+.winner-total { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+.prize-mini { margin-top: 10px; font-size: 0.85rem; border-top: 1px dashed #eee; padding-top: 5px; }
+.prize-thumbs { display: flex; justify-content: center; gap: 4px; margin-top: 5px; }
+.prize-thumbs img { width: 35px; height: 35px; border-radius: 4px; object-fit: cover; border: 1px solid #ddd; }
+
+/* Tableau Ultra Compact */
+.table-compact-wrapper {
+    overflow-x: hidden; /* Essaie d'éviter le scroll si possible */
+}
+.table-compact {
+    width: 100%; border-collapse: collapse; font-size: 0.85rem;
+}
+.table-compact th {
+    background: #f0f0f0; color: var(--gray); padding: 6px; font-weight: 600; text-align: left;
+}
+.table-compact td {
+    padding: 6px; border-bottom: 1px solid #eee;
+}
+.table-compact .user-inline {
+    display: flex; align-items: center; gap: 8px;
+}
+.table-compact .user-inline img {
+    width: 25px; height: 25px; border-radius: 50%; object-fit: cover;
+}
+.rank-circle {
+    display: inline-block; width: 20px; height: 20px; background: #eee;
+    border-radius: 50%; text-align: center; line-height: 20px; font-size: 0.7rem; font-weight: bold;
+}
+.rank-circle.top { background: var(--accent); color: var(--primary); }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: #888; letter-spacing: -0.5px; }
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -2033,7 +2081,7 @@ function getThumbnailUrl(url, width = 150) {
                 game_prizes(*),
                 game_awarded_prizes(*),
                 game_entries(
-                    id, total_votes, status, 
+                    id, total_votes, free_votes, paid_votes, referral_bonus_votes, status, 
                     users:user_id(full_name, photo_url)
                 )
             `)
@@ -2175,61 +2223,55 @@ function openGameModal(gameId) {
     const modalBody = document.getElementById('modalBody');
     document.getElementById('modalGameTitle').textContent = game.title;
 
-    // --- PRÉPARATION DES DONNÉES ---
-    
     // Candidats (Approuvés & Triés)
     const candidates = (game.game_entries || [])
         .filter(e => e.status === 'approved')
         .sort((a, b) => b.total_votes - a.total_votes);
 
-    // Gagnants (Top X)
     const winners = candidates.slice(0, game.winners_count || 3);
-
-    // Calcul Durée
     const duration = Math.ceil((new Date(game.end_time) - new Date(game.start_time)) / (86400000));
 
-    // --- GÉNÉRATION HTML ---
-
     let content = `
-        <!-- 1. Infos du Jeu -->
-        <div class="modal-game-info">
-            <div class="modal-info-item"><div class="icon"><i class="fas fa-calendar-alt"></i></div><div class="text"><span class="label">Début</span><span class="value">${formatDate(game.start_time)}</span></div></div>
-            <div class="modal-info-item"><div class="icon"><i class="fas fa-flag-checkered"></i></div><div class="text"><span class="label">Fin</span><span class="value">${formatDate(game.end_time)}</span></div></div>
-            <div class="modal-info-item"><div class="icon"><i class="fas fa-users"></i></div><div class="text"><span class="label">Participants</span><span class="value">${candidates.length}</span></div></div>
-            <div class="modal-info-item"><div class="icon"><i class="fas fa-vote-yea"></i></div><div class="text"><span class="label">Total Votes</span><span class="value">${candidates.reduce((s,c)=>s+c.total_votes,0)}</span></div></div>
+        <!-- 1. Infos Rapides -->
+        <div class="modal-meta-bar">
+            <span><i class="fas fa-calendar"></i> ${formatDate(game.end_time)}</span>
+            <span><i class="fas fa-users"></i> ${candidates.length} candidats</span>
+            <span><i class="fas fa-vote-yea"></i> ${candidates.reduce((s,c)=>s+c.total_votes,0)} votes</span>
         </div>
 
-        <!-- 2. Podium & Prix Réels -->
-        <h4 style="text-align:center; margin:25px 0 15px; color:var(--primary);">🏆 Les Gagnants & Prix</h4>
+        <!-- 2. Podium Complet -->
+        <h4 class="modal-section-title">🏆 Les Gagnants</h4>
         <div class="podium-display">
             ${winners.map((w, i) => {
                 const pos = i + 1;
-                // Trouver le prix (Réel > Annoncé > Rien)
                 const realPrize = (game.game_awarded_prizes || []).find(p => p.position === pos);
                 const announcedPrize = (game.game_prizes || []).find(p => p.position === pos);
                 const prize = realPrize || announcedPrize;
-                
-                // Photos du prix
                 const prizePhotos = (realPrize?.photos || [prize?.photo_url]).filter(Boolean);
 
                 return `
                 <div class="podium-winner position-${pos}">
                     <div class="winner-avatar-container">
                         <span class="winner-badge">${pos}</span>
-                        <img src="${getThumbnailUrl(w.users?.photo_url, 200)}" 
-                             class="winner-photo-large" 
-                             onerror="this.src='https://placehold.co/150?text=U'">
+                        <img src="${getThumbnailUrl(w.users?.photo_url, 200)}" class="winner-photo-large">
                     </div>
-                    <h5 class="winner-name">${w.users?.full_name}</h5>
-                    <p class="winner-votes">${w.total_votes} votes</p>
+                    <div class="winner-info">
+                        <h5 class="winner-name">${w.users?.full_name}</h5>
+                        <div class="winner-stats-row">
+                            <span title="Gratuits">🎁 ${w.free_votes||0}</span>
+                            <span title="Payants">💰 ${w.paid_votes||0}</span>
+                            <span title="Bonus">🌟 ${w.referral_bonus_votes||0}</span>
+                        </div>
+                        <div class="winner-total">${w.total_votes} <small>Total</small></div>
+                    </div>
                     
                     ${prize ? `
-                        <div class="prize-box">
-                            <strong class="prize-title">${prize.title}</strong>
+                        <div class="prize-mini">
+                            <strong>${prize.title}</strong>
                             ${prizePhotos.length ? `
-                                <div class="prize-gallery">
+                                <div class="prize-thumbs">
                                     ${prizePhotos.map(url => `
-                                        <img src="${getThumbnailUrl(url, 100)}" onclick="openZoom('${url}')" loading="lazy">
+                                        <img src="${getThumbnailUrl(url, 80)}" onclick="openZoom('${url}')">
                                     `).join('')}
                                 </div>
                             ` : ''}
@@ -2240,29 +2282,32 @@ function openGameModal(gameId) {
             }).join('')}
         </div>
 
-        <!-- 3. Tableau Complet -->
-        <h4 style="margin:30px 0 15px; color:var(--primary);">📊 Classement Détailé</h4>
-        <div class="table-container">
-            <table class="candidates-table">
-                <thead><tr><th>#</th><th>Candidat</th><th>Détails</th><th>Total</th></tr></thead>
+        <!-- 3. Tableau Compact -->
+        <h4 class="modal-section-title">📊 Classement Complet</h4>
+        <div class="table-compact-wrapper">
+            <table class="table-compact">
+                <thead>
+                    <tr>
+                        <th style="width:30px">#</th>
+                        <th>Candidat</th>
+                        <th class="text-center">Détails (G/P/B)</th>
+                        <th class="text-right">Total</th>
+                    </tr>
+                </thead>
                 <tbody>
                     ${candidates.map((c, i) => `
                         <tr>
-                            <td><strong>${i+1}</strong></td>
+                            <td><span class="rank-circle ${i<3?'top':''}">${i+1}</span></td>
                             <td>
-                                <div class="table-user">
-                                    <img src="${getThumbnailUrl(c.users?.photo_url, 50)}">
-                                    <div><span class="name">${c.users?.full_name}</span></div>
+                                <div class="user-inline">
+                                    <img src="${getThumbnailUrl(c.users?.photo_url, 40)}">
+                                    <span>${c.users?.full_name?.split(' ')[0]}</span> <!-- Prénom seul pour gain place -->
                                 </div>
                             </td>
-                            <td>
-                                <small style="color:var(--gray)">
-                                    <i class="fas fa-gift"></i> ${c.free_votes} | 
-                                    <i class="fas fa-coins"></i> ${c.paid_votes} | 
-                                    <i class="fas fa-star"></i> ${c.referral_bonus_votes}
-                                </small>
+                            <td class="text-center text-muted">
+                                ${c.free_votes||0} / ${c.paid_votes||0} / ${c.referral_bonus_votes||0}
                             </td>
-                            <td><strong style="color:var(--accent)">${c.total_votes}</strong></td>
+                            <td class="text-right"><strong>${c.total_votes}</strong></td>
                         </tr>
                     `).join('')}
                 </tbody>
