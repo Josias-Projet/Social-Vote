@@ -1071,6 +1071,62 @@ input, select, textarea {
 /* Modals: éviter overflow */
 .modal { max-width: 95vw !important; }
 .modal-body { overflow-x: hidden; }
+        /* ==================================================
+   FIX FINAL MOBILE & DESIGN (A ajouter à la fin)
+   ================================================== */
+
+/* 1. Centrage des images de prix (Fix Android) */
+.prize-image, .ad-image {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+}
+
+/* 2. Boutons longs (S'inscrire...) qui débordent */
+.btn {
+    white-space: normal !important; /* Autorise le texte à aller à la ligne */
+    height: auto !important;        /* La hauteur s'adapte au texte */
+    line-height: 1.2 !important;
+    text-align: center !important;
+}
+
+/* 3. Photos de profil PARFAITEMENT RONDES (Fix Ballon) */
+.table-user img, 
+.candidate-photo,
+.mini-podium-photo,
+.profile-photo,
+.referral-user img,
+.winner-photo {
+    width: 45px !important;
+    height: 45px !important;
+    min-width: 45px !important; /* Empêche l'écrasement */
+    min-height: 45px !important;
+    object-fit: cover !important; /* Coupe l'image sans la déformer */
+    border-radius: 50% !important;
+    aspect-ratio: 1 / 1 !important; /* Force le carré strict */
+}
+
+/* 4. Tableaux Compacts sur Mobile */
+@media (max-width: 576px) {
+    /* Réduire l'espace dans les cellules */
+    .data-table th, .data-table td, 
+    .referrals-table th, .referrals-table td,
+    .votes-table th, .votes-table td {
+        padding: 8px 5px !important; /* Beaucoup moins d'espace */
+        font-size: 0.8rem !important; /* Texte plus petit */
+    }
+    
+    /* Cacher les colonnes moins importantes (Optionnel : à adapter selon tes besoins) */
+    /* Exemple : on cache la date sur mobile pour gagner de la place */
+    /* table td:nth-child(3), table th:nth-child(3) { display: none; } */
+}
+
+/* 5. Username qui déborde */
+.credential-item .value, .profile-info h1 {
+    word-break: break-all; /* Coupe le mot si trop long */
+    overflow-wrap: break-word;
+    font-size: 1.1rem !important; /* Réduit un peu la taille */
+}
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -2010,12 +2066,22 @@ input, select, textarea {
         }
 
         function generateCredentials() {
-        return {
-            username: `user_${randomAlphaNum(8).toLowerCase()}`,
-            secretCode: `SC-${randomAlphaNum(6)}`,
-            referralCode: `SV-${randomAlphaNum(6)}`,   // format demandé
-            candidateNumber: `SV_${Math.floor(100 + Math.random() * 900)}` // ex SV-123 (optionnel)
-        };
+            // Génère un nombre aléatoire entre 10000 et 99999
+            const randomId = Math.floor(10000 + Math.random() * 90000);
+            const shortCode = Math.random().toString(36).substring(2, 8).toUpperCase(); // Ex: 7X91A
+        
+            return {
+                // Format demandé : user_12345
+                username: `user_${randomId}`,
+                
+                // Format demandé : SV-Z12KZ3
+                referralCode: `SV-${shortCode}`,
+                
+                // Secret code simple
+                secretCode: `SC-${Math.floor(1000 + Math.random() * 9000)}`,
+                
+                candidateNumber: `SV-${Math.floor(100 + Math.random() * 900)}`
+            };
         }
                 
         // ============================================
