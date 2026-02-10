@@ -705,6 +705,66 @@ function createWhatsAppButton() {
   
   document.body.appendChild(whatsappBtn);
 }
+
+    // ==========================================
+// ANALYTICS TRACKER (Mini Google Analytics)
+// ==========================================
+
+const Analytics = {
+    currentVisitId: null,
+    heartbeatInterval: null,
+
+    init: async function() {
+        // 1. Récupérer l'IP (Optionnel, sinon on stocke null et on se base sur le cookie visiteur)
+        let ip = null;
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            const json = await res.json();
+            ip = json.ip;
+        } catch(e) {}
+
+        // 2. Enregistrer la visite
+        const { data, error } = await supabaseClient
+            .from('page_visits')
+            .insert([{
+                page_path: window.location.pathname,
+                ip_address: ip,
+                user_id: currentUser ? currentUser.id : null,
+                user_agent: navigator.userAgent,
+                referrer: document.referrer
+            }])
+            .select()
+            .single();
+
+        if (data) {
+            this.currentVisitId = data.id;
+            // 3. Lancer le chronomètre (toutes les 10s)
+            this.startHeartbeat();
+        }
+    },
+
+    startHeartbeat: function() {
+        this.heartbeatInterval = setInterval(async () => {
+            if (!this.currentVisitId) return;
+            
+            // On ajoute 10 secondes à la durée
+            // Note: On utilise une RPC pour être sûr d'additionner côté serveur
+            // Ou un simple update si RPC trop complexe
+            await supabaseClient.rpc('update_visit_duration', {
+                visit_id: this.currentVisitId,
+                seconds: 10
+            });
+        }, 10000); // 10 secondes
+    }
+};
+
+// Démarrer au chargement
+document.addEventListener('DOMContentLoaded', () => Analytics.init());
+
+// Arrêter quand on quitte la page (pour être propre)
+window.addEventListener('beforeunload', () => {
+    if (Analytics.heartbeatInterval) clearInterval(Analytics.heartbeatInterval);
+});
   </script>
 </body>
 </html>
