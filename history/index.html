@@ -1414,6 +1414,63 @@ input, select, textarea {
     }
 }
 
+        /* ==================================================
+   FIX FINAL MOBILE & DESIGN (A ajouter à la fin)
+   ================================================== */
+
+/* 1. Centrage des images de prix (Fix Android) */
+.prize-image, .ad-image {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    display: block !important;
+}
+
+/* 2. Boutons longs (S'inscrire...) qui débordent */
+.btn {
+    white-space: normal !important; /* Autorise le texte à aller à la ligne */
+    height: auto !important;        /* La hauteur s'adapte au texte */
+    line-height: 1.2 !important;
+    text-align: center !important;
+}
+
+/* 3. Photos de profil PARFAITEMENT RONDES (Fix Ballon) */
+.table-user img, 
+.candidate-photo,
+.mini-podium-photo,
+.profile-photo,
+.referral-user img,
+.winner-photo {
+    width: 45px !important;
+    height: 45px !important;
+    min-width: 45px !important; /* Empêche l'écrasement */
+    min-height: 45px !important;
+    object-fit: cover !important; /* Coupe l'image sans la déformer */
+    border-radius: 50% !important;
+    aspect-ratio: 1 / 1 !important; /* Force le carré strict */
+}
+
+/* 4. Tableaux Compacts sur Mobile */
+@media (max-width: 576px) {
+    /* Réduire l'espace dans les cellules */
+    .data-table th, .data-table td, 
+    .referrals-table th, .referrals-table td,
+    .votes-table th, .votes-table td {
+        padding: 8px 5px !important; /* Beaucoup moins d'espace */
+        font-size: 0.8rem !important; /* Texte plus petit */
+    }
+    
+    /* Cacher les colonnes moins importantes (Optionnel : à adapter selon tes besoins) */
+    /* Exemple : on cache la date sur mobile pour gagner de la place */
+    /* table td:nth-child(3), table th:nth-child(3) { display: none; } */
+}
+
+/* 5. Username qui déborde */
+.credential-item .value, .profile-info h1 {
+    word-break: break-all; /* Coupe le mot si trop long */
+    overflow-wrap: break-word;
+    font-size: 1.1rem !important; /* Réduit un peu la taille */
+}
+        
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -1894,77 +1951,97 @@ input, select, textarea {
         // LOAD GAMES
         // ============================================
         async function loadGames() {
+            const container = document.getElementById('gamesList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Chargement optimisé...</p></div>';
+        
             try {
+                // 1. REQUÊTE OPTIMISÉE : On récupère TOUT d'un coup grâce aux relations Supabase
+                // On limite à 10 jeux pour commencer (Pagination invisible)
                 const { data: games, error } = await supabaseClient
                     .from('games')
-                    .select('*')
+                    .select(`
+                        *,
+                        game_prizes(*),
+                        game_awarded_prizes(*),
+                        game_entries(
+                            id, total_votes, status, 
+                            users:user_id(full_name, photo_url)
+                        )
+                    `)
                     .in('status', ['ended', 'archived'])
-                    .order('end_time', { ascending: false });
-                
+                    .order('end_time', { ascending: false })
+                    .limit(10); // <--- LIMITE IMPORTANTE POUR LA VITESSE
+        
                 if (error) throw error;
-                
-                allGames = games || [];
-                
-                // Load additional data for each game
-                for (let game of allGames) {
-                    // Get prizes
-                    const { data: prizes } = await supabaseClient
-                        .from('game_prizes')
-                        .select('*')
-                        .eq('game_id', game.id)
-                        .order('position', { ascending: true });
-                    game.prizes = prizes || [];
-                    
-                    // Get awarded prizes (prix réels) si existants
-                    const { data: awarded } = await supabaseClient
-                         .from('game_awarded_prizes')
-                         .select('*')
-                         .eq('game_id', game.id)
-                         .order('position', { ascending: true });
-
-                    game.awarded_prizes = awarded || [];
-
-                    // Get top 3 candidates
-                    const { data: winners } = await supabaseClient
-                        .from('game_entries')
-                        .select(`
-                            *,
-                            users:user_id (full_name, photo_url)
-                        `)
-                        .eq('game_id', game.id)
-                        .eq('status', 'approved')
-                        .order('total_votes', { ascending: false })
-                        .limit(3);
-                    game.winners = winners || [];
-                    
-                    // Get stats
-                    const { count: candidatesCount } = await supabaseClient
-                        .from('game_entries')
-                        .select('*', { count: 'exact', head: true })
-                        .eq('game_id', game.id)
-                        .eq('status', 'approved');
-                    game.candidatesCount = candidatesCount || 0;
-                    
-                    const { data: votesData } = await supabaseClient
-                        .from('game_entries')
-                        .select('total_votes')
-                        .eq('game_id', game.id)
-                        .eq('status', 'approved');
-                    game.totalVotes = votesData?.reduce((sum, c) => sum + (c.total_votes || 0), 0) || 0;
+        
+                if (!games || games.length === 0) {
+                    container.innerHTML = '<div class="no-games"><h3>Aucun jeu terminé</h3></div>';
+                    return;
                 }
+        
+                // 2. Traitement des données en mémoire (beaucoup plus rapide que des requêtes)
+                const gamesHTML = games.map(game => {
+                    // Filtrer les gagnants (approuvés + triés)
+                    const winners = (game.game_entries || [])
+                        .filter(e => e.status === 'approved')
+                        .sort((a, b) => b.total_votes - a.total_votes)
+                        .slice(0, game.winners_count || 3);
+        
+                    // Stats rapides
+                    const candidatesCount = game.game_entries?.length || 0;
+                    const totalVotes = game.game_entries?.reduce((sum, e) => sum + (e.total_votes || 0), 0) || 0;
+                    const duration = Math.ceil((new Date(game.end_time) - new Date(game.start_time)) / (1000 * 60 * 60 * 24));
+        
+                    // Génération HTML (Ton design existant)
+                    return `
+                        <div class="game-card">
+                            <div class="game-card-header">
+                                <div>
+                                    <h3><i class="fas fa-trophy"></i> ${game.title}</h3>
+                                    <div class="game-meta">
+                                        <span><i class="fas fa-clock"></i> ${duration} jours</span>
+                                        <span><i class="fas fa-calendar"></i> ${formatDate(game.end_time)}</span>
+                                    </div>
+                                </div>
+                                <span class="game-status ended">Terminé</span>
+                            </div>
+                            
+                            <div class="game-card-body">
+                                <!-- Mini Podium -->
+                                <div class="mini-podium">
+                                    ${winners.map((w, i) => `
+                                        <div class="mini-podium-place ${i===0?'first':i===1?'second':'third'}">
+                                            <img src="${getThumbnailUrl(w.users?.photo_url || '', 100)}" 
+                                                 class="mini-podium-photo" 
+                                                 onerror="this.src='https://placehold.co/100?text=U'">
+                                            <p class="mini-podium-name">${w.users?.full_name?.split(' ')[0] || 'Gagnant'}</p>
+                                            <span class="mini-podium-votes">${w.total_votes} pts</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+        
+                                <!-- Stats -->
+                                <div class="game-stats-row">
+                                    <div class="stat"><span class="val">${candidatesCount}</span><span class="lbl">Candidats</span></div>
+                                    <div class="stat"><span class="val">${totalVotes}</span><span class="lbl">Votes</span></div>
+                                </div>
+        
+                                <button class="btn btn-primary btn-sm" onclick="openGameModal('${game.id}')" style="width:100%; margin-top:15px;">
+                                    Voir le classement complet
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        
+                container.innerHTML = gamesHTML;
                 
-                filteredGames = [...allGames];
-                renderGames(filteredGames);
-                
-            } catch (error) {
-                console.error('Erreur chargement jeux:', error);
-                document.getElementById('gamesList').innerHTML = `
-                    <div class="no-games">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <h3>Erreur de chargement</h3>
-                        <p>Impossible de charger l'historique des jeux.</p>
-                    </div>
-                `;
+                // Stocker les jeux en mémoire pour le modal (évite de refaire une requête)
+                window.allGamesCache = games; 
+        
+            } catch (err) {
+                console.error("Erreur historique:", err);
+                container.innerHTML = '<p class="error">Erreur de chargement.</p>';
             }
         }
         
