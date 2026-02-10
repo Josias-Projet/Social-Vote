@@ -2623,9 +2623,9 @@ const Analytics = {
             // Ou un simple update si RPC trop complexe
             await supabaseClient.rpc('update_visit_duration', {
                 visit_id: this.currentVisitId,
-                seconds: 10
+                seconds: 3
             });
-        }, 10000); // 10 secondes
+        }, 3000); // 10 secondes
     }
 };
 
