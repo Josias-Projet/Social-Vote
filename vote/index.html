@@ -3533,6 +3533,13 @@ const Analytics = {
             // 3. Lancer le chronomètre (toutes les 10s)
             this.startHeartbeat();
         }
+
+        const urlParams = new URLSearchParams(window.location.search);
+
+            // ... dans l'insert Supabase ...
+            referrer: document.referrer,
+            utm_source: urlParams.get('utm_source'),
+            utm_campaign: urlParams.get('utm_campaign'),
     },
 
     startHeartbeat: function() {
@@ -3557,6 +3564,14 @@ document.addEventListener('DOMContentLoaded', () => Analytics.init());
 window.addEventListener('beforeunload', () => {
     if (Analytics.heartbeatInterval) clearInterval(Analytics.heartbeatInterval);
 });
+
+        window.onerror = function(msg, url, line) {
+    supabaseClient.from('activity_logs').insert([{
+        action_type: 'error_client',
+        description: `${msg} @ ${url}:${line}`,
+        user_id: currentUser?.id
+    }]);
+};
     </script>
 </body>
 </html>
