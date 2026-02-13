@@ -559,4 +559,292 @@
 <section class="prizes-marquee">
     <div class="marquee-header">
         <h2>Une Pluie de <span>Récompenses</span></h2>
-        <p>Plus de votes = Plus de gains. Voici les prix 
+        <p>Plus de votes = Plus de gains. Voici les prix potentiels en jeu.</p>
+    </div>
+
+    <!-- Le conteneur qui cache les bords -->
+    <div class="marquee-container">
+        <!-- La piste qui bouge -->
+        <div class="marquee-track">
+            
+            <!-- LOT 1 -->
+            <div class="prize-item">
+                <img src="assets/prix/cash.png" alt="Cash">
+                <div class="prize-overlay"><span>L'argent en Cash</span></div>
+            </div>
+
+            <!-- LOT 2 -->
+            <div class="prize-item">
+                <img src="assets/prix/phone.png" alt="iPhone">
+                <div class="prize-overlay"><span>Telephone suprise</span></div>
+            </div>
+
+            <!-- LOT 3 -->
+            <div class="prize-item">
+                <img src="assets/prix/tab.png" alt="Moto">
+                <div class="prize-overlay"><span>Tableau de photo</span></div>
+            </div>
+
+            <!-- LOT 4 -->
+            <div class="prize-item">
+                <img src="assets/prix/pc.png" alt="Laptop">
+                <div class="prize-overlay"><span>MacBook Air</span></div>
+            </div>
+
+            <!-- LOT 5 -->
+            <div class="prize-item">
+                <img src="assets/prix/resto.png" alt="resto">
+                <div class="prize-overlay"><span>Weekend Détente</span></div>
+            </div>
+            
+                        <!-- LOT 5 -->
+            <div class="prize-item">
+                <img src="assets/prix/pat.png" alt="resto">
+                <div class="prize-overlay"><span>Bon d'achat</span></div>
+            </div>
+
+
+            <!-- ... DUPLIQUER LA LISTE UNE FOIS POUR L'EFFET INFINI (JavaScript le fera, ou copier-coller ici) ... -->
+            
+        </div>
+    </div>
+</section>
+
+<br>
+    <!-- NEWS SECTION (Fil d'actualité manuel) -->
+    <section class="news-section">
+        <h2 class="section-title">En direct des <span>Réseaux</span></h2>
+        
+        <div class="news-grid">
+            
+            <!-- POST 1 : Teasing -->
+            <div class="news-card">
+                <!-- Tu peux mettre une image ou une vidéo ici -->
+                <img src="assets/aff1.png" alt="Teasing" class="news-media">
+                <div class="news-content">
+                    <span class="news-date">13 Février 2026</span>
+                    <p class="news-text">
+                        Une arène. Des milliers de votes. Un seul vainqueur. ⏳"
+ <br>🔥 #SocialVote #ComingSoon
+                    </p>
+                </div>
+            </div>
+
+            <!-- POST 2 : Annonce -->
+
+
+
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Social Vote. Tous droits réservés.</p>
+        <p style="margin-top:10px; opacity:0.5; font-size:0.8rem;">Développé pour la communauté.</p>
+    </footer>
+
+<div class="live-viewer-badge">
+    <span class="live-dot"></span>
+    <span id="liveCount">85</span> personnes attendent l'ouverture
+</div>
+
+
+<!-- TOUT LE JAVASCRIPT EN UN SEUL BLOC PROPRE -->
+<script>
+    // ================= CHRONO =================
+    const launchDate = new Date("February 23, 2026 18:00:00").getTime();
+
+    const timer = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = launchDate - now;
+
+        if (distance < 0) {
+            clearInterval(timer);
+            document.getElementById("countdown").innerHTML = "<h2 style='color:#D4AF37'>OUVERTURE IMMINENTE...</h2>";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+        document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+        document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+        document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+    }, 1000);
+
+    // ================= MUSIQUE =================
+    const music = document.getElementById("bgMusic");
+    const btn = document.getElementById("playBtn");
+    const player = document.getElementById("audioPlayer");
+    let isPlaying = false;
+
+    if(music) { // Sécurité si l'élément n'existe pas
+        music.volume = 0.5;
+    }
+
+    function toggleAudio() {
+        if (!music) return;
+        if (isPlaying) {
+            music.pause();
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            player.classList.remove("playing");
+        } else {
+            music.play().then(() => {
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
+                player.classList.add("playing");
+            }).catch(e => console.log("Lecture bloquée : " + e));
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // ================= CARTES 3D (TILT) =================
+    const cards = document.querySelectorAll('.cine-card');
+
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+        });
+    });
+
+    // ================= MARQUEE INFINI =================
+    const track = document.querySelector('.marquee-track');
+    if (track) {
+        const items = track.innerHTML;
+        track.innerHTML = items + items; // Duplication
+    }
+</script>
+<!-- ================= SUPABASE & TRACKING ================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // 1. CONFIGURATION SUPABASE (Mets tes vraies clés ici)
+    const CONFIG = {
+        SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
+    };
+    const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+    // 2. TRACKING ANALYTICS (Copie simplifiée de analytics.js)
+    (async function trackVisit() {
+        try {
+            // Récupérer l'IP (Optionnel, utile pour "Visiteurs Uniques")
+            let ip = null;
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const json = await res.json();
+                ip = json.ip;
+            } catch(e) {}
+
+            // Récupérer les paramètres URL (UTM pour savoir d'où ils viennent)
+            const params = new URLSearchParams(window.location.search);
+
+            // Envoyer la visite
+            const { data, error } = await supabaseClient
+                .from('page_visits')
+                .insert([{
+                    page_path: '/landing-coming-soon', // Nom spécial pour différencier
+                    ip_address: ip,
+                    user_agent: navigator.userAgent,
+                    referrer: document.referrer,
+                    utm_source: params.get('utm_source'),
+                    utm_medium: params.get('utm_medium'),
+                    utm_campaign: params.get('utm_campaign')
+                }])
+                .select()
+                .single();
+
+            if (data) {
+                console.log("Visite trackée !", data.id);
+                
+                // Heartbeat (Temps passé) - Simple version
+                setInterval(async () => {
+                    await supabaseClient.rpc('update_visit_duration', {
+                        visit_id: data.id,
+                        seconds: 3
+                    });
+                }, 3000);
+            }
+        } catch (e) {
+            console.warn("Erreur tracking:", e);
+        }
+    })();
+// ================= COMPTEUR LIVE INTELLIGENT =================
+(function initLiveCounter() {
+    const minViewers = 80;
+    const maxViewers = 150;
+    const storageKey = 'sv_live_viewers';
+    
+    // 1. Récupérer la dernière valeur connue (ou générer une nouvelle)
+    let currentViewers = parseInt(localStorage.getItem(storageKey));
+
+    if (!currentViewers || isNaN(currentViewers)) {
+        // Premier passage : On génère un nombre aléatoire de base
+        currentViewers = Math.floor(Math.random() * (maxViewers - minViewers + 1)) + minViewers;
+    } else {
+        // Retour sur la page : On ajoute un petit nombre aléatoire pour simuler que ça a monté pendant son absence
+        // (Entre 0 et 5 personnes de plus)
+        currentViewers += Math.floor(Math.random() * 6);
+    }
+
+    // Affichage initial
+    updateDisplay(currentViewers);
+
+    // 2. Boucle d'évolution réaliste
+    setInterval(() => {
+        // On décide aléatoirement si ça monte ou ça descend (tendance à monter légèrement)
+        // Chance : 60% monte (+1 à +3), 40% descend (-1 à -2)
+        const change = Math.random() > 0.4 
+            ? Math.floor(Math.random() * 3) + 1  // +1, +2, ou +3
+            : -(Math.floor(Math.random() * 2) + 1); // -1 ou -2
+
+        currentViewers += change;
+
+        // Garde-fous pour rester crédible
+        if (currentViewers < minViewers) currentViewers = minViewers + Math.floor(Math.random() * 10);
+        if (currentViewers > 400) currentViewers = 400; // Plafond pour ne pas exploser
+
+        updateDisplay(currentViewers);
+        
+    }, 4000); // Mise à jour toutes les 4 secondes (plus lent = plus réaliste)
+
+    function updateDisplay(val) {
+        document.getElementById("liveCount").innerText = val;
+        localStorage.setItem(storageKey, val); // Sauvegarde pour le prochain refresh
+    }
+})();
+particlesJS("particles-js", {
+  "particles": {
+    "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
+    "color": { "value": "#D4AF37" }, /* Couleur Or */
+    "shape": { "type": "circle" },
+    "opacity": { "value": 0.3 },
+    "size": { "value": 3, "random": true },
+    "line_linked": { "enable": true, "distance": 150, "color": "#D4AF37", "opacity": 0.2, "width": 1 },
+    "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+  },
+  "interactivity": {
+    "detect_on": "canvas",
+    "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+    "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } } }
+  },
+  "retina_detect": true
+});
+
+</script>
+</body>
+</html>
