@@ -4048,7 +4048,125 @@ async function approveCandidate(entryId) {
         }
     }
 
-    await logAdminActivity('approve_candidate', `Candidature approuvée (RPC): ${approvedEntry?.users?.full_name || ''}`);
+async function applyReferralBonusesOnApproval(entryId) {
+  console.log(`[BONUS] Traitement pour l'entrée : ${entryId}`);
+
+  // 1. Récupérer les infos du filleul et du jeu
+  const { data: filleul, error: errFilleul } = await supabaseClient
+    .from('game_entries')
+    .select('id, game_id, candidate_id, referred_by, status, games:game_id(registration_fee)')
+    .eq('id', entryId)
+    .single();
+
+  if (errFilleul || !filleul) return; 
+  
+  const code = (filleul.referred_by || '').trim().toUpperCase();
+  if (!code) return; 
+
+  // --- RECHERCHE INTELLIGENTE DU PARRAIN ---
+  
+  let candidateParrainId = null; // ID du profil candidat (pour les votes)
+  let userParrainId = null;      // ID User (pour l'argent ambassadeur)
+
+  // A. Chercher dans Candidate Profiles (Code classique)
+  const { data: candidateProf } = await supabaseClient
+    .from('candidate_profiles')
+    .select('id, user_id')
+    .eq('referral_code', code)
+    .maybeSingle();
+
+  if (candidateProf) {
+      candidateParrainId = candidateProf.id;
+      userParrainId = candidateProf.user_id;
+  } else {
+      // B. Chercher dans Ambassadeurs (Code custom)
+      const { data: amb } = await supabaseClient
+          .from('ambassadors')
+          .select('id') // id = user_id
+          .eq('custom_code', code)
+          .maybeSingle();
+      
+      if (amb) {
+          userParrainId = amb.id;
+          // Si c'est un ambassadeur, on cherche s'il a AUSSI un profil candidat
+          const { data: linkedCand } = await supabaseClient
+              .from('candidate_profiles')
+              .select('id')
+              .eq('user_id', amb.id)
+              .maybeSingle();
+          if (linkedCand) candidateParrainId = linkedCand.id;
+      }
+  }
+
+  if (!userParrainId) {
+      console.warn("Code parrainage inconnu:", code);
+      return;
+  }
+
+  // --- 1. GESTION ARGENT (AMBASSADEUR) ---
+  const { data: ambResult } = await supabaseClient.rpc('process_ambassador_referral', {
+      p_referrer_id: userParrainId,
+      p_game_id: filleul.game_id,
+      p_fee: filleul.games?.registration_fee || 0
+  });
+  if (ambResult) console.log("Resultat Ambassadeur:", ambResult);
+
+
+  // --- 2. GESTION VOTES (POUR TOUS) ---
+
+  // A. Bonus Filleul (+10) - Toujours
+  const { data: check10 } = await supabaseClient.from('votes')
+    .select('id').eq('candidate_entry_id', filleul.id).eq('vote_type', 'bonus').eq('vote_count', 10).maybeSingle();
+
+  if (!check10) {
+    await supabaseClient.from('votes').insert({
+      game_id: filleul.game_id,
+      candidate_entry_id: filleul.id,
+      vote_type: 'bonus',
+      vote_count: 10,
+      amount_paid: 0,
+      voted_at: new Date().toISOString()
+    });
+  }
+
+  // B. Bonus Parrain (+15) - Seulement si profil candidat ET inscrit au jeu
+  if (candidateParrainId) {
+      // Vérifier inscription au jeu
+      const { data: parrainEntry } = await supabaseClient
+        .from('game_entries')
+        .select('id')
+        .eq('game_id', filleul.game_id)
+        .eq('candidate_id', candidateParrainId)
+        .in('status', ['pending', 'approved'])
+        .maybeSingle();
+
+      if (parrainEntry) {
+          // Créer le lien Referral (Statistique)
+          await supabaseClient.from('referrals').upsert({
+            referrer_id: candidateParrainId,
+            referee_id: filleul.candidate_id,
+            game_id: filleul.game_id,
+            bonus_votes_granted: 15,
+            referee_bonus_votes: 10
+          }, { onConflict: 'referee_id, game_id' });
+
+          // Donner les 15 votes (Index unique empêchera doublons pour ce filleul)
+          await supabaseClient.from('votes').insert({
+            game_id: filleul.game_id,
+            candidate_entry_id: parrainEntry.id,
+            referee_entry_id: filleul.id, // Lien unique
+            vote_type: 'bonus',
+            vote_count: 15,
+            amount_paid: 0,
+            voted_at: new Date().toISOString()
+          }).catch(() => {});
+          
+          console.log("Bonus +15 attribué au parrain (Ambassadeur ou non)");
+      } else {
+          console.log("Parrain trouvé mais pas inscrit à ce jeu -> Pas de votes bonus (juste argent si ambassadeur)");
+      }
+  }
+    }    await logAdminActivity('approve_candidate', `Candidature approuvée (RPC): ${approvedEntry?.users?.full_name || ''}`);
 
     showToast('Candidature approuvée !', 'success');
     
@@ -4072,112 +4190,7 @@ async function approveCandidate(entryId) {
 // APPLY REFERRAL BONUSES (CORRIGÉE & ROBUSTE)
 // ============================================
 
-async function applyReferralBonusesOnApproval(entryId) {
-  console.log(`[BONUS] Traitement pour l'entrée : ${entryId}`);
 
-  // 1. Récupérer les infos du filleul et du jeu (pour le prix)
-  const { data: filleul, error: errFilleul } = await supabaseClient
-    .from('game_entries')
-    .select('id, game_id, candidate_id, referred_by, status, games:game_id(registration_fee)')
-    .eq('id', entryId)
-    .single();
-
-  if (errFilleul || !filleul) return; 
-  
-  const code = (filleul.referred_by || '').trim().toUpperCase();
-  if (!code) return; 
-
-  // 2. Trouver le profil CANDIDAT du parrain (pour les votes)
-  const { data: parrainProfile } = await supabaseClient
-    .from('candidate_profiles')
-    .select('id, user_id') // On récupère aussi user_id pour vérifier l'ambassadeur
-    .eq('referral_code', code)
-    .maybeSingle();
-
-  // Si pas trouvé dans les candidats, on cherche dans les Ambassadeurs purs (codes custom)
-  let ambassadorUserId = null;
-  
-  if (!parrainProfile) {
-      // Cas : Code ambassadeur "KING229" (pas forcément lié à un profil candidat)
-      const { data: amb } = await supabaseClient
-          .from('ambassadors')
-          .select('id') // id = user_id
-          .eq('custom_code', code)
-          .maybeSingle();
-      
-      if (amb) ambassadorUserId = amb.id;
-      else return; // Code inconnu partout
-  } else {
-      ambassadorUserId = parrainProfile.user_id;
-  }
-
-  // --- NOUVELLE LOGIQUE AMBASSADEUR (PRIORITAIRE) ---
-  // On appelle la fonction SQL qui gère tout (60% ou 25%)
-  const { data: ambResult, error: ambErr } = await supabaseClient.rpc('process_ambassador_referral', {
-      p_referrer_id: ambassadorUserId,
-      p_game_id: filleul.game_id,
-      p_fee: filleul.games?.registration_fee || 0
-  });
-
-  if (ambErr) console.error("Erreur RPC Ambassadeur:", ambErr);
-  
-  const isAmbassador = ambResult && ambResult.startsWith('commission_applied');
-  console.log("Résultat Ambassadeur:", ambResult);
-
-  // --- LOGIQUE CLASSIQUE (VOTES) ---
-  // On applique les votes SEULEMENT SI :
-  // 1. Le filleul a droit à ses 10 votes (toujours)
-  // 2. Le parrain a droit à ses 15 votes (S'il est inscrit au jeu, qu'il soit ambassadeur ou non)
-
-  // A. Bonus Filleul (+10)
-  const { data: check10 } = await supabaseClient.from('votes')
-    .select('id').eq('candidate_entry_id', filleul.id).eq('vote_type', 'bonus').eq('vote_count', 10).maybeSingle();
-
-  if (!check10) {
-    await supabaseClient.from('votes').insert({
-      game_id: filleul.game_id,
-      candidate_entry_id: filleul.id,
-      vote_type: 'bonus',
-      vote_count: 10,
-      amount_paid: 0,
-      voted_at: new Date().toISOString()
-    });
-  }
-
-  // B. Bonus Parrain (+15)
-  // Condition : Le parrain doit avoir un profil candidat ET être inscrit au jeu
-  if (parrainProfile) {
-      const { data: parrainEntry } = await supabaseClient
-        .from('game_entries')
-        .select('id')
-        .eq('game_id', filleul.game_id)
-        .eq('candidate_id', parrainProfile.id)
-        .in('status', ['pending', 'approved'])
-        .maybeSingle();
-
-      if (parrainEntry) {
-          // Créer le lien Referral (Statistique)
-          await supabaseClient.from('referrals').upsert({
-            referrer_id: parrainProfile.id,
-            referee_id: filleul.candidate_id,
-            game_id: filleul.game_id,
-            bonus_votes_granted: 15,
-            referee_bonus_votes: 10
-          }, { onConflict: 'referee_id, game_id' });
-
-          // Donner les 15 votes
-          await supabaseClient.from('votes').insert({
-            game_id: filleul.game_id,
-            candidate_entry_id: parrainEntry.id,
-            referee_entry_id: filleul.id,
-            vote_type: 'bonus',
-            vote_count: 15,
-            amount_paid: 0,
-            voted_at: new Date().toISOString()
-          }).catch(() => {});
-      }
-  }
-}
         // ============================================
         // REJECT CANDIDATE (RPC SECURE)
         // ============================================
