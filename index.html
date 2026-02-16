@@ -464,6 +464,24 @@
     background: var(--primary); /* Couleur de fond de base */
 }
 
+.btn-download-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #3DDC84; /* Vert Android */
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(61, 220, 132, 0.4);
+    transition: transform 0.2s;
+}
+.btn-download-app:hover {
+    transform: translateY(-3px);
+    background: #32b36b;
+}
+
     </style>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 </head>
@@ -504,6 +522,14 @@
                 <i class="fab fa-facebook-f"></i> Page Facebook
             </a>
         </div>
+            <br><br>
+        <div class="app-download-section" style="text-align:center; margin-top: 20px;">
+            <p style="color: white; margin-bottom:10px; font-size:1.1rem; font-weight: bold;">Meilleure expérience sur mobile ?</p>
+            <a href="https://github.com/Josias-Projet/Social-Vote/raw/main/social-vote_v01.apk" class="btn-download-app" onclick="trackAppDownload()">
+                <i class="fab fa-android"></i> Télécharger l'App
+            </a>
+        </div>
+
     </section>
 
      <section class="rewards-section">
@@ -617,20 +643,30 @@
         
         <div class="news-grid">
             
-            <!-- POST 1 : Teasing -->
+            
+                        <!-- POST 1 : Teasing -->
             <div class="news-card">
                 <!-- Tu peux mettre une image ou une vidéo ici -->
-                <img src="assets/aff1.png" alt="Teasing" class="news-media">
+                <img src="assets/aff2.png" alt="Teasing" class="news-media">
                 <div class="news-content">
-                    <span class="news-date">13 Février 2026</span>
+                    <span class="news-date">15 Février 2026</span>
                     <p class="news-text">
-                        Une arène. Des milliers de votes. Un seul vainqueur. ⏳"
- <br>🔥 #SocialVote #ComingSoon
+                  C'est le dernier jour de calme.
+<br>
+Depuis des mois, on prépare l'arène.
+Demain, on vous dévoile enfin le projet qui va bouleverser le game au Bénin.
+<br><br>
+Activez la cloche. 🔔
+Vous ne voulez pas rater ça.
+<br><br>
+ 🔥 #ComingSoon #Demain #Révélation #Benin #Mystère
                     </p>
                 </div>
             </div>
-
-                        <!-- POST 2 : Annonce -->
+            
+            
+            
+                                    <!-- POST 2 : Annonce -->
             <div class="news-card">
                 <!-- Exemple Vidéo (Muted/Autoplay) -->
                 <video src="assets/cm2.mp4" class="news-media" autoplay muted loop playsinline poster="assets/images/poster.jpg"></video>
@@ -649,6 +685,21 @@ La loyauté va payer. 💰
                     </p>
                 </div>
             </div>
+
+            
+            <!-- POST 1 : Teasing -->
+            <div class="news-card">
+                <!-- Tu peux mettre une image ou une vidéo ici -->
+                <img src="assets/aff1.png" alt="Teasing" class="news-media">
+                <div class="news-content">
+                    <span class="news-date">13 Février 2026</span>
+                    <p class="news-text">
+                        Une arène. Des milliers de votes. Un seul vainqueur. ⏳"
+ <br>🔥 #SocialVote #ComingSoon
+                    </p>
+                </div>
+            </div>
+
 
 
 
@@ -862,6 +913,25 @@ particlesJS("particles-js", {
   },
   "retina_detect": true
 });
+
+async function trackAppDownload() {
+    try {
+        console.log("Tracking download..."); // Pour voir si ça se lance
+        
+        await supabaseClient.from('app_downloads').insert([{
+            user_id: currentUser ? currentUser.id : null, // Optionnel
+            ip_address: null, // Tu peux laisser null ou appeler getIP()
+            user_agent: navigator.userAgent
+        }]);
+        
+        console.log("Download enregistré !");
+        
+    } catch(e) {
+        console.error("Erreur tracking download:", e);
+    }
+    // Pas besoin de preventDefault(), on veut que le lien s'ouvre
+}
+
 
 </script>
 </body>
