@@ -1700,6 +1700,24 @@ input, select, textarea {
     position: relative; /* Important pour le z-index */
     z-index: 50; /* Au-dessus des éléments décoratifs */
 }
+
+        /* Structure Flex pour pousser le footer en bas */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Force le body à prendre toute la hauteur de l'écran */
+}
+
+main.container {
+    flex: 1; /* Le contenu principal prend tout l'espace disponible */
+    width: 100%; /* Sécurité */
+}
+
+/* Ajustement si le footer a déjà des marges */
+footer.footer {
+    margin-top: auto; /* Pousse le footer tout en bas si flex ne suffit pas */
+    width: 100%;
+}
     </style>
 </head>
 <body>
