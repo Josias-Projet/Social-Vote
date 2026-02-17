@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="assets/images/favicon.png">
     
     <!-- On reprend ton CSS existant + des ajouts spécifiques -->
     <style>
@@ -1700,24 +1699,6 @@ input, select, textarea {
     position: relative; /* Important pour le z-index */
     z-index: 50; /* Au-dessus des éléments décoratifs */
 }
-
-        /* Structure Flex pour pousser le footer en bas */
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Force le body à prendre toute la hauteur de l'écran */
-}
-
-main.container {
-    flex: 1; /* Le contenu principal prend tout l'espace disponible */
-    width: 100%; /* Sécurité */
-}
-
-/* Ajustement si le footer a déjà des marges */
-footer.footer {
-    margin-top: auto; /* Pousse le footer tout en bas si flex ne suffit pas */
-    width: 100%;
-}
     </style>
 </head>
 <body>
@@ -1739,8 +1720,8 @@ footer.footer {
             <li><a href="/vote/">Voter</a></li>
             <li><a href="/referral/">Parrainage</a></li>
             <li><a href="/history/">Historique</a></li>
-            <li><a href="/sponsors.html">Sponsors</a></li>
-            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
         </ul>
         
         <div class="nav-auth" id="navAuth"></div>
@@ -1757,8 +1738,8 @@ footer.footer {
             <li><a href="/vote/">Voter</a></li>
             <li><a href="/referral/">Parrainage</a></li>
             <li><a href="/history/">Historique</a></li>
-            <li><a href="/sponsors.html">Sponsors</a></li>
-            <li><a href="/contact.html">Contact</a></li>
+            <li><a href="/sponsors/">Sponsors</a></li>
+            <li><a href="/contact/">Contact</a></li>
         </ul>
     </div>
 
@@ -1777,7 +1758,7 @@ footer.footer {
             <h2>Accès Restreint</h2>
             <p>Cet espace est réservé aux partenaires officiels.</p>
          
-            <a href="/contact/index.html" class="btn btn-outline" style="margin-top:20px; color:#fff; border-color:#fff;">Devenir Ambassadeur</a>
+            <a href="/contact/" class="btn btn-outline" style="margin-top:20px; color:#fff; border-color:#fff;">Devenir Ambassadeur</a>
         </div>
     </header>
 
@@ -2083,7 +2064,7 @@ function renderNavAuth() {
         // Ajouter liens connectés
         mobileMenu.innerHTML += `
             <li data-auth><a href="/profile/">Mon Profil</a></li>
-            <li data-auth><a href="index.html">Espace Ambassadeur</a></li>
+            <li data-auth><a href="/ambassador/">Espace Ambassadeur</a></li>
             <li data-auth><a href="#" onclick="logout()">Déconnexion</a></li>
         `;
     }
