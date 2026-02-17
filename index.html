@@ -828,55 +828,92 @@ La loyauté va payer. 💰
 <script>
     // 1. CONFIGURATION SUPABASE (Mets tes vraies clés ici)
     const CONFIG = {
-        SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+            SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
             SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
     };
     const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
-    // 2. TRACKING ANALYTICS (Copie simplifiée de analytics.js)
-    (async function trackVisit() {
-        try {
-            // Récupérer l'IP (Optionnel, utile pour "Visiteurs Uniques")
-            let ip = null;
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const json = await res.json();
-                ip = json.ip;
-            } catch(e) {}
-
-            // Récupérer les paramètres URL (UTM pour savoir d'où ils viennent)
-            const params = new URLSearchParams(window.location.search);
-
-            // Envoyer la visite
-            const { data, error } = await supabaseClient
-                .from('page_visits')
-                .insert([{
-                    page_path: '/landing-coming-soon', // Nom spécial pour différencier
-                    ip_address: ip,
-                    user_agent: navigator.userAgent,
-                    referrer: document.referrer,
-                    utm_source: params.get('utm_source'),
-                    utm_medium: params.get('utm_medium'),
-                    utm_campaign: params.get('utm_campaign')
-                }])
-                .select()
-                .single();
-
-            if (data) {
-                console.log("Visite trackée !", data.id);
-                
-                // Heartbeat (Temps passé) - Simple version
-                setInterval(async () => {
-                    await supabaseClient.rpc('update_visit_duration', {
-                        visit_id: data.id,
-                        seconds: 3
-                    });
-                }, 3000);
-            }
-        } catch (e) {
-            console.warn("Erreur tracking:", e);
+    // --- CORRECTION : Définition de currentUser ---
+    let currentUser = null;
+    try {
+        const session = localStorage.getItem('socialvote_session');
+        if (session) {
+            currentUser = JSON.parse(session);
         }
-    })();
+    } catch (e) {
+        console.warn("Pas de session utilisateur active.");
+    }
+    // ---------------------------------------------
+
+    // ... Le reste de ton code (Analytics, etc.) ... 
+
+    // ==========================================
+// ANALYTICS TRACKER (Mini Google Analytics)
+// ==========================================
+
+const Analytics = {
+    currentVisitId: null,
+    heartbeatInterval: null,
+
+    init: async function() {
+        // 1. Récupérer l'IP (Optionnel, sinon on stocke null et on se base sur le cookie visiteur)
+        let ip = null;
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            const json = await res.json();
+            ip = json.ip;
+        } catch(e) {}
+
+        // 2. Enregistrer la visite
+        const { data, error } = await supabaseClient
+            .from('page_visits')
+            .insert([{
+                page_path: window.location.pathname,
+                ip_address: ip,
+                user_id: currentUser ? currentUser.id : null,
+                user_agent: navigator.userAgent,
+                referrer: document.referrer
+            }])
+            .select()
+            .single();
+
+        if (data) {
+            this.currentVisitId = data.id;
+            // 3. Lancer le chronomètre (toutes les 10s)
+            this.startHeartbeat();
+        }
+    },
+
+    startHeartbeat: function() {
+        this.heartbeatInterval = setInterval(async () => {
+            if (!this.currentVisitId) return;
+            
+            // On ajoute 10 secondes à la durée
+            // Note: On utilise une RPC pour être sûr d'additionner côté serveur
+            // Ou un simple update si RPC trop complexe
+            await supabaseClient.rpc('update_visit_duration', {
+                visit_id: this.currentVisitId,
+                seconds: 3
+            });
+        }, 3000); // 10 secondes
+    }
+};
+
+// Démarrer au chargement
+document.addEventListener('DOMContentLoaded', () => Analytics.init());
+
+// Arrêter quand on quitte la page (pour être propre)
+window.addEventListener('beforeunload', () => {
+    if (Analytics.heartbeatInterval) clearInterval(Analytics.heartbeatInterval);
+});
+
+    window.onerror = function(msg, url, line) {
+    supabaseClient.from('activity_logs').insert([{
+        action_type: 'error_client',
+        description: `${msg} @ ${url}:${line}`,
+        user_id: currentUser?.id
+    }]);
+};
 // ================= COMPTEUR LIVE INTELLIGENT =================
 (function initLiveCounter() {
     const minViewers = 80;
@@ -956,6 +993,10 @@ async function trackAppDownload() {
     }
     // Pas besoin de preventDefault(), on veut que le lien s'ouvre
 }
+
+
+// Lancer le tracking quand le DOM est prêt (ou après chargement des pubs)
+// document.addEventListener('DOMContentLoaded', () => setTimeout(AdTracker.init, 2000));
 
 
 </script>
