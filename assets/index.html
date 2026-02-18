@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- ================= SEO GOOGLE ================= -->
+    <title>Social Vote - La Révolution du Vote Communautaire Arrive</title>
+    <meta name="description" content="Préparez-vous. Social Vote est la première plateforme où votre popularité se transforme en gains réels. Lancement des inscriptions le 23 Février.">
+    <meta name="keywords" content="vote, concours, bénin, gagner argent, parrainage, social vote">
+    <meta name="author" content="Social Vote">
+    
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://social-vote.site/">
+    <meta property="og:title" content="Social Vote - Quelque chose d'énorme arrive...">
+    <meta property="og:description" content="L'arène digitale ouvre bientôt ses portes. Serez-vous prêt à défendre votre place ?">
+    <meta property="og:image" content="assets/images/logo.png">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ================= DESIGN SYSTEM ================= */
+        :root {
+            --primary: #0A1F44; /* Bleu Nuit */
+            --primary-dark: #051024;
+            --accent: #D4AF37;  /* Or */
+            --white: #FFFFFF;
+            --text-gray: #B0B8C4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--primary);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+
+        /* ================= HERO SECTION ================= */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            background: radial-gradient(circle at center, #1a3a6e 0%, var(--primary) 70%);
+            position: relative;
+        }
+
+        /* Effet de fond subtil */
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 30px;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            line-height: 1.2;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h1 span { color: var(--accent); }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-gray);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        /* ================= COUNTDOWN ================= */
+        .countdown {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .count-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .count-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+
+        .count-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--white);
+        }
+        
+        
+        .rewards-section { padding: 60px 20px; text-align: center; background: #081630; }
+        .rewards-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 40px; }
+        .reward-card {
+            background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; width: 300px;
+            border: 1px solid rgba(212,175,55,0.1); transition: 0.3s;
+        }
+        .reward-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(212,175,55,0.1); }
+        .reward-icon { font-size: 3rem; color: var(--accent); margin-bottom: 20px; }
+        .reward-card h3 { color: #fff; margin-bottom: 10px; }
+        .reward-card p { color: var(--text-gray); font-size: 0.9rem; }
+        
+
+        /* ================= SOCIAL CTA ================= */
+        .cta-container {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .btn-social {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .btn-tiktok { background: #000; color: #fff; border-color: #333; }
+        .btn-whatsapp { background: #25D366; color: #fff; }
+        .btn-facebook { background: #1877F2; color: #fff; }
+        
+        .btn-social:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+
+        .faq-section { padding: 60px 20px; background: var(--primary); }
+        .faq-container { max-width: 800px; margin: 0 auto; }
+        details {
+            background: rgba(255,255,255,0.05); margin-bottom: 10px; border-radius: 10px; overflow: hidden;
+        }
+        summary {
+            padding: 20px; cursor: pointer; font-weight: 600; list-style: none; position: relative;
+        }
+        summary::after { content: '+'; position: absolute; right: 20px; color: var(--accent); }
+        details[open] summary::after { content: '-'; }
+        details p { padding: 0 20px 20px; color: var(--text-gray); line-height: 1.6; }
+
+
+
+        /* ================= NEWS FEED SECTION ================= */
+        .news-section {
+            padding: 80px 20px;
+            background: var(--primary-dark);
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--white);
+        }
+        .section-title span { color: var(--accent); }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .news-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .news-media {
+            width: 100%;
+            aspect-ratio: 4/5; /* Format vertical réseaux sociaux */
+            object-fit: cover;
+            background: #000;
+        }
+
+        .news-content {
+            padding: 20px;
+            text-align: left;
+        }
+
+        .news-date {
+            font-size: 0.8rem;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .news-text {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            line-height: 1.6;
+        }
+
+        /* ================= FOOTER ================= */
+        footer {
+            padding: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .count-box { min-width: 70px; padding: 10px; }
+            .count-number { font-size: 1.8rem; }
+            .cta-container { flex-direction: column; width: 100%; }
+            .btn-social { width: 100%; justify-content: center; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); border-radius: 50%; }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); border-radius: 50%; }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); border-radius: 50%; }
+        }
+        
+        /* ================= AUDIO PLAYER ================= */
+.audio-player {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(10, 31, 68, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--accent);
+    padding: 10px 15px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: transform 0.3s;
+}
+
+.audio-player:hover { transform: scale(1.05); }
+
+.audio-info { display: flex; flex-direction: column; }
+.audio-status { font-size: 0.6rem; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+.audio-title { font-size: 0.8rem; color: #fff; font-weight: 600; white-space: nowrap; }
+
+.audio-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent); color: var(--primary);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; transition: 0.2s;
+}
+
+.audio-btn:hover { background: #fff; }
+
+/* Animation ondes quand ça joue */
+.playing .audio-btn { animation: pulse-audio 1.5s infinite; }
+
+@keyframes pulse-audio {
+    0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+@media (max-width: 576px) {
+    .audio-player { bottom: 10px; left: 10px; padding: 8px 12px; }
+    .audio-title { max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
+}
+
+/* ================= PRIZES MARQUEE ================= */
+.prizes-marquee {
+    padding: 60px 0;
+    background: #081630;
+    overflow: hidden; /* Coupe ce qui dépasse de l'écran */
+}
+
+.marquee-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 0 20px;
+}
+
+.marquee-header h2 { font-size: 2rem; color: #fff; }
+.marquee-header span { color: var(--accent); }
+.marquee-header p { color: var(--text-gray); }
+
+.marquee-container {
+    position: relative;
+    width: 100%;
+}
+
+/* Effet de fondu sur les côtés (Masque) */
+.marquee-container::before, .marquee-container::after {
+    content: "";
+    position: absolute;
+    top: 0; width: 100px; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+.marquee-container::before {
+    left: 0;
+    background: linear-gradient(to right, #081630, transparent);
+}
+.marquee-container::after {
+    right: 0;
+    background: linear-gradient(to left, #081630, transparent);
+}
+
+.marquee-track {
+    display: flex;
+    gap: 30px;
+    width: max-content;
+    animation: scroll 30s linear infinite; /* Vitesse du défilement */
+}
+
+/* Pause au survol */
+.marquee-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); } /* On déplace de la moitié (la taille du set original) */
+}
+
+/* Style des cartes */
+.prize-item {
+    width: 250px;
+    height: 350px;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0; /* Empêche l'écrasement */
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    transition: transform 0.3s;
+}
+
+.prize-item:hover {
+    transform: scale(1.05);
+    border-color: var(--accent);
+}
+
+.prize-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Texte sur l'image */
+.prize-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    color: #fff;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Effet Glitch sur le titre */
+.glitch {
+    position: relative;
+    color: var(--white);
+    letter-spacing: 3px;
+}
+.glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+}
+.glitch::before {
+    left: 2px; text-shadow: -1px 0 #ff00c1; clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim-1 5s infinite linear alternate-reverse;
+}
+.glitch::after {
+    left: -2px; text-shadow: -1px 0 #00fff9; clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim-2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim-1 {
+    0% { clip: rect(20px, 9999px, 10px, 0); }
+    5% { clip: rect(60px, 9999px, 20px, 0); }
+    100% { clip: rect(10px, 9999px, 80px, 0); }
+}
+@keyframes glitch-anim-2 {
+    0% { clip: rect(50px, 9999px, 80px, 0); }
+    5% { clip: rect(10px, 9999px, 30px, 0); }
+    100% { clip: rect(90px, 9999px, 10px, 0); }
+}
+
+.live-viewer-badge {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 999;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    animation: slideUp 1s ease-out;
+}
+.live-dot {
+    width: 10px; height: 10px; background: #25D366; border-radius: 50%;
+    box-shadow: 0 0 10px #25D366;
+    animation: blink 2s infinite;
+}
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+#particles-js {
+    position: fixed; width: 100%; height: 100%; top: 0; left: 0; z-index: -1;
+    background: var(--primary); /* Couleur de fond de base */
+}
+
+.btn-download-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #3DDC84; /* Vert Android */
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(61, 220, 132, 0.4);
+    transition: transform 0.2s;
+}
+.btn-download-app:hover {
+    transform: translateY(-3px);
+    background: #32b36b;
+}
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+</head>
+<body>
+<div id="particles-js"></div>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <!-- Logo -->
+        <img src="assets/images/icon3.png" alt="Social Vote" class="logo">
+
+        <!-- Titre -->
+   <h1 class="glitch" data-text="LA RÉVOLUTION COMMENCE">LA RÉVOLUTION <br><span>COMMENCE BIENTÔT</span></h1>
+   
+        <!-- Sous-titre -->
+        <p class="subtitle">
+            Social Vote est la première plateforme où votre communauté vous propulse au sommet. 
+            Préparez-vous à entrer dans l'arène.
+        </p>
+
+        <!-- Chrono : Cible le 23 Février 2026 à 18h00 -->
+        <div class="countdown" id="countdown">
+            <div class="count-box"><span class="count-number" id="days">00</span><span class="count-label">Jours</span></div>
+            <div class="count-box"><span class="count-number" id="hours">00</span><span class="count-label">Heures</span></div>
+            <div class="count-box"><span class="count-number" id="minutes">00</span><span class="count-label">Minutes</span></div>
+            <div class="count-box"><span class="count-number" id="seconds">00</span><span class="count-label">Secondes</span></div>
+        </div>
+
+   
+        <!-- Appel à l'action -->
+        <div class="cta-container">
+            <a href="https://whatsapp.com/channel/0029Vb807UXHQbS7d7x86z3O" class="btn-social btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Suivre la chaine
+            </a>
+            <a href="https://www.tiktok.com/@social_vote?_r=1&_d=f1jg0klhfd7j7l&sec_uid=MS4wLjABAAAAW0OyPXgL2MPQgquye2wg4x4AkjsbMa-N6UHm5Ku6Ts0tQ4jpLFw2XKn8LyQ1elpn&share_author_id=7497053060368827398&sharer_language=fr&source=h5_m&u_code=ek2880igl1e61h&timestamp=1770558277&user_id=7497053060368827398&sec_user_id=MS4wLjABAAAAW0OyPXgL2MPQgquye2wg4x4AkjsbMa-N6UHm5Ku6Ts0tQ4jpLFw2XKn8LyQ1elpn&item_author_type=1&utm_source=copy&utm_campaign=client_share&utm_medium=android&share_iid=7603259448483661589&share_link_id=306eee4c-f47a-4e04-a4b3-c63755af3703&share_app_id=1233&ugbiz_name=ACCOUNT&ug_btm=b8727%2Cb7360&social_share_type=5&enable_checksum=1" class="btn-social btn-tiktok">
+                <i class="fab fa-tiktok"></i> Suivre sur TikTok
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61558773743122" class="btn-social btn-facebook">
+                <i class="fab fa-facebook-f"></i> Page Facebook
+            </a>
+                <br><br>
+              <p style="color: white; margin-bottom:10px; font-size:1.1rem; font-weight: bold;">Meilleure expérience sur mobile ?</p>
+            <a href="https://sprl.me/social_vote_v01_apk" class="btn-social btn-download-app" onclick="trackAppDownload()">
+                <i class="fab fa-android"></i> Télécharger l'App
+            </a>
+        </div>
+
+    </section>
+
+     <section class="rewards-section">
+            <h2 class="section-title">À la clé <span>Cette Saison</span></h2>
+            <div class="rewards-grid">
+                <div class="reward-card">
+                    <i class="fas fa-crown reward-icon"></i>
+                    <h3>TROPHÉE</h3>
+                    <p>Obtient le plus grand nombre de votes, et repart avec le trophée et une enveloppe surprise.</p>
+                </div>
+                <div class="reward-card">
+                    <i class="fas fa-money-bill-wave reward-icon"></i>
+                    <h3>CASHPRIZE</h3>
+                    <p>Personne n'en sortira perdant, même si tu ne gagnes pas le gros prix, tu repars avec des primes de parrainage.</p>
+                </div>
+                
+                <div class="reward-card">
+                    <i class="fas fa-handshake reward-icon"></i>
+                    <h3>SPONSORING</h3>
+                    <p>Et vu le monde qu'on s'apprête à conquérir, un partenariat avec nous sera d'un grand boost publicitaire pour vos activités.</p>
+                </div>
+            </div>
+        </section>
+
+<br>
+
+    
+    <section class="faq-section">
+    <h2 class="section-title">Les Secrets de <span>L'Arène</span></h2>
+    <div class="faq-container">
+        
+        <!-- QUESTION 1 : Sur l'inscription (Sans dire "Frais") -->
+        <details>
+            <summary>Tout le monde peut-il devenir une Légende ?</summary>
+            <p>L'accès à l'arène est réservé aux plus audacieux. Une contribution symbolique est requise à l'entrée pour garantir la qualité des candidats et faire grossir la cagnotte finale. Seuls les vrais challengers passent la porte.</p>
+        </details>
+
+        <!-- QUESTION 2 : Sur la victoire (Sans dire "Vote Payant") -->
+        <details>
+            <summary>Quel est le secret pour gagner ?</summary>
+            <p>La victoire appartient à ceux qui savent mobiliser les foules. Votre communauté est votre arme : chaque soutien compte, qu'il soit offert ou boosté pour faire la différence dans les dernières secondes.</p>
+        </details>
+
+        <!-- QUESTION 3 : Sur la fiabilité (Rassurance) -->
+        <details>
+            <summary>Pourquoi Social Vote est unique ?</summary>
+            <p>Pas de jury, pas de favoritisme. Ici, les chiffres parlent. Notre technologie sécurisée garantit que le trône revient indiscutablement à celui qui a su conquérir le cœur du public.</p>
+        </details>
+
+    </div>
+</section>
+        
+<section class="prizes-marquee">
+    <div class="marquee-header">
+        <h2>Une Pluie de <span>Récompenses</span></h2>
+        <p>Plus de votes = Plus de gains. Voici les prix potentiels en jeu.</p>
+    </div>
+
+    <!-- Le conteneur qui cache les bords -->
+    <div class="marquee-container">
+        <!-- La piste qui bouge -->
+        <div class="marquee-track">
+            
+            <!-- LOT 1 -->
+            <div class="prize-item">
+                <img src="assets/prix/cash.png" alt="Cash">
+                <div class="prize-overlay"><span>L'argent en Cash</span></div>
+            </div>
+
+            <!-- LOT 2 -->
+            <div class="prize-item">
+                <img src="assets/prix/phone.png" alt="iPhone">
+                <div class="prize-overlay"><span>Telephone suprise</span></div>
+            </div>
+
+            <!-- LOT 3 -->
+            <div class="prize-item">
+                <img src="assets/prix/tab.png" alt="Moto">
+                <div class="prize-overlay"><span>Tableau de photo</span></div>
+            </div>
+
+            <!-- LOT 4 -->
+            <div class="prize-item">
+                <img src="assets/prix/pc.png" alt="Laptop">
+                <div class="prize-overlay"><span>MacBook Air</span></div>
+            </div>
+
+            <!-- LOT 5 -->
+            <div class="prize-item">
+                <img src="assets/prix/resto.png" alt="resto">
+                <div class="prize-overlay"><span>Weekend Détente</span></div>
+            </div>
+            
+                        <!-- LOT 5 -->
+            <div class="prize-item">
+                <img src="assets/prix/pat.png" alt="resto">
+                <div class="prize-overlay"><span>Bon d'achat</span></div>
+            </div>
+
+
+            <!-- ... DUPLIQUER LA LISTE UNE FOIS POUR L'EFFET INFINI (JavaScript le fera, ou copier-coller ici) ... -->
+            
+        </div>
+    </div>
+</section>
+
+<br>
+    <!-- NEWS SECTION (Fil d'actualité manuel) -->
+    <section class="news-section">
+        <h2 class="section-title">En direct des <span>Réseaux</span></h2>
+        
+        <div class="news-grid">
+            
+            
+            
+                                    <!-- POST 1 : Teasing -->
+            <div class="news-card">
+                <!-- Tu peux mettre une image ou une vidéo ici -->
+                <img src="assets/aff4.png" alt="Teasing" class="news-media">
+                <div class="news-content">
+                    <span class="news-date">15 Février 2026</span>
+                    <p class="news-text">
+                  "Le succès, c'est la préparation. 🔥🚀"
+<br><br>
+ Le dimanche 26 Février, les portes de l'arène vont s'ouvrir.
+ Des dizaines de candidats vont se ruer pour s'inscrire 📝.
+<br><br>
+ Tu veux un conseil d'ami 🙃 ?
+ N'attends pas le jour J pour découvrir la plateforme 📱.
+<br><br>
+ 👉 Défile maintenant vers le haut.
+<br><br>
+ 1️⃣ Découvre l'interface.
+ 2️⃣ Télécharge l'application (pour être plus rapide).
+ 3️⃣ Abonne-toi à nos pages pour connaître les astuces secrètes avant tout le monde.
+<br><br>
+ Ceux qui ont l'app seront les premiers informés de l'ouverture 🔥.
+ Et dans une course aux votes, chaque minute compte. ⏱️
+<br><br>
+
+🔥 #SocialVote #Android #App #Strategie #Benin
+
+                    </p>
+                </div>
+            </div>
+                                    <!-- POST 1 : Teasing -->
+            <div class="news-card">
+                <!-- Tu peux mettre une image ou une vidéo ici -->
+                <img src="assets/aff3.png" alt="Teasing" class="news-media">
+                <div class="news-content">
+                    <span class="news-date">15 Février 2026</span>
+                    <p class="news-text">
+Vous l'avez attendu. C'est officiel 🎉.
+Social Vote débarque pour changer les règles.<br>
+Fini de poster pour la gloire. Maintenant, votre influence a une valeur 💰.
+<br><br>
+🏆 Le concept est simple :
+Une arène. Des candidats. Celui qui mobilise le plus sa communauté remporte le Prix en jeu. Tout se passe sur la plateforme, en direct.<br>
+Pas de jury 🚫. Pas de triche 🚫. Juste vous et votre force de frappe ✅.
+<br><br>
+
+👉 Le site est en ligne et désormais accessible à tous (🔗 lien en bio).
+<br><br>
+
+Vous voulez savoir comment ça marche? Abonnée à nos canaux de communication, télécharger l'application (lien en bio) et rester connecté. 🔔
+<br><br>
+
+ 🔥 #SocialVote #Benin #Révolution #CashPrize #Influence
+                    </p>
+                </div>
+            </div>
+            
+                        <!-- POST 1 : Teasing -->
+            <div class="news-card">
+                <!-- Tu peux mettre une image ou une vidéo ici -->
+                <img src="assets/aff2.png" alt="Teasing" class="news-media">
+                <div class="news-content">
+                    <span class="news-date">15 Février 2026</span>
+                    <p class="news-text">
+                  C'est le dernier jour de calme.
+<br>
+Depuis des mois, on prépare l'arène.
+Demain, on vous dévoile enfin le projet qui va bouleverser le game au Bénin.
+<br><br>
+Activez la cloche. 🔔
+Vous ne voulez pas rater ça.
+<br><br>
+ 🔥 #ComingSoon #Demain #Révélation #Benin #Mystère
+                    </p>
+                </div>
+            </div>
+            
+            
+            
+                                    <!-- POST 2 : Annonce -->
+            <div class="news-card">
+                <!-- Exemple Vidéo (Muted/Autoplay) -->
+                <video src="assets/cm2.mp4" class="news-media" autoplay muted loop playsinline poster="assets/images/poster.jpg"></video>
+                <div class="news-content">
+                    <span class="news-date">14 Février 2026</span>
+                    <p class="news-text">
+Aujourd'hui, c'est des chocolats 🍫 et des bouquets 🥀. C'est mignon.
+<br><br>
+Mais bientôt, on va voir qui sont tes vrais soutiens 👥. <br>
+Ceux qui seront là pour te propulser au sommet quand l'arène ouvrira 🔥.
+<br><br>
+Préparez votre équipe.
+La loyauté va payer. 💰
+<br><br>
+#SocialVote #SaintValentin #VraieLove #ComingSoon #benin nscriptions !
+                    </p>
+                </div>
+            </div>
+
+            
+            <!-- POST 1 : Teasing -->
+            <div class="news-card">
+                <!-- Tu peux mettre une image ou une vidéo ici -->
+                <img src="assets/aff1.png" alt="Teasing" class="news-media">
+                <div class="news-content">
+                    <span class="news-date">13 Février 2026</span>
+                    <p class="news-text">
+                        Une arène. Des milliers de votes. Un seul vainqueur. ⏳"
+ <br>🔥 #SocialVote #ComingSoon
+                    </p>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Social Vote. Tous droits réservés.</p>
+        <p style="margin-top:10px; opacity:0.5; font-size:0.8rem;">Développé pour la communauté.</p>
+    </footer>
+
+<div class="live-viewer-badge">
+    <span class="live-dot"></span>
+    <span id="liveCount">85</span> personnes attendent l'ouverture
+</div>
+
+
+<!-- TOUT LE JAVASCRIPT EN UN SEUL BLOC PROPRE -->
+<script>
+    // ================= CHRONO =================
+    const launchDate = new Date("February 22, 2026 18:00:00").getTime();
+
+    const timer = setInterval(function() {
+        const now = new Date().getTime();
+        const distance = launchDate - now;
+
+        if (distance < 0) {
+            clearInterval(timer);
+            document.getElementById("countdown").innerHTML = "<h2 style='color:#D4AF37'>OUVERTURE IMMINENTE...</h2>";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        document.getElementById("days").innerText = days < 10 ? "0" + days : days;
+        document.getElementById("hours").innerText = hours < 10 ? "0" + hours : hours;
+        document.getElementById("minutes").innerText = minutes < 10 ? "0" + minutes : minutes;
+        document.getElementById("seconds").innerText = seconds < 10 ? "0" + seconds : seconds;
+    }, 1000);
+
+    // ================= MUSIQUE =================
+    const music = document.getElementById("bgMusic");
+    const btn = document.getElementById("playBtn");
+    const player = document.getElementById("audioPlayer");
+    let isPlaying = false;
+
+    if(music) { // Sécurité si l'élément n'existe pas
+        music.volume = 0.5;
+    }
+
+    function toggleAudio() {
+        if (!music) return;
+        if (isPlaying) {
+            music.pause();
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            player.classList.remove("playing");
+        } else {
+            music.play().then(() => {
+                btn.innerHTML = '<i class="fas fa-pause"></i>';
+                player.classList.add("playing");
+            }).catch(e => console.log("Lecture bloquée : " + e));
+        }
+        isPlaying = !isPlaying;
+    }
+
+    // ================= CARTES 3D (TILT) =================
+    const cards = document.querySelectorAll('.cine-card');
+
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+        });
+    });
+
+    // ================= MARQUEE INFINI =================
+    const track = document.querySelector('.marquee-track');
+    if (track) {
+        const items = track.innerHTML;
+        track.innerHTML = items + items; // Duplication
+    }
+</script>
+<!-- ================= SUPABASE & TRACKING ================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // 1. CONFIGURATION SUPABASE (Mets tes vraies clés ici)
+    const CONFIG = {
+            SUPABASE_URL: 'https://ynymnvmilertakacfrhy.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_jbmKmsT4FxmiTfYUBajgOA_QxWz8j2K',
+    };
+    const supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+    // --- CORRECTION : Définition de currentUser ---
+    let currentUser = null;
+    try {
+        const session = localStorage.getItem('socialvote_session');
+        if (session) {
+            currentUser = JSON.parse(session);
+        }
+    } catch (e) {
+        console.warn("Pas de session utilisateur active.");
+    }
+    // ---------------------------------------------
+
+    // ... Le reste de ton code (Analytics, etc.) ... 
+
+    // ==========================================
+// ANALYTICS TRACKER (Mini Google Analytics)
+// ==========================================
+
+const Analytics = {
+    currentVisitId: null,
+    heartbeatInterval: null,
+
+    init: async function() {
+        // 1. Récupérer l'IP (Optionnel, sinon on stocke null et on se base sur le cookie visiteur)
+        let ip = null;
+        try {
+            const res = await fetch('https://api.ipify.org?format=json');
+            const json = await res.json();
+            ip = json.ip;
+        } catch(e) {}
+
+        // 2. Enregistrer la visite
+        const { data, error } = await supabaseClient
+            .from('page_visits')
+            .insert([{
+                page_path: window.location.pathname,
+                ip_address: ip,
+                user_id: currentUser ? currentUser.id : null,
+                user_agent: navigator.userAgent,
+                referrer: document.referrer
+            }])
+            .select()
+            .single();
+
+        if (data) {
+            this.currentVisitId = data.id;
+            // 3. Lancer le chronomètre (toutes les 10s)
+            this.startHeartbeat();
+        }
+    },
+
+    startHeartbeat: function() {
+        this.heartbeatInterval = setInterval(async () => {
+            if (!this.currentVisitId) return;
+            
+            // On ajoute 10 secondes à la durée
+            // Note: On utilise une RPC pour être sûr d'additionner côté serveur
+            // Ou un simple update si RPC trop complexe
+            await supabaseClient.rpc('update_visit_duration', {
+                visit_id: this.currentVisitId,
+                seconds: 3
+            });
+        }, 3000); // 10 secondes
+    }
+};
+
+// Démarrer au chargement
+document.addEventListener('DOMContentLoaded', () => Analytics.init());
+
+// Arrêter quand on quitte la page (pour être propre)
+window.addEventListener('beforeunload', () => {
+    if (Analytics.heartbeatInterval) clearInterval(Analytics.heartbeatInterval);
+});
+
+    window.onerror = function(msg, url, line) {
+    supabaseClient.from('activity_logs').insert([{
+        action_type: 'error_client',
+        description: `${msg} @ ${url}:${line}`,
+        user_id: currentUser?.id
+    }]);
+};
+// ================= COMPTEUR LIVE INTELLIGENT =================
+(function initLiveCounter() {
+    const minViewers = 80;
+    const maxViewers = 150;
+    const storageKey = 'sv_live_viewers';
+    
+    // 1. Récupérer la dernière valeur connue (ou générer une nouvelle)
+    let currentViewers = parseInt(localStorage.getItem(storageKey));
+
+    if (!currentViewers || isNaN(currentViewers)) {
+        // Premier passage : On génère un nombre aléatoire de base
+        currentViewers = Math.floor(Math.random() * (maxViewers - minViewers + 1)) + minViewers;
+    } else {
+        // Retour sur la page : On ajoute un petit nombre aléatoire pour simuler que ça a monté pendant son absence
+        // (Entre 0 et 5 personnes de plus)
+        currentViewers += Math.floor(Math.random() * 6);
+    }
+
+    // Affichage initial
+    updateDisplay(currentViewers);
+
+    // 2. Boucle d'évolution réaliste
+    setInterval(() => {
+        // On décide aléatoirement si ça monte ou ça descend (tendance à monter légèrement)
+        // Chance : 60% monte (+1 à +3), 40% descend (-1 à -2)
+        const change = Math.random() > 0.4 
+            ? Math.floor(Math.random() * 3) + 1  // +1, +2, ou +3
+            : -(Math.floor(Math.random() * 2) + 1); // -1 ou -2
+
+        currentViewers += change;
+
+        // Garde-fous pour rester crédible
+        if (currentViewers < minViewers) currentViewers = minViewers + Math.floor(Math.random() * 10);
+        if (currentViewers > 400) currentViewers = 400; // Plafond pour ne pas exploser
+
+        updateDisplay(currentViewers);
+        
+    }, 4000); // Mise à jour toutes les 4 secondes (plus lent = plus réaliste)
+
+    function updateDisplay(val) {
+        document.getElementById("liveCount").innerText = val;
+        localStorage.setItem(storageKey, val); // Sauvegarde pour le prochain refresh
+    }
+})();
+particlesJS("particles-js", {
+  "particles": {
+    "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
+    "color": { "value": "#D4AF37" }, /* Couleur Or */
+    "shape": { "type": "circle" },
+    "opacity": { "value": 0.3 },
+    "size": { "value": 3, "random": true },
+    "line_linked": { "enable": true, "distance": 150, "color": "#D4AF37", "opacity": 0.2, "width": 1 },
+    "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
+  },
+  "interactivity": {
+    "detect_on": "canvas",
+    "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+    "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 1 } } }
+  },
+  "retina_detect": true
+});
+
+async function trackAppDownload() {
+    try {
+        console.log("Tracking download..."); // Pour voir si ça se lance
+        
+        await supabaseClient.from('app_downloads').insert([{
+            user_id: currentUser ? currentUser.id : null, // Optionnel
+            ip_address: null, // Tu peux laisser null ou appeler getIP()
+            user_agent: navigator.userAgent
+        }]);
+        
+        console.log("Download enregistré !");
+        
+    } catch(e) {
+        console.error("Erreur tracking download:", e);
+    }
+    // Pas besoin de preventDefault(), on veut que le lien s'ouvre
+}
+
+
+// Lancer le tracking quand le DOM est prêt (ou après chargement des pubs)
+// document.addEventListener('DOMContentLoaded', () => setTimeout(AdTracker.init, 2000));
+
+
+</script>
+</body>
+</html>
