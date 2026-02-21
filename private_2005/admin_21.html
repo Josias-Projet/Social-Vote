@@ -5405,11 +5405,11 @@ async function loadFinancialChartMonthly(ctx, startDate) {
             hideLoading();
         }
         
-        function renderAds(ads) {
+function renderAds(ads) {
     const container = document.getElementById('adsContent');
-    const statsCache = window.adStatsCache || {}; // Utilise le cache calculé plus haut
+    const statsCache = window.adStatsCache || {}; 
 
-    if (!ads.length) { container.innerHTML = '... vide ...'; return; }
+    if (!ads.length) { container.innerHTML = '<div class="empty-state"><i class="fas fa-ad"></i><p>Aucune publicité</p></div>'; return; }
 
     container.innerHTML = `<div style="display: grid; gap: 20px;">
         ${ads.map(ad => {
@@ -5418,33 +5418,55 @@ async function loadFinancialChartMonthly(ctx, startDate) {
             const avgTime = s.views > 0 ? (s.time / s.views).toFixed(1) : 0;
 
             return `
-            <div style="background:var(--light-bg); border-radius:15px; padding:20px; display:flex; gap:20px; align-items:center;">
-                <!-- Image ... -->
-                <div style="width:120px;">
-                   ${ad.media_type==='video' ? 'VIDEO' : `<img src="${ad.media_url}" style="width:100%;border-radius:10px;">`}
+            <div class="card" style="display:flex; flex-direction:row; align-items:center; gap:20px; padding:20px; flex-wrap:wrap;">
+                <!-- Image -->
+                <div style="width:150px; height:100px; border-radius:10px; overflow:hidden; flex-shrink:0; background:#000;">
+                   ${ad.media_type==='video' 
+                     ? `<video src="${ad.media_url}" style="width:100%;height:100%;object-fit:cover;"></video>` 
+                     : `<img src="${ad.media_url}" style="width:100%;height:100%;object-fit:cover;">`}
                 </div>
                 
-                <!-- Infos ... -->
-                <div style="flex:1;">
-                    <h4>${ad.title}</h4>
+                <!-- Infos -->
+                <div style="flex:1; min-width:200px;">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                        <h4 style="margin:0; color:var(--primary);">${escapeHtml(ad.title)}</h4>
+                        <span class="badge badge-${ad.is_active ? 'success' : 'warning'}">
+                            ${ad.is_active ? 'Active' : 'En pause'}
+                        </span>
+                        <span class="badge badge-primary">${ad.position}</span>
+                    </div>
+                    <p style="color:var(--gray); font-size:0.9rem; margin-bottom:10px;">${escapeHtml(ad.description || '')}</p>
                     
-                    <!-- BARRE DE STATS -->
-                    <div style="display:flex; gap:15px; margin-top:10px; font-size:0.9rem; color:var(--gray);">
+                    <!-- Stats -->
+                    <div style="display:flex; gap:15px; font-size:0.85rem; color:var(--dark-gray); background:var(--light-bg); padding:8px; border-radius:8px; width:fit-content;">
                         <span title="Vues"><i class="fas fa-eye"></i> <strong>${s.views}</strong></span>
                         <span title="Clics"><i class="fas fa-mouse-pointer"></i> <strong>${s.clicks}</strong></span>
-                        <span title="Taux de clic"><i class="fas fa-percentage"></i> <strong>${ctr}%</strong></span>
-                        <span title="Temps moyen"><i class="fas fa-stopwatch"></i> <strong>${avgTime}s</strong></span>
+                        <span title="CTR"><i class="fas fa-percentage"></i> <strong>${ctr}%</strong></span>
+                        <span title="Temps"><i class="fas fa-clock"></i> <strong>${avgTime}s</strong></span>
                     </div>
                 </div>
 
-                <!-- Actions ... -->
-                <div class="btn-group">...</div>
+                <!-- Actions -->
+                <div class="btn-group" style="display:flex; gap:10px;">
+                    <!-- Bouton Pause/Play -->
+                    <button class="btn btn-sm btn-${ad.is_active ? 'warning' : 'success'}" 
+                            onclick="toggleAdStatus('${ad.id}', ${!ad.is_active})"
+                            title="${ad.is_active ? 'Mettre en pause' : 'Activer'}">
+                        <i class="fas fa-${ad.is_active ? 'pause' : 'play'}"></i>
+                    </button>
+                    
+                    <!-- Bouton Supprimer -->
+                    <button class="btn btn-sm btn-danger" 
+                            onclick="deleteAd('${ad.id}')"
+                            title="Supprimer définitivement">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </div>
             `;
         }).join('')}
     </div>`;
-}
-        
+}        
         function openCreateAdModal() {
             document.getElementById('createAdForm').reset();
             document.getElementById('adMediaPreview').style.display = 'none';
@@ -5524,35 +5546,52 @@ async function loadFinancialChartMonthly(ctx, startDate) {
             hideLoading();
         }
         
-        async function toggleAdStatus(adId, isActive) {
-            try {
-                await supabaseClient
-                    .from('advertisements')
-                    .update({ is_active: isActive })
-                    .eq('id', adId);
-                
-                showToast(`Publicité ${isActive ? 'activée' : 'désactivée'}`, 'success');
-                await loadAds();
-            } catch (error) {
-                showToast('Erreur', 'error');
-            }
-        }
-        
-        async function deleteAd(adId) {
-            if (!confirm('Supprimer cette publicité ?')) return;
+        // Activer / Désactiver une pub
+async function toggleAdStatus(adId, isActive) {
+    showLoading('Mise à jour...');
+    try {
+        const { error } = await supabaseClient
+            .from('advertisements')
+            .update({ is_active: isActive })
+            .eq('id', adId);
             
-            try {
-                await supabaseClient.from('advertisements').delete().eq('id', adId);
-                
-                await logAdminActivity('delete_ad', `Publicité supprimée`);
-                
-                showToast('Publicité supprimée', 'success');
-                await loadAds();
-            } catch (error) {
-                showToast('Erreur', 'error');
-            }
-        }
+        if (error) throw error;
         
+        showToast(`Publicité ${isActive ? 'activée' : 'mise en pause'}`, 'success');
+        // Recharger la liste (avec les stats)
+        loadSectionData('ads'); 
+    } catch (e) {
+        console.error(e);
+        showToast('Erreur mise à jour', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Supprimer une pub
+async function deleteAd(adId) {
+    if (!confirm('Supprimer cette publicité définitivement ? Les statistiques associées seront perdues.')) return;
+    
+    showLoading('Suppression...');
+    try {
+        // Supprimer les events liés d'abord (si pas de cascade auto, mais on a mis CASCADE en SQL donc c'est bon)
+        // Supprimer la pub
+        const { error } = await supabaseClient
+            .from('advertisements')
+            .delete()
+            .eq('id', adId);
+            
+        if (error) throw error;
+        
+        showToast('Publicité supprimée', 'success');
+        loadSectionData('ads');
+    } catch (e) {
+        console.error(e);
+        showToast('Erreur suppression', 'error');
+    } finally {
+        hideLoading();
+    }
+}    
         // ============================================
         // SPONSORS
         // ============================================
