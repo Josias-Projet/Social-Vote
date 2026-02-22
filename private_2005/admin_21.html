@@ -4504,7 +4504,7 @@ async function applyReferralBonusesOnApproval(entryId) {
         // FINANCES
         // ============================================
 
-        async function loadAnalytics() {
+async function loadAnalytics() {
     showLoading('Calcul des stats...');
     const period = document.getElementById('analyticsPeriod').value;
     
@@ -4513,52 +4513,66 @@ async function applyReferralBonusesOnApproval(entryId) {
     if (period === 'today') startDate.setHours(0,0,0,0);
     else startDate.setDate(startDate.getDate() - parseInt(period));
 
-    // 1. Récupérer les données brutes
-    const { data: visits, error } = await supabaseClient
-        .from('page_visits')
-        .select('page_path, ip_address, duration_seconds, created_at')
-        .gte('created_at', startDate.toISOString());
+    try {
+        // 1. APPEL RPC (Calcul exact côté serveur pour les totaux)
+        // Note: Assure-toi d'avoir exécuté le script SQL "get_analytics_stats" dans Supabase avant !
+        const { data: stats, error: rpcErr } = await supabaseClient
+            .rpc('get_analytics_stats', { start_date: startDate.toISOString() });
 
-    if (error) { console.error(error); return; }
+        if (rpcErr) { 
+            console.error("Erreur RPC (Calcul stats):", rpcErr);
+            // Fallback si la fonction SQL n'existe pas encore : affiche "Erreur"
+            document.getElementById('anaTotalViews').textContent = "-";
+        } else {
+            // Affichage instantané des vrais chiffres
+            const s = stats[0] || { total_views: 0, unique_visitors: 0, avg_time: 0 };
+            document.getElementById('anaTotalViews').textContent = s.total_views.toLocaleString();
+            document.getElementById('anaUniqueVisitors').textContent = s.unique_visitors.toLocaleString();
+            document.getElementById('anaAvgTime').textContent = Math.round(s.avg_time) + 's';
+        }
 
-    // 2. Traitement JS (Agrégation)
-    let totalViews = visits.length;
-    let uniqueIPs = new Set(visits.map(v => v.ip_address)).size;
-    let totalTime = visits.reduce((s, v) => s + (v.duration_seconds || 0), 0);
-    let avgTime = totalViews > 0 ? Math.round(totalTime / totalViews) : 0;
+        // 2. Récupérer un échantillon pour les Graphiques et Top Pages
+        // On limite à 5000 lignes pour ne pas bloquer le navigateur, trié par le plus récent
+        const { data: visits, error } = await supabaseClient
+            .from('page_visits')
+            .select('page_path, ip_address, duration_seconds, created_at')
+            .gte('created_at', startDate.toISOString())
+            .order('created_at', { ascending: false }) 
+            .limit(5000);
 
-    // KPI
-    document.getElementById('anaTotalViews').textContent = totalViews;
-    document.getElementById('anaUniqueVisitors').textContent = uniqueIPs;
-    document.getElementById('anaAvgTime').textContent = avgTime + 's';
+        if (error) { console.error(error); return; }
 
-    // Groupement par Page
-    const pages = {};
-    visits.forEach(v => {
-        if (!pages[v.page_path]) pages[v.page_path] = { views: 0, ips: new Set(), time: 0 };
-        pages[v.page_path].views++;
-        pages[v.page_path].ips.add(v.ip_address);
-        pages[v.page_path].time += (v.duration_seconds || 0);
-    });
+        // 3. Traitement JS (Agrégation sur l'échantillon) pour le Top Pages
+        const pages = {};
+        visits.forEach(v => {
+            if (!pages[v.page_path]) pages[v.page_path] = { views: 0, ips: new Set(), time: 0 };
+            pages[v.page_path].views++;
+            pages[v.page_path].ips.add(v.ip_address);
+            pages[v.page_path].time += (v.duration_seconds || 0);
+        });
 
-    // Tableau Top Pages
-    const sortedPages = Object.entries(pages)
-        .sort((a, b) => b[1].views - a[1].views)
-        .slice(0, 10);
+        // Tableau Top Pages
+        const sortedPages = Object.entries(pages)
+            .sort((a, b) => b[1].views - a[1].views)
+            .slice(0, 10);
 
-    document.getElementById('analyticsTopPages').innerHTML = sortedPages.map(([path, stats]) => `
-        <tr>
-            <td>${path}</td>
-            <td><strong>${stats.views}</strong></td>
-            <td>${stats.ips.size}</td>
-            <td>${Math.round(stats.time / stats.views)}s</td>
-        </tr>
-    `).join('');
+        document.getElementById('analyticsTopPages').innerHTML = sortedPages.map(([path, stats]) => `
+            <tr>
+                <td>${path}</td>
+                <td><strong>${stats.views}</strong></td>
+                <td>${stats.ips.size}</td>
+                <td>${Math.round(stats.time / Math.max(1, stats.views))}s</td>
+            </tr>
+        `).join('');
 
-    // Graphique (Par jour)
-    renderAnalyticsChart(visits, period);
-    
-    hideLoading();
+        // Graphique (Par jour)
+        renderAnalyticsChart(visits, period);
+
+    } catch (e) {
+        console.error("Erreur Analytics:", e);
+    } finally {
+        hideLoading();
+    }
 }
 
 function renderAnalyticsChart(visits, period) {
