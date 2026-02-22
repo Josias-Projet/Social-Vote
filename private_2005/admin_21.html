@@ -4515,24 +4515,25 @@ async function loadAnalytics() {
 
     try {
         // 1. APPEL RPC (Calcul exact côté serveur pour les totaux)
-        // Note: Assure-toi d'avoir exécuté le script SQL "get_analytics_stats" dans Supabase avant !
         const { data: stats, error: rpcErr } = await supabaseClient
             .rpc('get_analytics_stats', { start_date: startDate.toISOString() });
 
         if (rpcErr) { 
             console.error("Erreur RPC (Calcul stats):", rpcErr);
-            // Fallback si la fonction SQL n'existe pas encore : affiche "Erreur"
+            // Valeurs par défaut en cas d'erreur
             document.getElementById('anaTotalViews').textContent = "-";
+            document.getElementById('anaUniqueVisitors').textContent = "-";
+            document.getElementById('anaAvgTime').textContent = "-";
         } else {
-            // Affichage instantané des vrais chiffres
-            const s = stats[0] || { total_views: 0, unique_visitors: 0, avg_time: 0 };
-            document.getElementById('anaTotalViews').textContent = s.total_views.toLocaleString();
-            document.getElementById('anaUniqueVisitors').textContent = s.unique_visitors.toLocaleString();
-            document.getElementById('anaAvgTime').textContent = Math.round(s.avg_time) + 's';
+            // Affichage normal (Sécurisé)
+            const s = (stats && stats.length > 0) ? stats[0] : { out_total_views: 0, out_unique_visitors: 0, out_avg_time: 0 };
+            
+            document.getElementById('anaTotalViews').textContent = (s.out_total_views || 0).toLocaleString();
+            document.getElementById('anaUniqueVisitors').textContent = (s.out_unique_visitors || 0).toLocaleString();
+            document.getElementById('anaAvgTime').textContent = Math.round(s.out_avg_time || 0) + 's';
         }
 
         // 2. Récupérer un échantillon pour les Graphiques et Top Pages
-        // On limite à 5000 lignes pour ne pas bloquer le navigateur, trié par le plus récent
         const { data: visits, error } = await supabaseClient
             .from('page_visits')
             .select('page_path, ip_address, duration_seconds, created_at')
@@ -4540,23 +4541,26 @@ async function loadAnalytics() {
             .order('created_at', { ascending: false }) 
             .limit(5000);
 
-        if (error) { console.error(error); return; }
+        if (error) { console.error("Erreur chargement visites:", error); return; }
 
         // 3. Traitement JS (Agrégation sur l'échantillon) pour le Top Pages
         const pages = {};
-        visits.forEach(v => {
-            if (!pages[v.page_path]) pages[v.page_path] = { views: 0, ips: new Set(), time: 0 };
-            pages[v.page_path].views++;
-            pages[v.page_path].ips.add(v.ip_address);
-            pages[v.page_path].time += (v.duration_seconds || 0);
-        });
+        if (visits && visits.length > 0) {
+            visits.forEach(v => {
+                const path = v.page_path || '/';
+                if (!pages[path]) pages[path] = { views: 0, ips: new Set(), time: 0 };
+                pages[path].views++;
+                if (v.ip_address) pages[path].ips.add(v.ip_address);
+                pages[path].time += (v.duration_seconds || 0);
+            });
+        }
 
         // Tableau Top Pages
         const sortedPages = Object.entries(pages)
             .sort((a, b) => b[1].views - a[1].views)
             .slice(0, 10);
 
-        document.getElementById('analyticsTopPages').innerHTML = sortedPages.map(([path, stats]) => `
+        const topPagesHTML = sortedPages.map(([path, stats]) => `
             <tr>
                 <td>${path}</td>
                 <td><strong>${stats.views}</strong></td>
@@ -4565,8 +4569,12 @@ async function loadAnalytics() {
             </tr>
         `).join('');
 
+        document.getElementById('analyticsTopPages').innerHTML = topPagesHTML || '<tr><td colspan="4" style="text-align:center">Aucune donnée sur cette période</td></tr>';
+
         // Graphique (Par jour)
-        renderAnalyticsChart(visits, period);
+        if (typeof renderAnalyticsChart === 'function') {
+            renderAnalyticsChart(visits || [], period);
+        }
 
     } catch (e) {
         console.error("Erreur Analytics:", e);
