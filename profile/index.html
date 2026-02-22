@@ -1595,6 +1595,21 @@ input, select, textarea {
     overflow-wrap: break-word;
     font-size: 1.1rem !important; /* Réduit un peu la taille */
 }
+
+.scroll-hint {
+    position: absolute;
+    right: 0; top: 0; bottom: 0;
+    width: 30px;
+    background: linear-gradient(to left, rgba(255,255,255,1), transparent);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+    pointer-events: none; /* Laisse passer le clic */
+    animation: bounceRight 1s infinite;
+}
+@keyframes bounceRight {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(3px); }
+}
     </style>
 
 <!-- ================= SEO & SOCIAL SHARING ================= -->
@@ -1727,6 +1742,8 @@ input, select, textarea {
                 <span>Paramètres</span>
             </button>
         </div>
+        <!-- L'indicateur de scroll -->
+    <div class="scroll-hint" id="scrollHint"><i class="fas fa-chevron-right"></i></div>
     </div>
     
     <!-- ========== PROFILE CONTENT ========== -->
@@ -3393,6 +3410,20 @@ window.addEventListener('beforeunload', () => {
         user_id: currentUser?.id
     }]);
 };
+
+const tabsContainer = document.getElementById('tabsScroll'); // Mets cet ID sur ta div .profile-tabs
+const hint = document.getElementById('scrollHint');
+
+if (tabsContainer && hint) {
+    tabsContainer.addEventListener('scroll', () => {
+        // Si on est arrivé au bout à droite (marge d'erreur 5px)
+        if (tabsContainer.scrollWidth - tabsContainer.scrollLeft <= tabsContainer.clientWidth + 5) {
+            hint.style.display = 'none';
+        } else {
+            hint.style.display = 'flex';
+        }
+    });
+}
     </script>
 </body>
 </html>
