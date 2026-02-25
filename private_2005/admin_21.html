@@ -4048,6 +4048,9 @@ async function approveCandidate(entryId) {
         }
     }
 
+// ============================================
+// APPLY REFERRAL BONUSES (CORRIGÉE V3 - AMBASSADEUR+CANDIDAT)
+// ============================================
 async function applyReferralBonusesOnApproval(entryId) {
   console.log(`[BONUS] Traitement pour l'entrée : ${entryId}`);
 
@@ -4065,8 +4068,8 @@ async function applyReferralBonusesOnApproval(entryId) {
 
   // --- RECHERCHE INTELLIGENTE DU PARRAIN ---
   
-  let candidateParrainId = null; // ID du profil candidat (pour les votes)
-  let userParrainId = null;      // ID User (pour l'argent ambassadeur)
+  let candidateParrainId = null; // ID du profil candidat (pour les votes +15)
+  let userParrainId = null;      // ID User (pour l'argent Ambassadeur)
 
   // A. Chercher dans Candidate Profiles (Code classique)
   const { data: candidateProf } = await supabaseClient
@@ -4076,6 +4079,7 @@ async function applyReferralBonusesOnApproval(entryId) {
     .maybeSingle();
 
   if (candidateProf) {
+      // C'est un code candidat standard
       candidateParrainId = candidateProf.id;
       userParrainId = candidateProf.user_id;
   } else {
@@ -4088,13 +4092,18 @@ async function applyReferralBonusesOnApproval(entryId) {
       
       if (amb) {
           userParrainId = amb.id;
-          // Si c'est un ambassadeur, on cherche s'il a AUSSI un profil candidat
+          
+          // IMPORTANT : On cherche si cet ambassadeur a un profil candidat
           const { data: linkedCand } = await supabaseClient
               .from('candidate_profiles')
               .select('id')
-              .eq('user_id', amb.id)
+              .eq('user_id', amb.id) // On cherche par user_id
               .maybeSingle();
-          if (linkedCand) candidateParrainId = linkedCand.id;
+              
+          if (linkedCand) {
+              candidateParrainId = linkedCand.id;
+              console.log("[BONUS] Ambassadeur est aussi candidat :", candidateParrainId);
+          }
       }
   }
 
@@ -4166,7 +4175,8 @@ async function applyReferralBonusesOnApproval(entryId) {
           console.log("Parrain trouvé mais pas inscrit à ce jeu -> Pas de votes bonus (juste argent si ambassadeur)");
       }
   }
-    }    await logAdminActivity('approve_candidate', `Candidature approuvée (RPC): ${approvedEntry?.users?.full_name || ''}`);
+}
+    await logAdminActivity('approve_candidate', `Candidature approuvée (RPC): ${approvedEntry?.users?.full_name || ''}`);
 
     showToast('Candidature approuvée !', 'success');
     
