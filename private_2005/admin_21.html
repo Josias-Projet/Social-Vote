@@ -4168,7 +4168,7 @@ async function applyReferralBonusesOnApproval(entryId) {
   } catch (globalErr) {
       console.error("Erreur critique bonus:", globalErr);
   }
-}
+} 
     await logAdminActivity('approve_candidate', `Candidature approuvée (RPC): ${approvedEntry?.users?.full_name || ''}`);
 
     showToast('Candidature approuvée !', 'success');
