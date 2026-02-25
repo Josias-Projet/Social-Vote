@@ -2107,7 +2107,7 @@ function renderNavAuth() {
 
   if (currentUser) {
     navAuth.innerHTML = `
-      <a href="auth.html?tab=candidate" class="btn btn-primary btn-sm">
+      <a href="auth/?tab=candidate" class="btn btn-primary btn-sm">
         <i class="fas fa-star"></i> S'inscrire comme candidat
       </a>
       <a href="profile.html" class="btn btn-outline btn-sm">
@@ -2133,8 +2133,8 @@ function renderNavAuth() {
     }
   } else {
     navAuth.innerHTML = `
-      <a href="auth.html" class="btn btn-outline btn-sm">Connexion</a>
-      <a href="auth.html?tab=register" class="btn btn-primary btn-sm">S'inscrire</a>
+      <a href="auth/" class="btn btn-outline btn-sm">Connexion</a>
+      <a href="auth/?tab=register" class="btn btn-primary btn-sm">S'inscrire</a>
     `;
   }
 }
