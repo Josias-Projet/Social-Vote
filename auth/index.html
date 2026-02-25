@@ -1455,26 +1455,18 @@ input, select, textarea {
             initTabs();
             initForms();
             
-            // Vérifier les paramètres URL (Onglet + Code Parrainage)
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
-            const refCode = urlParams.get('ref'); // Récupère ?ref=XXX
+            const refCode = urlParams.get('ref');
+
+            // 1. Sauvegarder le code parrainage s'il est présent
+            if (refCode) {
+                localStorage.setItem('pending_referral_code', refCode);
+                console.log("Code parrainage mémorisé :", refCode);
+            }
 
             if (tab) {
                 switchTab(tab);
-            }
-            
-            // Si un code parrainage est présent dans l'URL
-            if (refCode) {
-                // On attend un peu que le formulaire soit injecté (si dynamique)
-                setTimeout(() => {
-                    const input = document.getElementById('referralCodeInput');
-                    if (input) {
-                        input.value = refCode;
-                        // On lance la vérification auto pour montrer que c'est valide
-                        if(typeof verifyReferralCode === 'function') verifyReferralCode();
-                    }
-                }, 1000); // Délai de sécurité
             }
             
             // Vérifier l'authentification
@@ -1483,6 +1475,7 @@ input, select, textarea {
             // Charger le jeu actif
             await loadActiveGame();
         });
+        
         // ============================================
         // AUTHENTIFICATION
         // ============================================
@@ -2046,6 +2039,22 @@ input, select, textarea {
                 </form>
             `;
 
+            // ... (ton code existant d'autofill whatsapp, etc.) ...
+
+            // 2. Autofill Code Parrainage (depuis l'URL ou le Stockage)
+            const storedRef = localStorage.getItem('pending_referral_code');
+            const refInput = document.getElementById('referralCodeInput');
+            
+            if (storedRef && refInput) {
+                refInput.value = storedRef;
+                // On vérifie visuellement pour l'utilisateur
+                if(typeof verifyReferralCode === 'function') verifyReferralCode();
+                
+                // Optionnel : On peut nettoyer le stockage une fois utilisé
+                // localStorage.removeItem('pending_referral_code'); 
+            }
+            
+            
             const input = document.getElementById('referralCodeInput');
             if (input) {
             let t;
