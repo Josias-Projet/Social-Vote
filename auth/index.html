@@ -2262,7 +2262,11 @@ async function verifyReferralCode() {
     if (!code) return;
 
     try {
-        // --- ÉTAPE 1 : Chercher dans les Candidats (Classique) ---
+        // --- ÉTAPE 1 : Identification du Propriétaire du Code ---
+        let parrainId = null;
+        let isAmbassador = false;
+
+        // A. Chercher candidat
         const { data: candidateProf } = await supabaseClient
             .from('candidate_profiles')
             .select('id, user_id, referral_code')
@@ -2270,73 +2274,95 @@ async function verifyReferralCode() {
             .maybeSingle();
 
         if (candidateProf) {
-            // C'est un candidat. On applique les règles strictes (doit être inscrit au jeu)
-            if (candidateProf.user_id === currentUser.id) {
-                throw new Error("Vous ne pouvez pas utiliser votre propre code.");
-            }
-
-            // Vérifier inscription au jeu (Ta règle existante)
-            if (currentGame?.id) {
-                const { data: entry } = await supabaseClient
-                    .from('game_entries')
-                    .select('id')
-                    .eq('game_id', currentGame.id)
-                    .eq('candidate_id', candidateProf.id)
-                    .in('status', ['pending', 'approved'])
-                    .maybeSingle();
-
-                if (!entry) {
-                    throw new Error("Ce code appartient à un candidat qui ne participe pas à ce jeu.");
+            parrainId = candidateProf.id; // ID Profil Candidat
+            if (candidateProf.user_id === currentUser.id) throw new Error("Vous ne pouvez pas utiliser votre propre code.");
+        } else {
+            // B. Chercher Ambassadeur
+            const { data: amb } = await supabaseClient
+                .from('ambassadors')
+                .select('id, custom_code, is_active')
+                .eq('custom_code', code)
+                .maybeSingle();
+            
+            if (amb) {
+                if (!amb.is_active) throw new Error("Ce code est désactivé.");
+                if (amb.id === currentUser.id) throw new Error("Vous ne pouvez pas utiliser votre propre code.");
+                isAmbassador = true;
+                
+                // Pour compter les filleuls, on a besoin de l'ID Candidat associé à cet ambassadeur (s'il joue)
+                // OU on compte via la table referrals si on stocke l'ID User en referrer_id (attention à ta structure)
+                // Dans ta structure actuelle, referrals.referrer_id pointe vers candidate_profiles.id
+                // Donc on doit trouver son profil candidat.
+                const { data: linkedCand } = await supabaseClient.from('candidate_profiles').select('id').eq('user_id', amb.id).maybeSingle();
+                if(linkedCand) parrainId = linkedCand.id;
+                else {
+                    // Cas spécial : Ambassadeur qui ne joue pas. 
+                    // Pour lui, pas de limite de votes bonus car il ne joue pas ?
+                    // OU on limite quand même ses gains financiers ?
+                    // Supposons qu'on limite tout le monde pour l'instant si tu veux forcer le payant.
+                    // Si pas de profil candidat, on ne peut pas compter via referrals table facilement sans jointure complexe.
+                    // On laisse passer si l'ambassadeur ne joue pas (car il ne vole pas la place des autres).
                 }
             }
-            
-            // Tout est bon pour le candidat
-            status.className = 'referral-status valid';
-            status.innerHTML = `<i class="fas fa-check-circle"></i> Code Candidat valide ! (+10 votes)`;
-            status.style.display = 'block';
-            validReferralCode = code;
-            return;
         }
 
-        // --- ÉTAPE 2 : Chercher dans les Ambassadeurs (Nouveau) ---
-        const { data: ambassador } = await supabaseClient
-            .from('ambassadors')
-            .select('id, custom_code, is_active') // id = user_id
-            .eq('custom_code', code)
-            .maybeSingle();
+        if (!parrainId && !isAmbassador) throw new Error("Code introuvable.");
 
-        if (ambassador) {
-            if (!ambassador.is_active) {
-                throw new Error("Ce code ambassadeur est désactivé.");
-            }
-            if (ambassador.id === currentUser.id) {
-                throw new Error("Vous ne pouvez pas utiliser votre propre code ambassadeur.");
-            }
+        // --- ÉTAPE 2 : Vérifier le QUOTA (10 Max) ---
+        // On ne vérifie le quota que si le jeu est GRATUIT
+        if (currentGame && currentGame.registration_fee === 0 && parrainId) {
+            const { count, error: countErr } = await supabaseClient
+                .from('referrals')
+                .select('*', { count: 'exact', head: true })
+                .eq('referrer_id', parrainId)
+                .eq('game_id', currentGame.id);
 
-            // C'est bon ! Pas besoin de vérifier si l'ambassadeur joue au jeu.
-            status.className = 'referral-status valid';
-            // On peut mettre un petit style doré pour l'ambassadeur
-            status.style.background = "rgba(212, 175, 55, 0.1)";
-            status.style.color = "#D4AF37";
-            status.style.borderColor = "#D4AF37";
-            status.innerHTML = `<i class="fas fa-crown"></i> Code Ambassadeur valide ! (+10 votes)`;
-            status.style.display = 'block';
-            validReferralCode = code;
-            return;
+            if (countErr) throw countErr;
+
+            if (count >= 10) {
+                // QUOTA ATTEINT !
+                status.className = 'referral-status warning';
+                status.style.display = 'block';
+                // Proposition d'un code de secours (ex: SOCIALVOTE)
+                status.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i> Ce parrain a atteint sa limite de 10 filleuls pour ce jeu gratuit.<br>
+                    Utilisez le code <strong>SOCIALVOTE</strong> pour avoir vos 10 votes.
+                `;
+                // On met le code de secours automatiquement ? ou on laisse l'user le taper ?
+                // Si tu veux l'appliquer auto :
+                // codeInput.value = "SOCIALVOTE";
+                // validReferralCode = "SOCIALVOTE"; 
+                return;
+            }
         }
 
-        // --- ÉTAPE 3 : Rien trouvé ---
-        throw new Error("Code introuvable.");
+        // --- ÉTAPE 3 : Vérifier Inscription au Jeu (Si Candidat) ---
+        if (parrainId && !isAmbassador) {
+             const { data: entry } = await supabaseClient
+                .from('game_entries')
+                .select('id')
+                .eq('game_id', currentGame.id)
+                .eq('candidate_id', parrainId)
+                .in('status', ['pending', 'approved'])
+                .maybeSingle();
+
+            if (!entry) throw new Error("Ce parrain ne participe pas à ce jeu.");
+        }
+
+        // --- SUCCÈS ---
+        status.className = 'referral-status valid';
+        status.innerHTML = `<i class="fas fa-check-circle"></i> Code valide ! (+10 votes)`;
+        status.style.display = 'block';
+        validReferralCode = code;
 
     } catch (error) {
-        console.error('Erreur vérification:', error);
+        console.error('Verif error:', error);
         status.className = 'referral-status invalid';
         status.innerHTML = `<i class="fas fa-times-circle"></i> ${error.message}`;
         status.style.display = 'block';
         validReferralCode = null;
     }
-}       
-        async function handleCandidateSubmit(e) {
+}        async function handleCandidateSubmit(e) {
             e.preventDefault();
 
             const typedCode = (document.getElementById('referralCodeInput')?.value || '').trim().toUpperCase();
