@@ -1785,15 +1785,44 @@ input, select, textarea {
     <!-- Contenu Principal -->
     <main class="container" id="ambContent" style="display:none;">
         
-        <!-- Code Promo -->
-        <div class="promo-box">
-            <p class="promo-desc">Partagez ce code pour gagner <strong>60%</strong> des frais d'inscription si vous n'êtes pas inscrit au jeu et <strong>25%</strong> ainsi que <strong>30%</strong> de Commission sur vos votes payants si vous êtes inscrit au jeu !</p>
-            <div class="promo-code" id="ambCode">...</div>
-            <button class="btn btn-outline" onclick="copyCode()" style="color:#fff; border-color:#fff;">
-                <i class="far fa-copy"></i> Copier le code
+   <!-- NOUVEAU BLOC PARTAGE AMBASSADEUR -->
+<div class="promo-box" style="text-align: left;">
+    <div style="text-align:center; margin-bottom:20px;">
+        <p class="promo-desc">Partagez ce code pour gagner des commissions !</p>
+        <div class="promo-code" id="ambCode" style="font-size:2.5rem; color:var(--accent);">...</div>
+        <button class="btn btn-outline" onclick="copyCode()" style="color:#fff; border-color:#fff; margin-top:10px;">
+            <i class="far fa-copy"></i> Copier le code
+        </button>
+    </div>
+
+    <!-- Lien & QR -->
+    <div style="background:rgba(0,0,0,0.2); padding:20px; border-radius:15px; margin-bottom:20px;">
+        <label style="color:var(--gray); font-size:0.9rem;">Votre lien unique :</label>
+        <div style="display:flex; gap:10px; margin-top:5px;">
+            <input type="text" id="shareLinkInput" readonly 
+                   style="background:rgba(255,255,255,0.1); border:none; color:#fff; flex:1; padding:10px; border-radius:5px;">
+            <button class="btn btn-sm btn-primary" onclick="copyLink()">
+                <i class="fas fa-link"></i>
             </button>
         </div>
+    </div>
 
+    <!-- Boutons Sociaux -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <a id="btnWa" href="#" target="_blank" class="btn btn-sm" style="background:#25D366; color:#fff;">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+        </a>
+        <a id="btnFb" href="#" target="_blank" class="btn btn-sm" style="background:#1877F2; color:#fff;">
+            <i class="fab fa-facebook-f"></i> Facebook
+        </a>
+        <a id="btnTw" href="#" target="_blank" class="btn btn-sm" style="background:#1DA1F2; color:#fff;">
+            <i class="fab fa-twitter"></i> Twitter
+        </a>
+        <a id="btnTg" href="#" target="_blank" class="btn btn-sm" style="background:#0088CC; color:#fff;">
+            <i class="fab fa-telegram-plane"></i> Telegram
+        </a>
+    </div>
+</div>
         <div style="display:grid; grid-template-columns: 1fr; gap:30px;">
             
             <!-- Graphique -->
@@ -1890,22 +1919,55 @@ loader.style.display = 'none';;
             }
         }
 
-        async function initAmbassadorDashboard(ambassador) {
-            // Afficher les sections
+                async function initAmbassadorDashboard(ambassador) {
+            // 1. Afficher les sections (on sort du mode "Accès Restreint")
             document.getElementById('ambassadorHeaderContent').style.display = 'block';
             document.getElementById('ambStats').style.display = 'grid';
             document.getElementById('ambContent').style.display = 'block';
 
-            // Remplir infos
+            // 2. Remplir les infos de profil
             document.getElementById('ambName').textContent = currentUser.full_name;
             document.getElementById('ambEmail').textContent = currentUser.email;
-            document.getElementById('ambPhoto').src = currentUser.photo_url || 'https://placehold.co/150x150?text=U';
+            
+            // Photo (avec optimisation Cloudinary si dispo, sinon placeholder)
+            const photoUrl = currentUser.photo_url || 'https://placehold.co/150x150?text=U';
+            document.getElementById('ambPhoto').src = photoUrl;
+            
+            // Code Promo
             document.getElementById('ambCode').textContent = ambassador.custom_code;
 
-            // Charger les gains
+            // 3. Générer les Liens de Partage (Nouveau)
+            const baseUrl = window.location.origin; // ex: https://social-vote.site
+            const code = ambassador.custom_code;
+            
+            // Lien direct vers l'inscription avec le code en paramètre
+            const shareLink = `${baseUrl}/auth.html?tab=candidate&ref=${code}`;
+            
+            // Remplir le champ lien
+            const linkInput = document.getElementById('shareLinkInput');
+            if (linkInput) linkInput.value = shareLink;
+
+            // Message par défaut pour le partage
+            const msgText = `Salut ! Rejoins Social Vote avec mon code "${code}" pour gagner des bonus ! Inscriptions ouvertes :`;
+            const encodedMsg = encodeURIComponent(msgText);
+            const encodedLink = encodeURIComponent(shareLink);
+
+            // Mettre à jour les boutons sociaux
+            const btnWa = document.getElementById('btnWa');
+            if(btnWa) btnWa.href = `https://wa.me/?text=${encodedMsg}%20${encodedLink}`;
+            
+            const btnFb = document.getElementById('btnFb');
+            if(btnFb) btnFb.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`;
+            
+            const btnTw = document.getElementById('btnTw');
+            if(btnTw) btnTw.href = `https://twitter.com/intent/tweet?text=${encodedMsg}&url=${encodedLink}`;
+            
+            const btnTg = document.getElementById('btnTg');
+            if(btnTg) btnTg.href = `https://t.me/share/url?url=${encodedLink}&text=${encodedMsg}`;
+
+            // 4. Charger l'historique des gains
             await loadEarnings(ambassador.id);
         }
-
         async function loadEarnings(ambId) {
             const { data: earnings } = await supabaseClient
                 .from('ambassador_earnings')
