@@ -1455,11 +1455,26 @@ input, select, textarea {
             initTabs();
             initForms();
             
-            // Vérifier les paramètres URL
+            // Vérifier les paramètres URL (Onglet + Code Parrainage)
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
+            const refCode = urlParams.get('ref'); // Récupère ?ref=XXX
+
             if (tab) {
                 switchTab(tab);
+            }
+            
+            // Si un code parrainage est présent dans l'URL
+            if (refCode) {
+                // On attend un peu que le formulaire soit injecté (si dynamique)
+                setTimeout(() => {
+                    const input = document.getElementById('referralCodeInput');
+                    if (input) {
+                        input.value = refCode;
+                        // On lance la vérification auto pour montrer que c'est valide
+                        if(typeof verifyReferralCode === 'function') verifyReferralCode();
+                    }
+                }, 1000); // Délai de sécurité
             }
             
             // Vérifier l'authentification
@@ -1468,7 +1483,6 @@ input, select, textarea {
             // Charger le jeu actif
             await loadActiveGame();
         });
-        
         // ============================================
         // AUTHENTIFICATION
         // ============================================
