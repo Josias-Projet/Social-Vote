@@ -2247,14 +2247,15 @@ input, select, textarea {
                 reader.onerror = (err) => reject(err);
             });
         }
-        // ============================================
-        // VÉRIFICATION CODE PARRAINAGE
-        // ============================================
+// ============================================
+// VÉRIFICATION CODE PARRAINAGE (QUOTA FIX)
+// ============================================
 async function verifyReferralCode() {
     const codeInput = document.getElementById('referralCodeInput');
     const code = codeInput.value.trim().toUpperCase();
     const status = document.getElementById('referralStatus');
 
+    // Reset visuel
     validReferralCode = null;
     status.className = 'referral-status';
     status.style.display = 'none';
@@ -2262,11 +2263,49 @@ async function verifyReferralCode() {
     if (!code) return;
 
     try {
-        // --- ÉTAPE 1 : Identification du Propriétaire du Code ---
+        // --- ÉTAPE 1 : VÉRIFIER LE QUOTA (PRIORITÉ ABSOLUE) ---
+        // On compte simplement combien de gens VALIDÉS ont utilisé ce code pour ce jeu
+        if (currentGame) {
+            // Sécurité type : on s'assure que c'est un nombre
+            const fee = Number(currentGame.registration_fee || 0);
+            
+            // Si c'est gratuit (ou si tu veux appliquer la limite partout, enlève le if)
+            if (fee <= 0) {
+                const { count, error: countErr } = await supabaseClient
+                    .from('game_entries')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('game_id', currentGame.id)
+                    .eq('status', 'approved') // Seulement les validés comptent dans le quota
+                    .ilike('referred_by', code); // Insensible à la casse
+
+                if (countErr) {
+                    console.error("Erreur compte quota:", countErr);
+                } else {
+                    console.log(`[QUOTA] Code ${code} utilisé par ${count} filleuls validés.`);
+
+                    if (count >= 10) {
+                        status.className = 'referral-status warning';
+                        status.style.display = 'block';
+                        const backupCode = "SOCIALVOTE"; // Ton code de secours
+                        status.innerHTML = `
+                            <i class="fas fa-exclamation-triangle"></i> Limite atteinte (10/10).<br>
+                            <span style="font-size:0.9rem; color:#555;">Ce parrain ne peut plus accepter de filleuls gratuits.</span><br>
+                            <a href="#" onclick="document.getElementById('referralCodeInput').value='${backupCode}'; verifyReferralCode(); return false;" style="color:#856404;text-decoration:underline;font-weight:bold;display:block;margin-top:5px;">
+                                Cliquez ici pour utiliser le code ${backupCode} (+10 votes)
+                            </a>
+                        `;
+                        validReferralCode = null; // Invalide pour empêcher l'inscription avec ce code
+                        return; // ON ARRÊTE TOUT ICI
+                    }
+                }
+            }
+        }
+
+        // --- ÉTAPE 2 : VÉRIFIER L'EXISTENCE DU CODE ---
         let parrainId = null;
         let isAmbassador = false;
 
-        // A. Chercher candidat
+        // A. Chercher dans les candidats
         const { data: candidateProf } = await supabaseClient
             .from('candidate_profiles')
             .select('id, user_id, referral_code')
@@ -2274,10 +2313,10 @@ async function verifyReferralCode() {
             .maybeSingle();
 
         if (candidateProf) {
-            parrainId = candidateProf.id; // ID Profil Candidat
+            parrainId = candidateProf.id;
             if (candidateProf.user_id === currentUser.id) throw new Error("Vous ne pouvez pas utiliser votre propre code.");
         } else {
-            // B. Chercher Ambassadeur
+            // B. Chercher dans les ambassadeurs
             const { data: amb } = await supabaseClient
                 .from('ambassadors')
                 .select('id, custom_code, is_active')
@@ -2289,55 +2328,17 @@ async function verifyReferralCode() {
                 if (amb.id === currentUser.id) throw new Error("Vous ne pouvez pas utiliser votre propre code.");
                 isAmbassador = true;
                 
-                // Pour compter les filleuls, on a besoin de l'ID Candidat associé à cet ambassadeur (s'il joue)
-                // OU on compte via la table referrals si on stocke l'ID User en referrer_id (attention à ta structure)
-                // Dans ta structure actuelle, referrals.referrer_id pointe vers candidate_profiles.id
-                // Donc on doit trouver son profil candidat.
+                // Essayer de lier à un profil candidat (pour vérifier s'il joue)
                 const { data: linkedCand } = await supabaseClient.from('candidate_profiles').select('id').eq('user_id', amb.id).maybeSingle();
                 if(linkedCand) parrainId = linkedCand.id;
-                else {
-                    // Cas spécial : Ambassadeur qui ne joue pas. 
-                    // Pour lui, pas de limite de votes bonus car il ne joue pas ?
-                    // OU on limite quand même ses gains financiers ?
-                    // Supposons qu'on limite tout le monde pour l'instant si tu veux forcer le payant.
-                    // Si pas de profil candidat, on ne peut pas compter via referrals table facilement sans jointure complexe.
-                    // On laisse passer si l'ambassadeur ne joue pas (car il ne vole pas la place des autres).
-                }
-            }
-        } 
-
-        if (!parrainId && !isAmbassador) throw new Error("Code introuvable.");
-
-        // --- ÉTAPE 2 : Vérifier le QUOTA (10 Max) ---
-        // On ne vérifie le quota que si le jeu est GRATUIT
-        if (currentGame && currentGame.registration_fee === 0 && parrainId) {
-            const { count, error: countErr } = await supabaseClient
-                .from('referrals')
-                .select('*', { count: 'exact', head: true })
-                .eq('referrer_id', parrainId)
-                .eq('game_id', currentGame.id);
-
-            if (countErr) throw countErr;
-
-            if (count >= 10) {
-                // QUOTA ATTEINT !
-                status.className = 'referral-status warning';
-                status.style.display = 'block';
-                // Proposition d'un code de secours (ex: SOCIALVOTE)
-                status.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i> Ce parrain a atteint sa limite de 10 filleuls pour ce jeu gratuit.<br>
-                    Utilisez le code <strong>SOCIALVOTE</strong> pour avoir vos 10 votes.
-                `;
-                // On met le code de secours automatiquement ? ou on laisse l'user le taper ?
-                // Si tu veux l'appliquer auto :
-                // codeInput.value = "SOCIALVOTE";
-                // validReferralCode = "SOCIALVOTE"; 
-                return;
             }
         }
 
-        // --- ÉTAPE 3 : Vérifier Inscription au Jeu (Si Candidat) ---
-        if (parrainId && !isAmbassador) {
+        if (!parrainId && !isAmbassador) throw new Error("Code introuvable.");
+
+        // --- ÉTAPE 3 : VÉRIFIER L'INSCRIPTION AU JEU (Si ce n'est pas un pur ambassadeur externe) ---
+        // Si c'est un candidat (ou un ambassadeur qui joue), il doit être inscrit pour parrainer
+        if (parrainId) {
              const { data: entry } = await supabaseClient
                 .from('game_entries')
                 .select('id')
@@ -2346,7 +2347,10 @@ async function verifyReferralCode() {
                 .in('status', ['pending', 'approved'])
                 .maybeSingle();
 
-            if (!entry) throw new Error("Ce parrain ne participe pas à ce jeu.");
+            // Si c'est un candidat classique et qu'il ne joue pas -> Erreur
+            if (!entry && !isAmbassador) throw new Error("Ce parrain ne participe pas à ce jeu.");
+            
+            // Si c'est un ambassadeur qui ne joue pas -> Pas grave, on accepte (c'est son rôle)
         }
 
         // --- SUCCÈS ---
@@ -2362,7 +2366,10 @@ async function verifyReferralCode() {
         status.style.display = 'block';
         validReferralCode = null;
     }
-}        async function handleCandidateSubmit(e) {
+}
+
+
+     async function handleCandidateSubmit(e) {
             e.preventDefault();
 
             const typedCode = (document.getElementById('referralCodeInput')?.value || '').trim().toUpperCase();
