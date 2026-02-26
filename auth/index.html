@@ -2255,7 +2255,6 @@ async function verifyReferralCode() {
     const code = codeInput.value.trim().toUpperCase();
     const status = document.getElementById('referralStatus');
 
-    // Reset visuel
     validReferralCode = null;
     status.className = 'referral-status';
     status.style.display = 'none';
@@ -2264,37 +2263,35 @@ async function verifyReferralCode() {
 
     try {
         // --- ÉTAPE 1 : VÉRIFIER LE QUOTA (PRIORITÉ ABSOLUE) ---
-        // On compte simplement combien de gens VALIDÉS ont utilisé ce code pour ce jeu
+        // On utilise la RPC SQL pour un compte exact et insensible à la casse
         if (currentGame) {
-            // Sécurité type : on s'assure que c'est un nombre
             const fee = Number(currentGame.registration_fee || 0);
             
-            // Si c'est gratuit (ou si tu veux appliquer la limite partout, enlève le if)
+            // Si jeu gratuit (ou toujours si tu veux), on vérifie le quota
             if (fee <= 0) {
-                const { count, error: countErr } = await supabaseClient
-                    .from('game_entries')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('game_id', currentGame.id)
-                    .eq('status', 'approved') // Seulement les validés comptent dans le quota
-                    .ilike('referred_by', code); // Insensible à la casse
+                const { data: count, error: countErr } = await supabaseClient
+                    .rpc('count_referrals_for_code', { 
+                        p_game_id: currentGame.id, 
+                        p_code: code 
+                    });
 
                 if (countErr) {
-                    console.error("Erreur compte quota:", countErr);
+                    console.error("Erreur RPC quota:", countErr);
                 } else {
-                    console.log(`[QUOTA] Code ${code} utilisé par ${count} filleuls validés.`);
+                    console.log(`[QUOTA] Code ${code} utilisé ${count} fois.`);
 
                     if (count >= 10) {
                         status.className = 'referral-status warning';
                         status.style.display = 'block';
-                        const backupCode = "SOCIALVOTE"; // Ton code de secours
+                        const backupCode = "SOCIALVOTE"; 
                         status.innerHTML = `
-                            <i class="fas fa-exclamation-triangle"></i> Limite atteinte (10/10).<br>
+                            <i class="fas fa-exclamation-triangle"></i> Limite atteinte (${count}/10).<br>
                             <span style="font-size:0.9rem; color:#555;">Ce parrain ne peut plus accepter de filleuls gratuits.</span><br>
                             <a href="#" onclick="document.getElementById('referralCodeInput').value='${backupCode}'; verifyReferralCode(); return false;" style="color:#856404;text-decoration:underline;font-weight:bold;display:block;margin-top:5px;">
                                 Cliquez ici pour utiliser le code ${backupCode} (+10 votes)
                             </a>
                         `;
-                        validReferralCode = null; // Invalide pour empêcher l'inscription avec ce code
+                        validReferralCode = null; 
                         return; // ON ARRÊTE TOUT ICI
                     }
                 }
@@ -2336,8 +2333,7 @@ async function verifyReferralCode() {
 
         if (!parrainId && !isAmbassador) throw new Error("Code introuvable.");
 
-        // --- ÉTAPE 3 : VÉRIFIER L'INSCRIPTION AU JEU (Si ce n'est pas un pur ambassadeur externe) ---
-        // Si c'est un candidat (ou un ambassadeur qui joue), il doit être inscrit pour parrainer
+        // --- ÉTAPE 3 : VÉRIFIER L'INSCRIPTION AU JEU ---
         if (parrainId) {
              const { data: entry } = await supabaseClient
                 .from('game_entries')
@@ -2349,8 +2345,6 @@ async function verifyReferralCode() {
 
             // Si c'est un candidat classique et qu'il ne joue pas -> Erreur
             if (!entry && !isAmbassador) throw new Error("Ce parrain ne participe pas à ce jeu.");
-            
-            // Si c'est un ambassadeur qui ne joue pas -> Pas grave, on accepte (c'est son rôle)
         }
 
         // --- SUCCÈS ---
@@ -2367,7 +2361,6 @@ async function verifyReferralCode() {
         validReferralCode = null;
     }
 }
-
 
      async function handleCandidateSubmit(e) {
             e.preventDefault();
