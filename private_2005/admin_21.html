@@ -6806,48 +6806,41 @@ async function saveAwardsAndArchive() {
         updatePrizesEditor();
 
 
-        async function loadAdStats() {
-    
-    // 1. Récupérer TOUS les événements (Attention à la performance si > 10k lignes, faudra paginer ou RPC)
-    const { data: events, error } = await supabaseClient
-        .from('ad_events')
-        .select('ad_id, event_type, event_value, created_at');
+async function loadAdStats() {
+    console.log("Chargement stats pubs...");
 
-    if (error) { console.error("Erreur stats pubs:", error); return; }
-    console.log("Events reçus:", events); // <--- AJOUTE ÇA
-    // 2. Calculer les totaux
-    let views = 0, clicks = 0, time = 0;
-    const statsByAd = {}; // Map: ad_id => { views, clicks, time }
+    // 1. Appel RPC optimisé
+    const { data: stats, error } = await supabaseClient.rpc('get_ad_stats');
 
-    events.forEach(e => {
-        if (!statsByAd[e.ad_id]) statsByAd[e.ad_id] = { views: 0, clicks: 0, time: 0 };
-        
-        if (e.event_type === 'view') {
-            views++;
-            statsByAd[e.ad_id].views++;
-        } else if (e.event_type === 'click') {
-            clicks++;
-            statsByAd[e.ad_id].clicks++;
-        } else if (e.event_type === 'watch_time') {
-            time += (e.event_value || 0);
-            statsByAd[e.ad_id].time += (e.event_value || 0);
-        }
+    if (error) { console.error("Erreur stats:", error); return; }
+
+    // 2. Transformer en Map pour l'affichage facile
+    const statsByAd = {};
+    let totalViews = 0, totalClicks = 0, totalTime = 0;
+
+    stats.forEach(s => {
+        statsByAd[s.ad_id] = { 
+            views: s.views || 0, 
+            clicks: s.clicks || 0, 
+            time: s.watch_time || 0 
+        };
+        totalViews += s.views;
+        totalClicks += s.clicks;
+        totalTime += s.watch_time;
     });
 
-    // 3. Afficher les globaux
-    document.getElementById('totalAdViews').textContent = views.toLocaleString();
-    document.getElementById('totalAdClicks').textContent = clicks.toLocaleString();
-    document.getElementById('avgAdCTR').textContent = views > 0 ? ((clicks / views) * 100).toFixed(2) + '%' : '0%';
-    document.getElementById('totalAdTime').textContent = Math.round(time / 60) + ' min'; // ou format h:m:s
+    // 3. Mise à jour UI Globale
+    document.getElementById('totalAdViews').textContent = totalViews.toLocaleString();
+    document.getElementById('totalAdClicks').textContent = totalClicks.toLocaleString();
+    document.getElementById('avgAdCTR').textContent = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) + '%' : '0%';
+    document.getElementById('totalAdTime').textContent = Math.round(totalTime / 60) + ' min';
 
-    // 4. Générer le Graphique (Vues vs Clics sur 7 jours)
-    renderAdsChart(events);
-
-    // 5. Stocker les stats par pub pour l'affichage liste (étape suivante)
+    // 4. Stocker pour la liste
     window.adStatsCache = statsByAd;
-    console.log("Chargement des stats pubs..."); // <--- AJOUTE ÇA
+    
+    // (Optionnel) Recharger la liste pour afficher les nouveaux chiffres
+    // loadAds(); 
 }
-
 function renderAdsChart(events) {
     const ctx = document.getElementById('adsChart').getContext('2d');
     
