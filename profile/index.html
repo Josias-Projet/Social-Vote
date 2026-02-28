@@ -2418,7 +2418,7 @@ input, select, textarea {
                                                 </div>
                                             </div>
                                             
-                                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 15px;">
                                                 <div>
                                                     <p style="color: var(--gray); font-size: 0.9rem;">
                                                         <i class="fas fa-users"></i> ${entry.totalParticipants || 0} participants
@@ -2433,6 +2433,23 @@ input, select, textarea {
                                                     </span>
                                                 ` : ''}
                                             </div>
+
+                                            <!-- NOUVEAU : LIEN DE VOTE DIRECT -->
+                                            ${(game.status === 'active' || game.status === 'pending') ? `
+                                                <div style="margin-top:20px; padding-top:15px; border-top:1px solid #eee;">
+                                                    <label style="font-size:0.8rem; color:var(--gray); display:block; margin-bottom:5px;">
+                                                        <i class="fas fa-share-alt"></i> Ton lien de vote direct :
+                                                    </label>
+                                                    <div style="display:flex; gap:10px;">
+                                                        <input type="text" value="${window.location.origin}/vote/?vote=${entry.id}" readonly 
+                                                               style="flex:1; background:#f5f5f5; border:1px solid #ddd; padding:8px; border-radius:5px; font-size:0.85rem; color:#555;">
+                                                        <button class="btn btn-sm btn-primary" onclick="copyToClipboard('${window.location.origin}/vote/?vote=${entry.id}', 'Lien copié !')">
+                                                            <i class="fas fa-copy"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ` : ''}
+                                            
                                         </div>
                                     </div>
                                 `;
@@ -2450,8 +2467,7 @@ input, select, textarea {
                     </div>
                 `;
             }
-        }
-        
+        }        
         // ============================================
         // TAB: VOTES
         // ============================================
