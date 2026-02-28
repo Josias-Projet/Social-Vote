@@ -2590,12 +2590,43 @@ input, select, textarea {
                 // Activer les filtres
                 document.getElementById('filtersSection').style.display = 'block';
                 document.getElementById('candidatesSection').style.display = 'block';
+
+                // --- NOUVEAU BLOC : Auto-Open Vote (Gestion lien direct) ---
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetId = urlParams.get('vote');
+
+                if (targetId) {
+                    // On attend un peu que le DOM soit injecté
+                    setTimeout(() => {
+                        const card = document.querySelector(`.candidate-card[data-id="${targetId}"]`);
+                        if (card) {
+                            // Scroll fluide vers le candidat
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            
+                            // Effet visuel (Mise en avant)
+                            card.style.transition = "transform 0.5s, box-shadow 0.5s";
+                            card.style.transform = "scale(1.05)";
+                            card.style.boxShadow = "0 0 20px var(--accent)";
+                            card.style.zIndex = "10";
+                            
+                            // Ouvre le modal après le scroll (800ms)
+                            setTimeout(() => {
+                                openVoteModal(targetId);
+                                // Reset effet visuel
+                                setTimeout(() => {
+                                    card.style.transform = "";
+                                    card.style.boxShadow = "";
+                                    card.style.zIndex = "";
+                                }, 1000);
+                            }, 800);
+                        }
+                    }, 800); // Délai initial pour être sûr que tout est chargé
+                }
                 
             } catch (error) {
                 console.error('Erreur chargement candidats:', error);
             }
-        }
-        
+        }        
         function displayCandidates(filteredCandidates = null) {
             const grid = document.getElementById('candidatesGrid');
             const displayList = filteredCandidates || candidates;
