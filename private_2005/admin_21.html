@@ -2178,16 +2178,25 @@
                 <form id="addVotesForm">
                     <div class="form-group">
                         <label>Jeu <span class="required">*</span></label>
-                        <select class="form-control" id="voteGameSelect" required onchange="loadGameCandidates()">
+                        <select class="form-control" id="voteGameSelect" required onchange="loadGameCandidatesForSearch()">
                             <option value="">Sélectionnez un jeu</option>
                         </select>
                     </div>
                     
-                    <div class="form-group">
+                                        <!-- Recherche Candidat Intelligente -->
+                    <div class="form-group" style="position: relative;">
                         <label>Candidat <span class="required">*</span></label>
-                        <select class="form-control" id="voteCandidateSelect" required>
-                            <option value="">Sélectionnez un candidat</option>
-                        </select>
+                        <input type="text" class="form-control" id="voteCandidateSearch" 
+                               placeholder="Tapez un nom ou un numéro (ex: SV-123)..." 
+                               autocomplete="off" oninput="searchCandidateForVote(this.value)">
+                        
+                        <!-- Liste des résultats (Cachée par défaut) -->
+                        <div id="candidateSearchResults" style="display:none; position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid #ddd; border-radius:5px; max-height:200px; overflow-y:auto; z-index:1000; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                            <!-- Rempli par JS -->
+                        </div>
+                        
+                        <!-- ID caché du candidat sélectionné -->
+                        <input type="hidden" id="voteCandidateSelect">
                     </div>
                     
                     <div class="form-row">
@@ -7079,6 +7088,83 @@ async function revokeAmbassador(id) {
     await supabaseClient.from('ambassadors').delete().eq('id', id);
     loadAmbassadors();
 } 
+
+let allCandidatesCache = []; // Pour stocker la liste sans recharger tout le temps
+
+// Charger la liste complète au changement de jeu (optimisé)
+async function loadGameCandidatesForSearch() {
+    const gameId = document.getElementById('voteGameSelect').value;
+    if (!gameId) return;
+
+    // On vide le champ précédent
+    document.getElementById('voteCandidateSearch').value = '';
+    document.getElementById('voteCandidateSelect').value = '';
+    document.getElementById('candidateSearchResults').style.display = 'none';
+
+    // On charge TOUS les candidats approuvés/pending de ce jeu (ID, Nom, Numéro)
+    const { data: candidates, error } = await supabaseClient
+        .from('game_entries')
+        .select(`id, candidate_number, status, users:user_id(full_name)`)
+        .eq('game_id', gameId)
+        .in('status', ['approved','pending']);
+
+    if (error) { console.error(error); return; }
+    
+    allCandidatesCache = candidates || [];
+    console.log("Candidats chargés pour recherche :", allCandidatesCache.length);
+}
+
+// Fonction de recherche au clavier
+function searchCandidateForVote(query) {
+    const resultsDiv = document.getElementById('candidateSearchResults');
+    const hiddenInput = document.getElementById('voteCandidateSelect');
+    
+    // Si vide, on cache
+    if (!query || query.length < 1) {
+        resultsDiv.style.display = 'none';
+        hiddenInput.value = ''; // Reset si on efface
+        return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+    
+    // Filtrer le cache
+    const filtered = allCandidatesCache.filter(c => {
+        const name = (c.users?.full_name || '').toLowerCase();
+        const number = (c.candidate_number || '').toLowerCase();
+        return name.includes(lowerQuery) || number.includes(lowerQuery);
+    });
+
+    if (filtered.length === 0) {
+        resultsDiv.innerHTML = '<div style="padding:10px; color:#999;">Aucun candidat trouvé</div>';
+    } else {
+        resultsDiv.innerHTML = filtered.map(c => `
+            <div onclick="selectCandidateFromSearch('${c.id}', '${c.users?.full_name}', '${c.candidate_number}')" 
+                 style="padding:10px; cursor:pointer; border-bottom:1px solid #eee; transition:0.2s;">
+                <div style="font-weight:bold; color:var(--primary);">${c.users?.full_name}</div>
+                <div style="font-size:0.8rem; color:var(--gray);">${c.candidate_number} • ${c.status}</div>
+            </div>
+        `).join('');
+    }
+    
+    resultsDiv.style.display = 'block';
+}
+
+// Sélectionner un candidat
+function selectCandidateFromSearch(id, name, number) {
+    document.getElementById('voteCandidateSelect').value = id; // On remplit l'ID caché
+    document.getElementById('voteCandidateSearch').value = `${name} (${number})`; // On affiche le nom
+    document.getElementById('candidateSearchResults').style.display = 'none'; // On cache la liste
+}
+
+// Fermer la liste si on clique ailleurs
+document.addEventListener('click', function(e) {
+    const searchBox = document.getElementById('voteCandidateSearch');
+    const results = document.getElementById('candidateSearchResults');
+    if (e.target !== searchBox && e.target !== results) {
+        results.style.display = 'none';
+    }
+});
     </script>
 </body>
 </html>
