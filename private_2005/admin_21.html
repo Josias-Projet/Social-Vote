@@ -7119,37 +7119,57 @@ function searchCandidateForVote(query) {
     const resultsDiv = document.getElementById('candidateSearchResults');
     const hiddenInput = document.getElementById('voteCandidateSelect');
     
-    // Si vide, on cache
     if (!query || query.length < 1) {
         resultsDiv.style.display = 'none';
-        hiddenInput.value = ''; // Reset si on efface
+        hiddenInput.value = '';
         return;
     }
 
     const lowerQuery = query.toLowerCase();
     
-    // Filtrer le cache
+    // Filtrage
     const filtered = allCandidatesCache.filter(c => {
         const name = (c.users?.full_name || '').toLowerCase();
         const number = (c.candidate_number || '').toLowerCase();
         return name.includes(lowerQuery) || number.includes(lowerQuery);
     });
 
+    resultsDiv.innerHTML = ''; // On vide d'abord
+
     if (filtered.length === 0) {
         resultsDiv.innerHTML = '<div style="padding:10px; color:#999;">Aucun candidat trouvé</div>';
     } else {
-        resultsDiv.innerHTML = filtered.map(c => `
-            <div onclick="selectCandidateFromSearch('${c.id}', '${c.users?.full_name}', '${c.candidate_number}')" 
-                 style="padding:10px; cursor:pointer; border-bottom:1px solid #eee; transition:0.2s;">
-                <div style="font-weight:bold; color:var(--primary);">${c.users?.full_name}</div>
+        // On crée les éléments DIV en JS pur (plus sûr)
+        filtered.forEach(c => {
+            const div = document.createElement('div');
+            div.style.cssText = "padding:10px; cursor:pointer; border-bottom:1px solid #eee; transition:0.2s;";
+            div.innerHTML = `
+                <div style="font-weight:bold; color:var(--primary);">${escapeHtml(c.users?.full_name)}</div>
                 <div style="font-size:0.8rem; color:var(--gray);">${c.candidate_number} • ${c.status}</div>
-            </div>
-        `).join('');
+            `;
+            
+            // L'événement clic est attaché directement à l'objet (pas de problème de guillemets)
+            div.addEventListener('click', () => {
+                selectCandidateFromSearch(c.id, c.users?.full_name, c.candidate_number);
+            });
+            
+            resultsDiv.appendChild(div);
+        });
     }
     
     resultsDiv.style.display = 'block';
 }
 
+// Helper pour éviter l'injection HTML (si tu ne l'as pas déjà)
+function escapeHtml(text) {
+  if (!text) return text;
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 // Sélectionner un candidat
 function selectCandidateFromSearch(id, name, number) {
     document.getElementById('voteCandidateSelect').value = id; // On remplit l'ID caché
