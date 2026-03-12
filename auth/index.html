@@ -1480,6 +1480,24 @@ input, select, textarea {
         // AUTHENTIFICATION
         // ============================================
         async function checkAuth() {
+            // Priorité : session Supabase Auth native
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    const { data: profile } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+                    if (profile) {
+                        currentUser = profile;
+                        localStorage.setItem('socialvote_session', JSON.stringify(profile));
+                        return;
+                    }
+                }
+            } catch(e) {}
+            // Fallback : ancienne session localStorage
+            async function checkAuth_legacy() {
             try {
                 const session = localStorage.getItem('socialvote_session');
                 if (session) {
@@ -1501,6 +1519,8 @@ input, select, textarea {
             } catch (error) {
                 console.error('Erreur auth:', error);
             }
+            }
+            await checkAuth_legacy();
         }
         
         // ============================================
@@ -1549,77 +1569,93 @@ input, select, textarea {
         // ============================================
         async function handleLogin(e) {
             e.preventDefault();
-            
-            const identifier = document.getElementById('loginIdentifier').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            
-            showLoading('Connexion en cours...');
-            
-            try {
-                // Déterminer si c'est un email ou un téléphone
-                const isEmail = identifier.includes('@');
-                
-                // Chercher l'utilisateur
-                let query = supabaseClient.from('users').select('*');
-                
-                if (isEmail) {
-                    query = query.eq('email', identifier);
-                } else {
-                    query = query.eq('phone', identifier);
-                }
-                
-                const { data: users, error } = await query.single();
-                
-                if (error || !users) {
-                    throw new Error('Utilisateur non trouvé');
-                }
-                
-                // Vérifier le mot de passe (simple comparaison pour démo)
-                // En production, utilisez bcrypt ou l'auth Supabase
-                if (users.password_hash !== password) {
-                    throw new Error('Mot de passe incorrect');
-                }
-                
-                // Vérifier si banni
-                if (users.is_banned) {
-                    throw new Error('Votre compte a été suspendu');
-                }
-                
-                // Sauvegarder la session
-                currentUser = users;
-                localStorage.setItem('socialvote_session', JSON.stringify(users));
 
-                // === AJOUTE LE CODE ICI ===
+            const identifier = document.getElementById('loginIdentifier').value.trim();
+            const password   = document.getElementById('loginPassword').value;
+
+            showLoading('Connexion en cours...');
+
+            try {
+                // 1. Résoudre l'email (connexion possible par email OU téléphone)
+                let email = identifier;
+                if (!identifier.includes('@')) {
+                    const { data: found, error: findErr } = await supabaseClient
+                        .from('users')
+                        .select('email')
+                        .eq('phone', identifier)
+                        .single();
+                    if (findErr || !found) throw new Error('Numéro de téléphone introuvable');
+                    email = found.email;
+                }
+
+                // 2. Connexion via Supabase Auth natif (mot de passe haché bcrypt)
+                const { data: authData, error: authErr } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                // 3. Si le mot de passe est vide côté auth (utilisateur migré, jamais réinitialisé)
+                if (authErr && authErr.message === 'Invalid login credentials') {
+                    // Vérifier si l'utilisateur existe dans public.users
+                    const { data: existsCheck } = await supabaseClient
+                        .from('users')
+                        .select('id')
+                        .eq('email', email)
+                        .single();
+                    if (existsCheck) {
+                        hideLoading();
+                        showAlert('loginAlert',
+                            '🔒 Pour des raisons de sécurité, veuillez réinitialiser votre mot de passe. ' +
+                            'Cliquez sur <strong>"Mot de passe oublié"</strong> ci-dessous.',
+                            'danger');
+                        return;
+                    }
+                    throw new Error('Email ou mot de passe incorrect');
+                }
+
+                if (authErr) throw new Error('Email ou mot de passe incorrect');
+
+                // 4. Charger le profil complet depuis public.users
+                const { data: userProfile, error: profileErr } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (profileErr || !userProfile) throw new Error('Profil introuvable');
+
+                // 5. Vérifier si banni
+                if (userProfile.is_banned) throw new Error('Votre compte a été suspendu');
+
+                // 6. Sauvegarder la session (compatible avec le reste du site)
+                currentUser = userProfile;
+                localStorage.setItem('socialvote_session', JSON.stringify(userProfile));
+
+                // 7. OneSignal
                 if (window.OneSignalDeferred) {
                     window.OneSignalDeferred.push(function(OneSignal) {
-                        OneSignal.login(user.id);
-                        OneSignal.User.addTag("role", user.role);
+                        OneSignal.login(userProfile.id);
+                        OneSignal.User.addTag('role', userProfile.role);
                     });
                 }
-                // ==========================
-                                
-                // Mettre à jour la dernière connexion
+
+                // 8. Mettre à jour last_login
                 await supabaseClient
                     .from('users')
                     .update({ last_login: new Date().toISOString() })
-                    .eq('id', users.id);
-                
-                // Log
+                    .eq('id', userProfile.id);
+
                 await logActivity('login', 'Connexion réussie');
-                
+
                 hideLoading();
-                
                 showAlert('loginAlert', 'Connexion réussie ! Redirection...', 'success');
-                
-                // Redirection
+
                 setTimeout(() => {
-                    if (users.role === 'admin') {
-                        window.location.href = '/private_2005/admin_21.html';
-                    } else {
-                        window.location.href = '/';
-                    }
+                    window.location.href = userProfile.role === 'admin'
+                        ? '/private_2005/admin_21.html'
+                        : '/';
                 }, 1500);
-                
+
             } catch (error) {
                 hideLoading();
                 showAlert('loginAlert', error.message, 'danger');
@@ -1631,91 +1667,79 @@ input, select, textarea {
         // ============================================
         async function handleRegister(e) {
             e.preventDefault();
-            
-            const name = document.getElementById('registerName').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const phone = document.getElementById('registerPhone').value.trim();
+
+            const name    = document.getElementById('registerName').value.trim();
+            const email   = document.getElementById('registerEmail').value.trim();
+            const phone   = document.getElementById('registerPhone').value.trim();
             const password = document.getElementById('registerPassword').value;
-            const confirm = document.getElementById('registerConfirm').value;
-            
-            // Validation
+            const confirm  = document.getElementById('registerConfirm').value;
+
             if (password !== confirm) {
                 showAlert('registerAlert', 'Les mots de passe ne correspondent pas', 'danger');
                 return;
             }
-            
             if (password.length < 6) {
                 showAlert('registerAlert', 'Le mot de passe doit contenir au moins 6 caractères', 'danger');
                 return;
             }
-            
+
             showLoading('Création du compte...');
-            
+
             try {
-                // Vérifier si l'email existe déjà
+                // 1. Vérifier si email déjà utilisé
                 const { data: existingEmail } = await supabaseClient
-                    .from('users')
-                    .select('id')
-                    .eq('email', email)
-                    .single();
-                
-                if (existingEmail) {
-                    throw new Error('Cet email est déjà utilisé');
-                }
-                
-                // Vérifier si le téléphone existe déjà
+                    .from('users').select('id').eq('email', email).single();
+                if (existingEmail) throw new Error('Cet email est déjà utilisé');
+
+                // 2. Vérifier si téléphone déjà utilisé
                 const { data: existingPhone } = await supabaseClient
-                    .from('users')
-                    .select('id')
-                    .eq('phone', phone)
-                    .single();
-                
-                if (existingPhone) {
-                    throw new Error('Ce numéro de téléphone est déjà utilisé');
-                }
-                
-                // Créer l'utilisateur
-                const { data: newUser, error } = await supabaseClient
+                    .from('users').select('id').eq('phone', phone).single();
+                if (existingPhone) throw new Error('Ce numéro de téléphone est déjà utilisé');
+
+                // 3. Créer le compte dans Supabase Auth (mot de passe haché automatiquement)
+                const { data: authData, error: authErr } = await supabaseClient.auth.signUp({
+                    email,
+                    password
+                });
+                if (authErr) throw new Error(authErr.message);
+                if (!authData.user) throw new Error('Erreur lors de la création du compte');
+
+                // 4. Insérer dans public.users avec le MÊME id que auth.users
+                const { data: newUser, error: insertErr } = await supabaseClient
                     .from('users')
                     .insert([{
+                        id:       authData.user.id,  // même UUID que Supabase Auth
                         full_name: name,
-                        email: email,
-                        phone: phone,
-                        password_hash: password, // En production: hash avec bcrypt
+                        email,
+                        phone,
+                        password_hash: '',            // plus stocké en clair
                         role: 'user',
                         created_at: new Date().toISOString()
                     }])
                     .select()
                     .single();
-                
-                if (error) throw error;
-                
-                // Mettre à jour les stats
+
+                if (insertErr) throw insertErr;
+
+                // 5. Mettre à jour les stats
                 await updateGlobalStats('total_users', 1);
-                
-                // Log
+
+                // 6. Log + session
                 await logActivity('signup', 'Nouveau compte créé', newUser.id);
-                
-                // Sauvegarder la session
                 currentUser = newUser;
                 localStorage.setItem('socialvote_session', JSON.stringify(newUser));
-                // === AJOUTE LE CODE ICI ===
+
                 if (window.OneSignalDeferred) {
                     window.OneSignalDeferred.push(function(OneSignal) {
-                        OneSignal.login(user.id);
-                        OneSignal.User.addTag("role", user.role);
+                        OneSignal.login(newUser.id);
+                        OneSignal.User.addTag('role', newUser.role);
                     });
                 }
-                // ==========================
+
                 hideLoading();
-                
                 showAlert('registerAlert', 'Compte créé avec succès ! Redirection...', 'success');
-                
-                // Redirection
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1500);
-                
+                setTimeout(() => { window.location.href = '/'; }, 1500);
+
             } catch (error) {
                 hideLoading();
                 showAlert('registerAlert', error.message, 'danger');
@@ -2693,8 +2717,23 @@ async function verifyReferralCode() {
             }
         }
         
-        function showForgotPassword() {
-            alert('Veuillez contacter l\'administration via WhatsApp pour réinitialiser votre mot de passe.');
+        async function showForgotPassword() {
+            const email = prompt('Entrez votre adresse email pour recevoir le lien de réinitialisation :');
+            if (!email || !email.includes('@')) return;
+            showLoading('Envoi en cours...');
+            try {
+                const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/auth/'
+                });
+                hideLoading();
+                if (error) throw new Error(error.message);
+                showAlert('loginAlert',
+                    '✅ Email envoyé ! Vérifiez votre boîte mail et cliquez sur le lien pour choisir un nouveau mot de passe.',
+                    'success');
+            } catch(err) {
+                hideLoading();
+                showAlert('loginAlert', err.message, 'danger');
+            }
         }
         window.handleCandidateSubmit = handleCandidateSubmit;
 window.verifyReferralCode = verifyReferralCode;
