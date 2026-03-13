@@ -2229,7 +2229,7 @@ input, select, textarea {
                 <h4>Contact</h4>
                 <p><i class="fas fa-phone"></i> +229 01 90 08 62 67</p>
                 <p><i class="fab fa-whatsapp"></i> +229 01 40 30 47 51</p>
-                <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f2919d9c86939186dc819d919b939e849d8697b2959f939b9edc919d9f">[email&#160;protected]</a></p>
+                <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8cefe3e2f8edeff8a2ffe3efe5ede0fae3f8e9ccebe1ede5e0a2efe3e1">[email&#160;protected]</a></p>
             </div>
         </div>
         
@@ -2307,7 +2307,6 @@ input, select, textarea {
         // AUTHENTIFICATION
         // ============================================
         async function checkAuth() {
-            // 1. Essayer session Supabase Auth native
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
@@ -2317,28 +2316,39 @@ input, select, textarea {
                     if (profile) {
                         currentUser = profile;
                         localStorage.setItem('socialvote_session', JSON.stringify(profile));
+                        renderNavAuth();
+                        updateNavAuth();
                     }
                 }
             } catch(e) {}
-
-            // 2. Fallback localStorage
             if (!currentUser) {
                 try {
-                    const stored = localStorage.getItem('socialvote_session');
-                    if (stored) {
-                        currentUser = JSON.parse(stored);
+                    const session = localStorage.getItem('socialvote_session');
+                    if (session) {
+                        currentUser = JSON.parse(session);
+                        renderNavAuth();
+                        updateNavAuth();
                     }
-                } catch(e) {}
+                } catch (error) {
+                    console.error('Erreur auth:', error);
+                }
             }
+            // Dans checkAuth(), une fois que currentUser est défini :
 
-            // 3. Mettre à jour la nav + OneSignal
             if (currentUser) {
-                renderNavAuth();
-                updateNavAuth();
+                // On dit à OneSignal : "Cet utilisateur est l'ID ..."
                 if (window.OneSignal) {
                     window.OneSignal.push(function() {
+                        // 1. Lier l'ID Supabase
                         OneSignal.setExternalUserId(currentUser.id);
-                        OneSignal.sendTag("role", currentUser.role);
+                        
+                        // 2. Ajouter le tag (Candidat ou User)
+                        OneSignal.sendTag("role", currentUser.role); 
+                        
+                        // 3. (Optionnel) Si c'est un candidat, on ajoute son ID de profil pour les votes
+                        if (candidateProfile) {
+                            OneSignal.sendTag("candidate_id", candidateProfile.id);
+                        }
                     });
                 }
             }
@@ -2388,7 +2398,7 @@ input, select, textarea {
                 navAuth.innerHTML = `
                     <a href="/profile/" class="btn btn-outline">
                         <i class="fas fa-user"></i>
-                        ${currentUser.full_name.split(' ')[0]}
+                        ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
                     </a>
                     <button class="btn btn-primary" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
@@ -2397,10 +2407,11 @@ input, select, textarea {
             }
         }
         
-        function logout() {
-            localStorage.removeItem('socialvote_session');
-            window.location.reload();
-        }
+        async function logout() {
+    try { await supabaseClient.auth.signOut(); } catch(e) {}
+    localStorage.removeItem('socialvote_session');
+    window.location.href = '/';
+}
         
         // ============================================
         // NAVBAR
@@ -3164,7 +3175,7 @@ function renderNavAuth() {
         <i class="fas fa-star"></i> S'inscrire comme candidat
       </a>
       <a href="/profile/" class="btn btn-outline btn-sm">
-        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+        <i class="fas fa-user"></i> ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
       </a>
       <button class="btn btn-outline btn-sm" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
