@@ -1454,7 +1454,25 @@ input, select, textarea {
         document.addEventListener('DOMContentLoaded', async () => {
             initTabs();
             initForms();
-            
+
+            // ── Détection lien de reset password ──────────────────────
+            const hash = window.location.hash;
+            if (hash.includes('type=recovery') || hash.includes('type=email_change')) {
+                // Extraire le access_token du hash
+                const hashParams = new URLSearchParams(hash.replace('#', ''));
+                const accessToken = hashParams.get('access_token');
+                if (accessToken) {
+                    // Définir la session avec ce token
+                    await supabaseClient.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: hashParams.get('refresh_token') || ''
+                    });
+                    showResetPasswordForm();
+                    return; // Ne pas continuer l'init normale
+                }
+            }
+            // ──────────────────────────────────────────────────────────
+
             const urlParams = new URLSearchParams(window.location.search);
             const tab = urlParams.get('tab');
             const refCode = urlParams.get('ref');
@@ -1523,6 +1541,85 @@ input, select, textarea {
             await checkAuth_legacy();
         }
         
+        // ============================================
+        // RESET PASSWORD (depuis lien email)
+        // ============================================
+        function showResetPasswordForm() {
+            // Cacher toute la structure tabs/panels
+            document.querySelector('.auth-tabs').style.display = 'none';
+            document.querySelectorAll('.auth-panel').forEach(p => p.style.display = 'none');
+
+            // Injecter le formulaire de reset dans auth-content
+            const content = document.querySelector('.auth-content');
+            content.innerHTML = `
+                <div class="auth-panel active" style="display:block;">
+                    <div class="auth-header">
+                        <h2>🔐 Nouveau mot de passe</h2>
+                        <p>Choisissez un mot de passe sécurisé pour votre compte</p>
+                    </div>
+                    <div id="resetAlert"></div>
+                    <div class="form-group">
+                        <label>Nouveau mot de passe <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="newPassword" placeholder="Min. 6 caractères" minlength="6" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer le mot de passe <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmNewPassword" placeholder="Répétez le mot de passe" minlength="6" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmNewPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="handleResetPassword()" style="width:100%;margin-top:8px;">
+                        <i class="fas fa-check"></i> Enregistrer le nouveau mot de passe
+                    </button>
+                </div>
+            `;
+        }
+
+        async function handleResetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword.length < 6) {
+                showAlert('resetAlert', 'Le mot de passe doit contenir au moins 6 caractères', 'danger');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showAlert('resetAlert', 'Les mots de passe ne correspondent pas', 'danger');
+                return;
+            }
+
+            showLoading('Mise à jour du mot de passe...');
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+                if (error) throw new Error(error.message);
+
+                // Vider aussi password_hash dans public.users
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    await supabaseClient.from('users').update({ password_hash: '' }).eq('id', user.id);
+                }
+
+                hideLoading();
+                showAlert('resetAlert', '✅ Mot de passe mis à jour ! Redirection vers la connexion...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/auth/';
+                }, 2500);
+            } catch (error) {
+                hideLoading();
+                showAlert('resetAlert', error.message, 'danger');
+            }
+        }
+
         // ============================================
         // TABS
         // ============================================
@@ -2798,6 +2895,80 @@ document.addEventListener('DOMContentLoaded', () => Analytics.init());
 window.addEventListener('beforeunload', () => {
     if (Analytics.heartbeatInterval) clearInterval(Analytics.heartbeatInterval);
 });
+
+        // ============================================
+        // RESET PASSWORD FORM (retour du lien email)
+        // ============================================
+        function showResetPasswordForm() {
+            document.querySelector('.auth-tabs').style.display = 'none';
+            document.querySelector('.auth-content').innerHTML = `
+                <div class="auth-panel active" style="display:block;">
+                    <div class="auth-header">
+                        <h2>🔐 Nouveau mot de passe</h2>
+                        <p>Choisissez un nouveau mot de passe sécurisé</p>
+                    </div>
+                    <div id="resetAlert"></div>
+                    <div class="form-group">
+                        <label>Nouveau mot de passe <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="newPassword" placeholder="Min. 6 caractères" minlength="6">
+                            <button type="button" class="toggle-password" onclick="togglePassword('newPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmer le mot de passe <span class="required">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirmPassword" placeholder="Confirmez votre mot de passe" minlength="6">
+                            <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="handleResetPasswordSubmit()" style="width:100%;margin-top:8px;">
+                        <i class="fas fa-check"></i> Enregistrer le nouveau mot de passe
+                    </button>
+                </div>
+            `;
+        }
+
+        async function handleResetPasswordSubmit() {
+            const newPassword     = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword.length < 6) {
+                showAlert('resetAlert', 'Le mot de passe doit contenir au moins 6 caractères', 'danger');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showAlert('resetAlert', 'Les mots de passe ne correspondent pas', 'danger');
+                return;
+            }
+
+            showLoading('Enregistrement...');
+            try {
+                const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+                if (error) throw new Error(error.message);
+
+                // Vider le password_hash dans public.users
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    await supabaseClient.from('users').update({ password_hash: '' }).eq('id', user.id);
+                }
+
+                hideLoading();
+                showAlert('resetAlert', '✅ Mot de passe mis à jour avec succès ! Redirection...', 'success');
+                setTimeout(() => { window.location.href = '/auth/'; }, 2000);
+            } catch (error) {
+                hideLoading();
+                showAlert('resetAlert', error.message, 'danger');
+            }
+        }
+
+        window.handleResetPasswordSubmit = handleResetPasswordSubmit;
 
         window.onerror = function(msg, url, line) {
     supabaseClient.from('activity_logs').insert([{
