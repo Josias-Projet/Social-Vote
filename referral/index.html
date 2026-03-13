@@ -1660,26 +1660,32 @@ input, select, textarea {
         // ============================================
         async function checkAuth() {
             try {
-                const session = localStorage.getItem('socialvote_session');
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
-                    currentUser = JSON.parse(session);
-                    renderNavAuth();
-                    updateNavAuth();
-                    
-                    // Vérifier si candidat
                     const { data: profile } = await supabaseClient
-                        .from('candidate_profiles')
-                        .select('*')
-                        .eq('user_id', currentUser.id)
-                        .single();
-                    
+                        .from('users').select('*').eq('id', session.user.id).single();
                     if (profile) {
-                        candidateProfile = profile;
-                        await loadReferralData();
+                        currentUser = profile;
+                        localStorage.setItem('socialvote_session', JSON.stringify(profile));
                     }
                 }
-            } catch (error) {
-                console.error('Erreur auth:', error);
+            } catch(e) {}
+            if (!currentUser) {
+                try {
+                    const stored = localStorage.getItem('socialvote_session');
+                    if (stored) currentUser = JSON.parse(stored);
+                } catch(e) {}
+            }
+            if (currentUser) {
+                renderNavAuth();
+                updateNavAuth();
+                const { data: profile } = await supabaseClient
+                    .from('candidate_profiles').select('*')
+                    .eq('user_id', currentUser.id).single();
+                if (profile) {
+                    candidateProfile = profile;
+                    await loadReferralData();
+                }
             }
         }
         
@@ -1727,7 +1733,7 @@ input, select, textarea {
                 navAuth.innerHTML = `
                     <a href="/profile/" class="btn btn-outline btn-sm">
                         <i class="fas fa-user"></i>
-                        ${currentUser.full_name.split(' ')[0]}
+                        ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
                     </a>
                     <button class="btn btn-primary btn-sm" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
@@ -1736,9 +1742,10 @@ input, select, textarea {
             }
         }
         
-        function logout() {
+        async function logout() {
+            try { await supabaseClient.auth.signOut(); } catch(e) {}
             localStorage.removeItem('socialvote_session');
-            window.location.reload();
+            window.location.href = '/';
         }
         
         // ============================================
@@ -2246,7 +2253,7 @@ input, select, textarea {
         <i class="fas fa-star"></i> S'inscrire comme candidat
       </a>
       <a href="/profile/" class="btn btn-outline btn-sm">
-        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+        <i class="fas fa-user"></i> ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
       </a>
       <button class="btn btn-outline btn-sm" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
