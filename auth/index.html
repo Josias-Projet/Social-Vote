@@ -2846,7 +2846,8 @@ async function verifyReferralCode() {
                 hideLoading();
                 if (error) throw new Error(error.message);
                 showAlert('loginAlert',
-                    '✅ Email envoyé ! Vérifiez votre boîte mail et cliquez sur le lien pour choisir un nouveau mot de passe.',
+                    '✅ Email envoyé ! Vérifiez votre boîte mail et cliquez sur le lien pour choisir un nouveau mot de passe.' +
+                    '<br><br>📩 <strong>Vous ne voyez pas l'email ?</strong> Pensez à vérifier votre dossier <strong>Spam</strong> ou <strong>Courrier indésirable</strong>.',
                     'success');
             } catch(err) {
                 hideLoading();
