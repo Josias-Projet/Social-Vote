@@ -2229,7 +2229,7 @@ input, select, textarea {
                 <h4>Contact</h4>
                 <p><i class="fas fa-phone"></i> +229 01 90 08 62 67</p>
                 <p><i class="fab fa-whatsapp"></i> +229 01 40 30 47 51</p>
-                <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8cefe3e2f8edeff8a2ffe3efe5ede0fae3f8e9ccebe1ede5e0a2efe3e1">[email&#160;protected]</a></p>
+                <p><i class="fas fa-envelope"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f2919d9c86939186dc819d919b939e849d8697b2959f939b9edc919d9f">[email&#160;protected]</a></p>
             </div>
         </div>
         
@@ -2307,6 +2307,7 @@ input, select, textarea {
         // AUTHENTIFICATION
         // ============================================
         async function checkAuth() {
+            // 1. Essayer session Supabase Auth native
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
@@ -2316,39 +2317,28 @@ input, select, textarea {
                     if (profile) {
                         currentUser = profile;
                         localStorage.setItem('socialvote_session', JSON.stringify(profile));
-                        renderNavAuth();
-                        updateNavAuth();
                     }
                 }
             } catch(e) {}
+
+            // 2. Fallback localStorage
             if (!currentUser) {
                 try {
-                    const session = localStorage.getItem('socialvote_session');
-                    if (session) {
-                        currentUser = JSON.parse(session);
-                        renderNavAuth();
-                        updateNavAuth();
+                    const stored = localStorage.getItem('socialvote_session');
+                    if (stored) {
+                        currentUser = JSON.parse(stored);
                     }
-                } catch (error) {
-                    console.error('Erreur auth:', error);
-                }
+                } catch(e) {}
             }
-            // Dans checkAuth(), une fois que currentUser est défini :
 
+            // 3. Mettre à jour la nav + OneSignal
             if (currentUser) {
-                // On dit à OneSignal : "Cet utilisateur est l'ID ..."
+                renderNavAuth();
+                updateNavAuth();
                 if (window.OneSignal) {
                     window.OneSignal.push(function() {
-                        // 1. Lier l'ID Supabase
                         OneSignal.setExternalUserId(currentUser.id);
-                        
-                        // 2. Ajouter le tag (Candidat ou User)
-                        OneSignal.sendTag("role", currentUser.role); 
-                        
-                        // 3. (Optionnel) Si c'est un candidat, on ajoute son ID de profil pour les votes
-                        if (candidateProfile) {
-                            OneSignal.sendTag("candidate_id", candidateProfile.id);
-                        }
+                        OneSignal.sendTag("role", currentUser.role);
                     });
                 }
             }
