@@ -1886,30 +1886,36 @@ input, select, textarea {
         // --- 3. AUTH & LOGIQUE AMBASSADEUR ---
         async function checkAuth() {
             try {
-                const session = localStorage.getItem('socialvote_session');
-                if (!session) { window.location.href = '/auth/'; return; }
-                
-                currentUser = JSON.parse(session);
-                renderNavAuth(); // Ta fonction globale pour le menu
-                renderNavbarMobileUser(); // Ta fonction globale mobile
+                let userId = null;
+                try {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (session) userId = session.user.id;
+                } catch(e) {}
+                if (!userId) {
+                    const stored = localStorage.getItem('socialvote_session');
+                    if (stored) userId = JSON.parse(stored).id;
+                }
+                if (!userId) { window.location.href = '/auth/'; return; }
 
-                // Vérifier si Ambassadeur
+                const { data: userData } = await supabaseClient
+                    .from('users').select('*').eq('id', userId).single();
+                if (userData) {
+                    currentUser = userData;
+                    localStorage.setItem('socialvote_session', JSON.stringify(userData));
+                }
+
+                renderNavAuth();
+                renderNavbarMobileUser();
+
                 const { data: ambassador, error } = await supabaseClient
-                    .from('ambassadors')
-                    .select('*')
-                    .eq('id', currentUser.id)
-                    .single();
+                    .from('ambassadors').select('*').eq('id', userId).single();
 
                 const loader = document.getElementById('loader');
-                
                 if (error || !ambassador || !ambassador.is_active) {
-                    // Pas ambassadeur
-loader.style.display = 'none';;
+                    loader.style.display = 'none';
                     document.getElementById('notAmbassadorMsg').style.display = 'block';
                     return;
                 }
-
-                // C'est un ambassadeur !
                 initAmbassadorDashboard(ambassador);
                 loader.classList.add('hidden');
 
@@ -2042,7 +2048,7 @@ loader.style.display = 'none';;
         }
 
         // --- 4. UTILITAIRES ---
-        function logout() { localStorage.removeItem('socialvote_session'); window.location.href = '/'; }
+        async function logout() { try { await supabaseClient.auth.signOut(); } catch(e) {} localStorage.removeItem('socialvote_session'); window.location.href = '/'; }
         
         function copyCode() {
             const code = document.getElementById('ambCode').textContent;
@@ -2111,7 +2117,7 @@ function renderNavAuth() {
         <i class="fas fa-star"></i> S'inscrire comme candidat
       </a>
       <a href="profile.html" class="btn btn-outline btn-sm">
-        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+        <i class="fas fa-user"></i> ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
       </a>
       <button class="btn btn-outline btn-sm" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
