@@ -2204,16 +2204,27 @@ input, select, textarea {
         // ============================================
         async function checkAuth() {
             try {
-                const session = localStorage.getItem('socialvote_session');
+                const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session) {
-                    currentUser = JSON.parse(session);
-                    renderNavAuth();
-                    updateUserStatusBar();
-                    updateNavAuth();
-                    await loadUserVotes();
+                    const { data: profile } = await supabaseClient
+                        .from('users').select('*').eq('id', session.user.id).single();
+                    if (profile) {
+                        currentUser = profile;
+                        localStorage.setItem('socialvote_session', JSON.stringify(profile));
+                    }
                 }
-            } catch (error) {
-                console.error('Erreur auth:', error);
+            } catch(e) {}
+            if (!currentUser) {
+                try {
+                    const stored = localStorage.getItem('socialvote_session');
+                    if (stored) currentUser = JSON.parse(stored);
+                } catch(e) {}
+            }
+            if (currentUser) {
+                renderNavAuth();
+                updateUserStatusBar();
+                updateNavAuth();
+                await loadUserVotes();
             }
         }
         
@@ -2262,7 +2273,7 @@ input, select, textarea {
             if (currentUser) {
                 userInfo.innerHTML = `
                     <img src="${currentUser.photo_url || 'https://placehold.co/35x35?text=U'}" alt="${currentUser.full_name}">
-                    <span>Bonjour, <strong>${currentUser.full_name.split(' ')[0]}</strong></span>
+                    <span>Bonjour, <strong>${(currentUser.full_name || 'Mon compte').split(' ')[0]}</strong></span>
                 `;
                 
                 userStats.innerHTML = `
@@ -2284,7 +2295,7 @@ input, select, textarea {
                 navAuth.innerHTML = `
                     <a href="/profile/" class="btn btn-outline btn-sm">
                         <i class="fas fa-user"></i>
-                        ${currentUser.full_name.split(' ')[0]}
+                        ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
                     </a>
                     <button class="btn btn-primary btn-sm" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i>
@@ -2293,9 +2304,10 @@ input, select, textarea {
             }
         }
         
-        function logout() {
+        async function logout() {
+            try { await supabaseClient.auth.signOut(); } catch(e) {}
             localStorage.removeItem('socialvote_session');
-            window.location.reload();
+            window.location.href = '/';
         }
         
         async function loadUserVotes() {
@@ -3393,7 +3405,7 @@ input, select, textarea {
         <i class="fas fa-star"></i> S'inscrire comme candidat
       </a>
       <a href="/profile/" class="btn btn-outline btn-sm">
-        <i class="fas fa-user"></i> ${currentUser.full_name.split(' ')[0]}
+        <i class="fas fa-user"></i> ${(currentUser.full_name || 'Mon compte').split(' ')[0]}
       </a>
       <button class="btn btn-outline btn-sm" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
