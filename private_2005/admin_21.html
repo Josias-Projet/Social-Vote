@@ -2641,44 +2641,58 @@ async function sendNotification(message, filters = [], title = "Social Vote", ex
         // ============================================
         async function checkAdminAuth() {
             try {
-                const session = localStorage.getItem('socialvote_session');
-                if (!session) {
+                // 1. Priorité : session Supabase Auth native
+                let userId = null;
+                try {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (session) userId = session.user.id;
+                } catch(e) {}
+
+                // 2. Fallback localStorage
+                if (!userId) {
+                    const stored = localStorage.getItem('socialvote_session');
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        userId = parsed.id;
+                    }
+                }
+
+                if (!userId) {
                     window.location.href = '..//auth/';
                     return;
                 }
-                
-                adminUser = JSON.parse(session);
-                
-                // Verify admin role
+
+                // 3. Vérifier que c'est bien un admin dans public.users
                 const { data: user, error } = await supabaseClient
                     .from('users')
                     .select('*')
-                    .eq('id', adminUser.id)
+                    .eq('id', userId)
                     .eq('role', 'admin')
                     .single();
-                
+
                 if (error || !user) {
-                    localStorage.removeItem('socialvote_session');
                     window.location.href = '..//auth/';
                     return;
                 }
-                
+
                 adminUser = user;
-                
-                // Update header
+                localStorage.setItem('socialvote_session', JSON.stringify(user));
+
+                // 4. Mettre à jour le header
                 document.getElementById('adminPhoto').src = adminUser.photo_url || 'https://placehold.co/40x40?text=A';
-                document.getElementById('adminName').textContent = adminUser.full_name;
-                
-                // Load dashboard
+                document.getElementById('adminName').textContent = adminUser.full_name || 'Admin';
+
+                // 5. Charger le dashboard
                 await loadDashboard();
-                
+
             } catch (error) {
                 console.error('Auth error:', error);
                 window.location.href = '..//auth/';
             }
         }
-        
-        function logout() {
+
+        async function logout() {
+            try { await supabaseClient.auth.signOut(); } catch(e) {}
             localStorage.removeItem('socialvote_session');
             window.location.href = '..//';
         }
