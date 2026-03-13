@@ -1713,13 +1713,30 @@ input, select, textarea {
                 if (authErr) throw new Error('Email ou mot de passe incorrect');
 
                 // 4. Charger le profil complet depuis public.users
-                const { data: userProfile, error: profileErr } = await supabaseClient
+                let { data: userProfile, error: profileErr } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('id', authData.user.id)
                     .single();
 
-                if (profileErr || !userProfile) throw new Error('Profil introuvable');
+                // Fallback : chercher par email si l'ID ne correspond pas
+                if (profileErr || !userProfile) {
+                    const { data: userByEmail, error: emailErr } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('email', email)
+                        .single();
+
+                    if (emailErr || !userByEmail) throw new Error('Profil introuvable. Contactez le support.');
+                    userProfile = userByEmail;
+
+                    // Mettre à jour l'ID dans public.users pour correspondre à auth.users
+                    await supabaseClient
+                        .from('users')
+                        .update({ id: authData.user.id })
+                        .eq('email', email);
+                    userProfile.id = authData.user.id;
+                }
 
                 // 5. Vérifier si banni
                 if (userProfile.is_banned) throw new Error('Votre compte a été suspendu');
