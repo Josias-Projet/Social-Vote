@@ -2641,48 +2641,44 @@ async function sendNotification(message, filters = [], title = "Social Vote", ex
         // ============================================
         async function checkAdminAuth() {
             try {
-                // 1. Priorité : session Supabase Auth native
-                let userId = null;
+                let adminData = null;
+
+                // 1. Essayer session Supabase Auth native
                 try {
                     const { data: { session } } = await supabaseClient.auth.getSession();
-                    if (session) userId = session.user.id;
+                    if (session) {
+                        const { data: profile } = await supabaseClient
+                            .from('users').select('*').eq('id', session.user.id).single();
+                        if (profile) adminData = profile;
+                    }
                 } catch(e) {}
 
                 // 2. Fallback localStorage
-                if (!userId) {
+                if (!adminData) {
                     const stored = localStorage.getItem('socialvote_session');
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        userId = parsed.id;
-                    }
+                    if (stored) adminData = JSON.parse(stored);
                 }
 
-                if (!userId) {
+                // 3. Pas de session du tout
+                if (!adminData) {
                     window.location.href = '..//auth/';
                     return;
                 }
 
-                // 3. Vérifier que c'est bien un admin dans public.users
-                const { data: user, error } = await supabaseClient
-                    .from('users')
-                    .select('*')
-                    .eq('id', userId)
-                    .eq('role', 'admin')
-                    .single();
-
-                if (error || !user) {
-                    window.location.href = '..//auth/';
+                // 4. Vérifier le role admin (depuis les données déjà chargées)
+                if (adminData.role !== 'admin') {
+                    window.location.href = '..//';
                     return;
                 }
 
-                adminUser = user;
-                localStorage.setItem('socialvote_session', JSON.stringify(user));
+                adminUser = adminData;
+                localStorage.setItem('socialvote_session', JSON.stringify(adminData));
 
-                // 4. Mettre à jour le header
+                // 5. Mettre à jour le header
                 document.getElementById('adminPhoto').src = adminUser.photo_url || 'https://placehold.co/40x40?text=A';
                 document.getElementById('adminName').textContent = adminUser.full_name || 'Admin';
 
-                // 5. Charger le dashboard
+                // 6. Charger le dashboard
                 await loadDashboard();
 
             } catch (error) {
