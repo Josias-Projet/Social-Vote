@@ -1511,10 +1511,7 @@ input, select, textarea {
                         currentUser = profile;
                         localStorage.setItem('socialvote_session', JSON.stringify(profile));
                         // Déjà connecté → rediriger
-                        window.location.href = profile.role === 'admin'
-                            ? '/private_2005/admin_21.html'
-                            : '/';
-                        return;
+                        
                     }
                 }
             } catch(e) {}
